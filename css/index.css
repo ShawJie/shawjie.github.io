@@ -81,6 +81,11 @@ body {
       font-weight: bolder; }
       #nav > .header > .title:hover {
         opacity: .7; }
+    #nav > .header > .subtitle {
+      font-size: 18px;
+      color: #282923;
+      display: block;
+      margin: 5px 0; }
   #nav > .ctnWrap {
     display: flex;
     flex-wrap: wrap;
