@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>并发控制 - 乐观/悲观锁 | Shaw&#39;s Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="shortcut icon" type="image/ico" href="https://www.flaticon.com/premium-icon/icons/svg/1886/1886189.svg">
+  <meta name="description" content="在互联网高速发展的今天，网络流量所带来的效益愈发明显，但是高流量所带来一个必然的联系就是高并发，而现代系统对于并发的处理有很多种方式，譬如多线程、异步调用、核心功能加锁、消息队列等，这篇文章主要就谈论一下处理高并发的两种思路，乐观锁（Optimistic Locking）和悲观锁（Pessimistic Concurrency Control）  并发问题 为了应对并发，开发者提出了事务的概念，">
+<meta name="keywords" content="并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并发控制 - 乐观&#x2F;悲观锁">
+<meta property="og:url" content="http://yoursite.com/2019/08/08/concurrenty-pcc-ol/index.html">
+<meta property="og:site_name" content="Shaw&#39;s Log">
+<meta property="og:description" content="在互联网高速发展的今天，网络流量所带来的效益愈发明显，但是高流量所带来一个必然的联系就是高并发，而现代系统对于并发的处理有很多种方式，譬如多线程、异步调用、核心功能加锁、消息队列等，这篇文章主要就谈论一下处理高并发的两种思路，乐观锁（Optimistic Locking）和悲观锁（Pessimistic Concurrency Control）  并发问题 为了应对并发，开发者提出了事务的概念，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-08-08T15:05:07.494Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="并发控制 - 乐观&#x2F;悲观锁">
+<meta name="twitter:description" content="在互联网高速发展的今天，网络流量所带来的效益愈发明显，但是高流量所带来一个必然的联系就是高并发，而现代系统对于并发的处理有很多种方式，譬如多线程、异步调用、核心功能加锁、消息队列等，这篇文章主要就谈论一下处理高并发的两种思路，乐观锁（Optimistic Locking）和悲观锁（Pessimistic Concurrency Control）  并发问题 为了应对并发，开发者提出了事务的概念，">
+  
+  <link rel="stylesheet" href="/css/index.css">
+</head>
+</html>
+<body style="
+
+
+  background-color: #eff0f6
+
+">
+  <div id="container">
+    <nav id="nav">
+  <header class="header">
+    <a href="/" class="title">Shaw&#39;s Log</a>
+    <span class="subtitle">talk is cheap, show me your code</span>
+  </header>
+  <div class="ctnWrap">
+    <div class="icons">
+      
+        
+          
+            <a href="https://github.com/ShawJie" target="_blank" class="nav-icn iconfont icon-github"></a>
+          
+        
+      
+    </div>
+    <div class="menu">
+      
+        
+            <a href="/" class="nav-menu ">HOME</a>
+          
+        
+            <a href="/archives" class="nav-menu ">ARCHIVE</a>
+          
+        
+            <a href="/about" class="nav-menu ">ABOUT</a>
+          
+        
+      
+    </div>
+  </div>
+</nav>
+    <div id="main"><section class="article">
+  <h2 class="title">并发控制 - 乐观/悲观锁</h2>
+  <p class="sub">8月 8, 2019</p>
+  <article class="content">
+    <blockquote>
+<p>在互联网高速发展的今天，网络流量所带来的效益愈发明显，但是高流量所带来一个必然的联系就是高并发，而现代系统对于并发的处理有很多种方式，譬如多线程、异步调用、核心功能加锁、消息队列等，这篇文章主要就谈论一下处理高并发的两种思路，乐观锁（Optimistic Locking）和悲观锁（Pessimistic Concurrency Control）</p>
+</blockquote>
+<h2 id="并发问题"><a href="#并发问题" class="headerlink" title="并发问题"></a>并发问题</h2><blockquote>
+<p>为了应对并发，开发者提出了事务的概念，以完成原子性的操作。但是在事务进行的过程中，同样也会产生很多问题，譬如脏读，不可重复读，幻读等，当然也就有不同的事务隔离级别去解决对应的问题。</p>
+</blockquote>
+<h3 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h3><p>脏读，指线程A在通过事务修改对象O的状态但未提交时，线程B获取到了对象O未被修改时的状态，这时候线程B读取到的数据就是脏数据，而根据脏数据所进行的操作，无法保证其的正确性。</p>
+<p>举一个简单的栗子：<br>用户A在某电商平台下单了一件商品，根据后台的业务逻辑，对应工作者线程将会开启一个事务，扣除所对应的库存数量，但同一时间，用户B也下单可同样的物品，在用户A线程提交库存扣除事务之前获取到了库存数量，之后执行了下单操作，可想而知用户B所对应的工作者线程执行的一系列操作都是不正确的。</p>
+<h3 id="不可重复读"><a href="#不可重复读" class="headerlink" title="不可重复读"></a>不可重复读</h3><p>不可重复读，指线程A在同一个事务中，两次完全相同的数据读取操作，获取到了不一样的数据，原因可能是在线程A执行事务的过程中，线程B对统一数据提交了事务，导致两次获取数据不一样。</p>
+<h3 id="幻读"><a href="#幻读" class="headerlink" title="幻读"></a>幻读</h3><p>幻读，和不可重复读类似但其中又有所区别，同一个事务内多次查询返回的结果集不一样（比如增加了或者减少了行记录）。</p>
+<h2 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h2><blockquote>
+<p>悲观锁，又叫悲观并发控制（PCC），该锁类似Java的显式加锁，之所以叫悲观锁，是因为对数据修改持有悲观态度的并发控制，一般认为数据被并发修改的几率比较大，需要加锁才能保证修改时的数据一致性。</p>
+</blockquote>
+<p>悲观锁实例：<br>线程A、B并发修改数据O -&gt; 线程A获取到锁，进行修改数据状态操作 -&gt; 线程A释放锁，线程B获得锁，进行数据状态修改操作 -&gt; 线程B释放锁 -&gt; 修改操作完成</p>
+<p>由于对数据进行了显式加锁，除了会产生额外的开销以外，还会降低处理效率，增加死锁几率。所以在目前信息系统种，很少会再使用悲观锁。</p>
+<h3 id="悲观锁实现"><a href="#悲观锁实现" class="headerlink" title="悲观锁实现"></a>悲观锁实现</h3><p>悲观锁大多的实现方式都是基于数据库的，即：</p>
+<ul>
+<li>在执行操作之前先给数据加排他锁，若加锁失败视业务要求进行等待或者抛出异常</li>
+<li>加锁成功后执行数据更新修改操作，事务提交后会自动释放锁</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 开启事务</span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line">// FOR <span class="keyword">UPDATE</span> 加锁</span><br><span class="line"><span class="keyword">SELECT</span> amount <span class="keyword">FROM</span> goods <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line">// 进行数据操作</span><br><span class="line"><span class="keyword">UPDATE</span> goods <span class="keyword">SET</span> amount = <span class="number">15</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span>;</span><br><span class="line">// 提交释放锁</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+
+<p>通过FOR UPDATE建立一个排他锁，在事务提交前，无法对操作数据进行操作以保证数据的一致性。</p>
+<div style="border:3px solid #ccc;padding: 2px 5px;border-radius: 10px;"><span style="position: relative; top: -1rem;background-color:#fff;padding:0 10px">Tip</span>Mysql在Sql有用到索引的表数据时，会使用行级锁，其它时间会用表级锁。
+</div>
+
+
+<h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><blockquote>
+<p>乐观锁的乐观，是相对于悲观锁的悲观而存在的。乐观锁假设数据一般情况下不会造成冲突，所以在数据进行提交更新的时候，才会正式对数据的冲突与否进行检测，如果发现冲突了，则让返回用户错误的信息，让用户决定如何去做。</p>
+</blockquote>
+<p>乐观锁实例：<br>线程A、线程B并发读取数据并进行操作 -&gt; 线程A完成操作，进行数据版本检测，若无冲突，则提交事务 -&gt; 线程B完成操作，进行版本检测，检测有冲突，不提交并返回异常</p>
+<p>￼乐观并发控制相信事务之间的数据竞争(data race)的概率是比较小的，因此尽可能直接做下去，直到提交的时候才去锁定</p>
+<h3 id="乐观锁实现"><a href="#乐观锁实现" class="headerlink" title="乐观锁实现"></a>乐观锁实现</h3><p>乐观锁的主要实现方式为冲突检测，CAS(Compare and swap)，CAS是项乐观锁技术，当多个线程尝试使用CAS同时更新同一个变量时，只有其中一个线程能更新变量的值，而其它线程都失败，失败的线程并不会被挂起，而是被告知这次竞争中失败，并可以再次尝试。</p>
+<p>简单乐观锁实现:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 得知amount = 4</span><br><span class="line"><span class="keyword">SELECT</span> amount <span class="keyword">FROM</span> goods <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> goods <span class="keyword">SET</span> amount = <span class="number">2</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span> <span class="keyword">AND</span> amount = <span class="number">4</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这样就完成了不加锁的数据更新，若数据一致，则更新，数据不一致，则为过期数据，可以重新发起请求。但这样解决会引发ABA问题。</p>
+<h4 id="ABA问题"><a href="#ABA问题" class="headerlink" title="ABA问题"></a>ABA问题</h4><p>ABA问题指线程A读取到数据amount数值为4，开始进行相关操作，线程B在同时修改了amount为2，又将amount修改为4，此时A线程操作执行完成，判断amount是否等于4，等于则更新。这时候就产生了ABA问题，虽然线程A完成了数据更新，但不能保证过程的正确性。</p>
+<h4 id="解决ABA问题"><a href="#解决ABA问题" class="headerlink" title="解决ABA问题"></a>解决ABA问题</h4><p>为了确认数据版本和第一次获取时一致，可以增加Version字段，在更新数据时同步更新Version字段状态，这样可以保证能知晓数据版本是否一致的问题。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// amount = 4, version = 1</span><br><span class="line"><span class="keyword">SELECT</span> amount, <span class="keyword">version</span> <span class="keyword">FROM</span> goods <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> goods <span class="keyword">SET</span> amount = <span class="number">3</span>, <span class="keyword">version</span> = <span class="number">2</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span> <span class="keyword">AND</span> <span class="keyword">version</span> = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>虽然增加version的操作可以保证数据版本的一致，但是这样就会造成大量的数据修改失败，这样同样会降低大量的处理效率。</p>
+<p>故而产生了以下解决方案：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// amount = 4</span><br><span class="line"><span class="keyword">SELECT</span> amount <span class="keyword">FROM</span> goods <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> goods <span class="keyword">SET</span> amount = amount - <span class="number">1</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span> <span class="keyword">AND</span> amount &gt; <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p>即解决了Version字段表入侵，又解决了大量修改失败的问题。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>乐观锁其实并不是真正的锁，只是一种并发控制思路，所以效率相较于普通的锁来说更高，但是限制粒度不掌握好，就会导致大量的业务失败。<br>而悲观锁虽然能保证数据的一致性，但是效率过低，不建议使用。</p>
+
+  </article>
+  <footer class="f-cf">
+    
+    
+      <a href="/2019/07/15/Immuteable-object/" class="link f-fr">Immuteable Object - 不可变对象⟶</a>
+    
+  </footer>
+</section></div>
+    <footer id="footer" class="f-cf">
+  Loverconcerto@outlook.com
+  
+    
+      
+        · <a href="https://github.com/ShawJie" target="_blank" class="nav-icn">GitHub</a>
+      
+    
+  
+  <span class="copyright">All rights reserved @Clover Tuan</span>
+</footer>
+  </div>
+</body>
+</html>
