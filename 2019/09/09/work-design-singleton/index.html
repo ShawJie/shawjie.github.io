@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>工作中用到的设计模式(一)：单例模式 | Shaw&#39;s Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="shortcut icon" type="image/ico" href="https://www.flaticon.com/premium-icon/icons/svg/1886/1886189.svg">
+  <meta name="description" content="近期在工作中为了完成需求开发，同时为了把代码写得稍许优雅一些，应用到了一些设计模式。借此契机就在这记录一下运用的设计模式，以及一些运用时需要注意的地方。Ps：这部分内容大概会以系列形式进行不定期更新，所有内容的设计模式可能包括但不限于GOF的23种设计模式。  单例模式 单例模式是GOF第一种设计模式。在Spring框架中所创建的Bean，默认的生命周期是singleton，也就是单例，由Spr">
+<meta name="keywords" content="设计模式, 并发, 多线程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="工作中用到的设计模式(一)：单例模式">
+<meta property="og:url" content="http://yoursite.com/2019/09/09/work-design-singleton/index.html">
+<meta property="og:site_name" content="Shaw&#39;s Log">
+<meta property="og:description" content="近期在工作中为了完成需求开发，同时为了把代码写得稍许优雅一些，应用到了一些设计模式。借此契机就在这记录一下运用的设计模式，以及一些运用时需要注意的地方。Ps：这部分内容大概会以系列形式进行不定期更新，所有内容的设计模式可能包括但不限于GOF的23种设计模式。  单例模式 单例模式是GOF第一种设计模式。在Spring框架中所创建的Bean，默认的生命周期是singleton，也就是单例，由Spr">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.runoob.com/wp-content/uploads/2014/08/singleton_pattern_uml_diagram.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/09/09/work-design-singleton/ecd1a1a9-be46-429e-a499-99aa0c230ca7.jpg">
+<meta property="og:updated_time" content="2019-09-08T18:47:13.965Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="工作中用到的设计模式(一)：单例模式">
+<meta name="twitter:description" content="近期在工作中为了完成需求开发，同时为了把代码写得稍许优雅一些，应用到了一些设计模式。借此契机就在这记录一下运用的设计模式，以及一些运用时需要注意的地方。Ps：这部分内容大概会以系列形式进行不定期更新，所有内容的设计模式可能包括但不限于GOF的23种设计模式。  单例模式 单例模式是GOF第一种设计模式。在Spring框架中所创建的Bean，默认的生命周期是singleton，也就是单例，由Spr">
+<meta name="twitter:image" content="http://www.runoob.com/wp-content/uploads/2014/08/singleton_pattern_uml_diagram.jpg">
+  
+  <link rel="stylesheet" href="/css/index.css">
+</head>
+</html>
+<body style="
+
+
+  background-color: #eff0f6
+
+">
+  <div id="container">
+    <nav id="nav">
+  <header class="header">
+    <a href="/" class="title">Shaw&#39;s Log</a>
+    <span class="subtitle">talk is cheap, show me your code</span>
+  </header>
+  <div class="ctnWrap">
+    <div class="icons">
+      
+        
+          
+            <a href="https://github.com/ShawJie" target="_blank" class="nav-icn iconfont icon-github"></a>
+          
+        
+      
+    </div>
+    <div class="menu">
+      
+        
+            <a href="/" class="nav-menu ">HOME</a>
+          
+        
+            <a href="/archives" class="nav-menu ">ARCHIVE</a>
+          
+        
+            <a href="/about" class="nav-menu ">ABOUT</a>
+          
+        
+      
+    </div>
+  </div>
+</nav>
+    <div id="main"><section class="article">
+  <h2 class="title">工作中用到的设计模式(一)：单例模式</h2>
+  <p class="sub">9月 9, 2019</p>
+  <article class="content">
+    <blockquote>
+<p>近期在工作中为了完成需求开发，同时为了把代码写得稍许优雅一些，应用到了一些设计模式。借此契机就在这记录一下运用的设计模式，以及一些运用时需要注意的地方。Ps：这部分内容大概会以系列形式进行不定期更新，所有内容的设计模式可能包括但不限于GOF的23种设计模式。</p>
+</blockquote>
+<h1 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h1><blockquote>
+<p>单例模式是GOF第一种设计模式。在Spring框架中所创建的Bean，默认的生命周期是<code>singleton</code>，也就是单例，由Spring容器进行统一的生命周期管理，而<code>prototype</code>，则由创建者进行对象生命周期的管理。单例模式虽然是23种设计模式中最简单的设计模式，但在实际应用中还是注意很多细节，不然还是会出一些问题。</p>
+</blockquote>
+<div style="text-align: center;">
+<img src="http://www.runoob.com/wp-content/uploads/2014/08/singleton_pattern_uml_diagram.jpg">
+</div>
+
+<h2 id="饿汉-单例模式"><a href="#饿汉-单例模式" class="headerlink" title="饿汉 - 单例模式"></a>饿汉 - 单例模式</h2><p>饿汉单例模式，通过JVM的类加载机制所实现的单例模式，实现方式很简单，也能保证线程安全，但是由于是主动加载，所以会造成一定的空间资源浪费。</p>
+<p>具体实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonDemo</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SingletonDemo instance = <span class="keyword">new</span> SingletomDemo();</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SingletonDemo</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，饿汉单例模式的实现就已经完成了，至于为什么饿汉单例模式是线程安全的，需要有一定的<code>JVM-ClassLoader</code>加载方面的知识，这边由于主要是谈论设计模式的系列，所以就稍微简单解释一下，有需求的朋友可以去参考一下《深入理解Java虚拟机》。</p>
+<p>JVM中所持有三个类加载器，分别是<code>BootstrapClassLoader</code>、<code>ExtClassLoader</code>、<code>ApplicationClassLoader</code>，当一个类需要被加载的时候，类加载器会去询问父加载器是否加载过，层层递进，若根加载器都未加载过该目标类，则通过本身进行类加载操作，而类加载操作一共有五个阶段，分别是 加载 -&gt; 验证 -&gt; 验证 -&gt; 解析 -&gt; 初始化。而初始化过程，会对类的类的静态变量进行初始化以及对静态方法块进行执行。而类加载过程只会进行一次，类加载完成后类信息会存放在方法区。而饿汉单例模式，借此实现单例，是线程安全的。</p>
+<div style="text-align: center;">
+<img src="ecd1a1a9-be46-429e-a499-99aa0c230ca7.jpg">
+</div>
+
+<h2 id="懒汉-单例模式"><a href="#懒汉-单例模式" class="headerlink" title="懒汉 - 单例模式"></a>懒汉 - 单例模式</h2><p>懒汉单例模式，即在类加载时不主动去创建单例对象，而是在需要使用时再去创建单例对象，但因此也会存在线程不安全的问题。我们先来看一个单线程应用的简单懒汉单例实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonDemo</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> SingletonDemo instance;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SingletomDemo</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(instace == <span class="keyword">null</span>)&#123;</span><br><span class="line">            instance = <span class="keyword">new</span> SingletonDemo();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上代码在单线程应用下可能不会出问题，但是设想一下，若是多线程环境下，线程A，线程B同时会调用<code>getInstance()</code>方法，线程A判断<code>instance</code>对象为空，进入到if方法块后，还未执行instance赋值语句，此时线程切换，线程B进入获取到的instance对象还未赋值，则进入了if方法块执行赋值操作并完成返回，此时线程切换回到A线程，A线程继续执行赋值操作，并完成返回。则A、B线程获取到了两个不同的对象。为了应对这种问题，则可以使用双重检查锁（Double-checked-locking）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonDemo</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> SingletonDemo instance;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SingletonDemo</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(instance == <span class="keyword">null</span>)&#123;</span><br><span class="line">            Synchronized (SingletonDemo.class)&#123;</span><br><span class="line">                <span class="keyword">if</span>(instance == <span class="keyword">null</span>)&#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> SingletonDemo();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，线程A、B同时调用<code>getInstance()</code>方法时，线程A、B都得到判断instance为空进入if块，A线程获得锁，B线程进入等待池，A线程完成instance对象的初始化操作，进行锁的释放，接着B线程获得锁，进行对象判空，此时获取到instance对象已经不为空，则跳出同步块，返回instance对象。这段代码是没有问题的，但可以注意到instance对象多了一个<code>volatile</code>修饰关键字，要是没有这个关键字，会出现怎样的问题呢？</p>
+<p>让我们来设想一种比较极端的情况，线程A调用<code>getInstance()</code>方法，判断instance对象为空，进入同步块进行对象初始化操作，而instance对象的初始化操作在JVM内部会被拆分成三步 为对象分配空间 -&gt; 初始化对象 -&gt; 将instance指针指向初始化完成的对象的地址，若要是能按照这样的对象初始化步骤执行也是不会出现问题的，但若经过JVM和CPU的优化指令重排 初始化过程可能会变成 为对象分配空间 -&gt; 将instance指针指向分配的对象的地址 -&gt; 初始化对象，若在执行完第二条指令，第三条指令未执行时，线程B切入，进行对象判空，读取到instance对象已经指向了一块区域而不是null，则直接返回了未被初始化完成的对象，那么线程B根据该对象执行的后置操作，都是有问题的。</p>
+<p>关于<code>volatile</code>关键字，字面意思是易变的，我们可以把其理解成一个轻量级的锁。<br>该关键字主要有两个特性：</p>
+<ol>
+<li><p>保证修饰对象的内存可见性</p>
+<ul>
+<li><p>Java内存模型中，对象都存放在主存中，而线程只操作各自工作内存（高速缓存），所以在操作对象时会将主存的值同步到自己的工作内存中，在操作完成后再将工作内存中的值写回主程中去，而在执行操作的过程中会遇到别的线程执行操作，可能最终的结果就不是我们想要的了。</p>
+</li>
+<li><p>举个简单的例子:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 线程A、B同时对i进行+1操作</span></span><br><span class="line"><span class="comment"> * 线程A加载i=0写入高速缓存 进行+1操作 但未写回主存</span></span><br><span class="line"><span class="comment"> * 线程B加载i=0写入告诉缓存 进行+1操作 写入主存 此时i=1</span></span><br><span class="line"><span class="comment"> * 线程A将值写回主存 由于线程A写入高速缓存的i值为0 所以写回主存的值也是1</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>而通过<code>volatile</code>修饰过的对象会被立即写回主存，当其它线程需要读取该变量时，会去内存中读取新值。普通变量则不能保证这一点。</p>
+</li>
+</ul>
+</li>
+<li><p>禁止指令重排</p>
+<ul>
+<li>禁止指令重排就很好理解了，之前我们说过了CPU和JVM会对指令进行优化重排，且优化重排后的指令顺序是不一定的。而<code>volatile</code>关键字能保证其执行顺序始终是 为对象分配空间 -&gt; 初始化对象 -&gt; 将instance指针指向初始化完成的对象的地址，如此一来，则再不会出现获取中间态的问题。</li>
+</ul>
+</li>
+</ol>
+<h2 id="枚举-单例模式"><a href="#枚举-单例模式" class="headerlink" title="枚举 - 单例模式"></a>枚举 - 单例模式</h2><p>虽然看似双重检查锁配合<code>volatile</code>关键字确实完美的解决了单例对象的获取问题，但是却依然无法阻止通过反射去创建一个对象实例（获取单例类构造器 -&gt; 设置构造器可访问 -&gt; 构造实例），所以依然还是存在问题的。这时候就可以考虑用一种简洁又优雅的方式去实现一个单例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> SingletonDemo&#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时若通过反射去创建一个INSTANCE实例时则会收到一个没有相关方法的异常，因为JVM会组织反射去获取枚举类的私有构造方法。但此种实现方式和饿汉单例实现方式也存在同样的问题，单例对象会在类被加载时进行初始化，而不是通过懒加载的方式实现的。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>单例模式虽然说是最容易实现的方式，但是其中也有很多细节问题需要多加注意。</p>
+<table>
+<thead>
+<tr>
+<th>实现方式</th>
+<th>线程安全</th>
+<th>主动初始化</th>
+<th>预防反射构建</th>
+<th>预防序列化构建</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>饱汉单例</td>
+<td>安全</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>懒汉单例</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>懒汉单例（双重检查锁）</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>懒汉单例（双重检查锁 + volatile）</td>
+<td>安全</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+</tr>
+<tr>
+<td>枚举单例</td>
+<td>安全</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+</tr>
+</tbody></table>
+
+  </article>
+  <footer class="f-cf">
+    
+    
+      <a href="/2019/08/11/concurrent-lock/" class="link f-fr">并发控制 - Java的锁⟶</a>
+    
+  </footer>
+</section></div>
+    <footer id="footer" class="f-cf">
+  Loverconcerto@outlook.com
+  
+    
+      
+        · <a href="https://github.com/ShawJie" target="_blank" class="nav-icn">GitHub</a>
+      
+    
+  
+  <span class="copyright">All rights reserved @Clover Tuan</span>
+</footer>
+  </div>
+</body>
+</html>
