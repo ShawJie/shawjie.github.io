@@ -16,7 +16,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.runoob.com/wp-content/uploads/2014/08/singleton_pattern_uml_diagram.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/09/09/work-design-singleton/ecd1a1a9-be46-429e-a499-99aa0c230ca7.jpg">
-<meta property="og:updated_time" content="2019-09-08T18:47:13.965Z">
+<meta property="og:updated_time" content="2019-10-31T15:32:45.734Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="工作中用到的设计模式(一)：单例模式">
 <meta name="twitter:description" content="近期在工作中为了完成需求开发，同时为了把代码写得稍许优雅一些，应用到了一些设计模式。借此契机就在这记录一下运用的设计模式，以及一些运用时需要注意的地方。Ps：这部分内容大概会以系列形式进行不定期更新，所有内容的设计模式可能包括但不限于GOF的23种设计模式。  单例模式 单例模式是GOF第一种设计模式。在Spring框架中所创建的Bean，默认的生命周期是singleton，也就是单例，由Spr">
@@ -115,7 +115,7 @@
 </li>
 </ol>
 <h2 id="枚举-单例模式"><a href="#枚举-单例模式" class="headerlink" title="枚举 - 单例模式"></a>枚举 - 单例模式</h2><p>虽然看似双重检查锁配合<code>volatile</code>关键字确实完美的解决了单例对象的获取问题，但是却依然无法阻止通过反射去创建一个对象实例（获取单例类构造器 -&gt; 设置构造器可访问 -&gt; 构造实例），所以依然还是存在问题的。这时候就可以考虑用一种简洁又优雅的方式去实现一个单例。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> SingletonDemo&#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> SingletonDemo&#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Traget target;</span><br><span class="line">    SingletonDemo()&#123;</span><br><span class="line">        target = <span class="keyword">new</span> Target();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Target <span class="title">getTarget</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> target;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>此时若通过反射去创建一个INSTANCE实例时则会收到一个没有相关方法的异常，因为JVM会组织反射去获取枚举类的私有构造方法。但此种实现方式和饿汉单例实现方式也存在同样的问题，单例对象会在类被加载时进行初始化，而不是通过懒加载的方式实现的。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>单例模式虽然说是最容易实现的方式，但是其中也有很多细节问题需要多加注意。</p>
@@ -168,6 +168,8 @@
 
   </article>
   <footer class="f-cf">
+    
+      <a href="/2019/10/31/streams-functional-interface/" class="link f-fl">⟵Streams标准函数式接口</a>
     
     
       <a href="/2019/08/11/concurrent-lock/" class="link f-fr">并发控制 - Java的锁⟶</a>

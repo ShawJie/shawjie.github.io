@@ -7,19 +7,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <link rel="shortcut icon" type="image/ico" href="https://www.flaticon.com/premium-icon/icons/svg/1886/1886189.svg">
   <meta name="description" content="Immuteable Object 不可变对象模式，多线程共享变量的情况下，既能保证共享变量访问的线程安全，又能避免锁本身带来的消耗所产生的模式。  问题起源在项目开发过程中，涉及多线程部分的功能多少都会碰到多线程间共享变量的问题，若还存在多个线程都可能对共享变量进行修改的可能性，为保证访问数据的一致性，通常会使用同步访问控制，如显示锁和CAS操作。而锁操作会带来额外的开销，如上下文切换，等待时间">
+<meta name="keywords" content="Design Pattern">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Immuteable Object - 不可变对象">
 <meta property="og:url" content="http://yoursite.com/2019/07/15/Immuteable-object/index.html">
 <meta property="og:site_name" content="Shaw&#39;s Log">
 <meta property="og:description" content="Immuteable Object 不可变对象模式，多线程共享变量的情况下，既能保证共享变量访问的线程安全，又能避免锁本身带来的消耗所产生的模式。  问题起源在项目开发过程中，涉及多线程部分的功能多少都会碰到多线程间共享变量的问题，若还存在多个线程都可能对共享变量进行修改的可能性，为保证访问数据的一致性，通常会使用同步访问控制，如显示锁和CAS操作。而锁操作会带来额外的开销，如上下文切换，等待时间">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/07/15/Immuteable-object/d6df079a-76b6-4271-987f-4154b9ff4f28.png">
-<meta property="og:image" content="http://yoursite.com/2019/07/15/Immuteable-object/48c070ff-b3e5-429a-a831-6017c43ccf09.png">
-<meta property="og:updated_time" content="2019-07-15T12:48:13.881Z">
+<meta property="og:image" content="http://yoursite.com/2019/07/15/Immuteable-object/73636925_p0.jpg">
+<meta property="og:updated_time" content="2019-10-31T15:32:37.578Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Immuteable Object - 不可变对象">
 <meta name="twitter:description" content="Immuteable Object 不可变对象模式，多线程共享变量的情况下，既能保证共享变量访问的线程安全，又能避免锁本身带来的消耗所产生的模式。  问题起源在项目开发过程中，涉及多线程部分的功能多少都会碰到多线程间共享变量的问题，若还存在多个线程都可能对共享变量进行修改的可能性，为保证访问数据的一致性，通常会使用同步访问控制，如显示锁和CAS操作。而锁操作会带来额外的开销，如上下文切换，等待时间">
-<meta name="twitter:image" content="http://yoursite.com/2019/07/15/Immuteable-object/d6df079a-76b6-4271-987f-4154b9ff4f28.png">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/15/Immuteable-object/73636925_p0.jpg">
   
   <link rel="stylesheet" href="/css/index.css">
 </head>
@@ -113,7 +113,7 @@
       <a href="/2019/08/08/concurrenty-pcc-ol/" class="link f-fl">⟵并发控制 - 乐观/悲观锁</a>
     
     
-      <a href="/2019/07/13/basic-framework/" class="link f-fr">Java基础框架⟶</a>
+      <a href="/2019/07/12/design-pattern/" class="link f-fr">Design Pattern 基础设计模式⟶</a>
     
   </footer>
 </section></div>
