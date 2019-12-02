@@ -14,12 +14,12 @@
 <meta property="og:site_name" content="Shaw&#39;s Log">
 <meta property="og:description" content="近期在工作中为了完成需求开发，同时为了把代码写得稍许优雅一些，应用到了一些设计模式。借此契机就在这记录一下运用的设计模式，以及一些运用时需要注意的地方。Ps：这部分内容大概会以系列形式进行不定期更新，所有内容的设计模式可能包括但不限于GOF的23种设计模式。  单例模式 单例模式是GOF第一种设计模式。在Spring框架中所创建的Bean，默认的生命周期是singleton，也就是单例，由Spr">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/09/09/work-design-singleton/71646603_p0.jpg">
-<meta property="og:updated_time" content="2019-10-31T15:45:14.747Z">
+<meta property="og:image" content="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/work-design-singleton/71646603_p0.jpg">
+<meta property="og:updated_time" content="2019-12-02T12:48:27.511Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="工作中用到的设计模式(一)：单例模式">
 <meta name="twitter:description" content="近期在工作中为了完成需求开发，同时为了把代码写得稍许优雅一些，应用到了一些设计模式。借此契机就在这记录一下运用的设计模式，以及一些运用时需要注意的地方。Ps：这部分内容大概会以系列形式进行不定期更新，所有内容的设计模式可能包括但不限于GOF的23种设计模式。  单例模式 单例模式是GOF第一种设计模式。在Spring框架中所创建的Bean，默认的生命周期是singleton，也就是单例，由Spr">
-<meta name="twitter:image" content="http://yoursite.com/2019/09/09/work-design-singleton/71646603_p0.jpg">
+<meta name="twitter:image" content="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/work-design-singleton/71646603_p0.jpg">
   
   <link rel="stylesheet" href="/css/index.css">
 </head>
@@ -83,7 +83,7 @@
 <p>至此，饿汉单例模式的实现就已经完成了，至于为什么饿汉单例模式是线程安全的，需要有一定的<code>JVM-ClassLoader</code>加载方面的知识，这边由于主要是谈论设计模式的系列，所以就稍微简单解释一下，有需求的朋友可以去参考一下《深入理解Java虚拟机》。</p>
 <p>JVM中所持有三个类加载器，分别是<code>BootstrapClassLoader</code>、<code>ExtClassLoader</code>、<code>ApplicationClassLoader</code>，当一个类需要被加载的时候，类加载器会去询问父加载器是否加载过，层层递进，若根加载器都未加载过该目标类，则通过本身进行类加载操作，而类加载操作一共有五个阶段，分别是 加载 -&gt; 验证 -&gt; 验证 -&gt; 解析 -&gt; 初始化。而初始化过程，会对类的类的静态变量进行初始化以及对静态方法块进行执行。而类加载过程只会进行一次，类加载完成后类信息会存放在方法区。而饿汉单例模式，借此实现单例，是线程安全的。</p>
 <div style="text-align: center;">
-<img src="ecd1a1a9-be46-429e-a499-99aa0c230ca7.jpg">
+<img src="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/work-design-singleton/ecd1a1a9-be46-429e-a499-99aa0c230ca7.jpg">
 </div>
 
 <h2 id="懒汉-单例模式"><a href="#懒汉-单例模式" class="headerlink" title="懒汉 - 单例模式"></a>懒汉 - 单例模式</h2><p>懒汉单例模式，即在类加载时不主动去创建单例对象，而是在需要使用时再去创建单例对象，但因此也会存在线程不安全的问题。我们先来看一个单线程应用的简单懒汉单例实现。</p>
