@@ -1,140 +1,288 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.9.0">
-  <meta charset="utf-8">
-  
-  <title>并发控制 - 乐观/悲观锁 | Shaw&#39;s Log</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <link rel="shortcut icon" type="image/ico" href="https://www.flaticon.com/premium-icon/icons/svg/1886/1886189.svg">
-  <meta name="description" content="在互联网高速发展的今天，网络流量所带来的效益愈发明显，但是高流量所带来一个必然的联系就是高并发，而现代系统对于并发的处理有很多种方式，譬如多线程、异步调用、核心功能加锁、消息队列等，这篇文章主要就谈论一下处理高并发的两种思路，乐观锁（Optimistic Locking）和悲观锁（Pessimistic Concurrency Control）  并发问题 为了应对并发，开发者提出了事务的概念，">
-<meta name="keywords" content="并发">
-<meta property="og:type" content="article">
-<meta property="og:title" content="并发控制 - 乐观&#x2F;悲观锁">
-<meta property="og:url" content="http://yoursite.com/2019/08/08/concurrenty-pcc-ol/index.html">
-<meta property="og:site_name" content="Shaw&#39;s Log">
-<meta property="og:description" content="在互联网高速发展的今天，网络流量所带来的效益愈发明显，但是高流量所带来一个必然的联系就是高并发，而现代系统对于并发的处理有很多种方式，譬如多线程、异步调用、核心功能加锁、消息队列等，这篇文章主要就谈论一下处理高并发的两种思路，乐观锁（Optimistic Locking）和悲观锁（Pessimistic Concurrency Control）  并发问题 为了应对并发，开发者提出了事务的概念，">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/concurrenty-pcc-ol/74126817_p0.jpg">
-<meta property="og:updated_time" content="2019-12-02T12:30:55.350Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="并发控制 - 乐观&#x2F;悲观锁">
-<meta name="twitter:description" content="在互联网高速发展的今天，网络流量所带来的效益愈发明显，但是高流量所带来一个必然的联系就是高并发，而现代系统对于并发的处理有很多种方式，譬如多线程、异步调用、核心功能加锁、消息队列等，这篇文章主要就谈论一下处理高并发的两种思路，乐观锁（Optimistic Locking）和悲观锁（Pessimistic Concurrency Control）  并发问题 为了应对并发，开发者提出了事务的概念，">
-<meta name="twitter:image" content="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/concurrenty-pcc-ol/74126817_p0.jpg">
-  
-  <link rel="stylesheet" href="/css/index.css">
-</head>
-</html>
-<body style="
-
-
-  background-color: #eff0f6
-
-">
-  <div id="container">
-    <nav id="nav">
-  <header class="header">
-    <a href="/" class="title">Shaw&#39;s Log</a>
-    <span class="subtitle">talk is cheap, show me your code</span>
-  </header>
-  <div class="ctnWrap">
-    <div class="icons">
-      
-        
-          
-            <a href="https://github.com/ShawJie" target="_blank" class="nav-icn iconfont icon-github"></a>
-          
-        
-      
+  <head><meta name="generator" content="Hexo 3.9.0">
+      <script>
+  var _hmt = _hmt || []
+  ;(function() {
+    var hm = document.createElement('script')
+    hm.src = 'https://hm.baidu.com/hm.js?5a0acc897fd96474a2c8f4deac84611a'
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(hm, s)
+  })()
+</script> 
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content>
+    <meta name="description" content>
+    
+    <title>
+      并发控制 - 乐观/悲观锁 - Shaw&#39;s Log
+    </title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" href="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/flaticon/049-chat.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style/style.css">
+  </head>
+  <body>
+    
+    <div id="post-toc" class="animated hiddenToc hide">
+      <span class="title">Toc</span>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#并发问题"><span class="toc-text">并发问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#脏读"><span class="toc-text">脏读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不可重复读"><span class="toc-text">不可重复读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#幻读"><span class="toc-text">幻读</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#悲观锁"><span class="toc-text">悲观锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#悲观锁实现"><span class="toc-text">悲观锁实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#乐观锁"><span class="toc-text">乐观锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#乐观锁实现"><span class="toc-text">乐观锁实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ABA问题"><span class="toc-text">ABA问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决ABA问题"><span class="toc-text">解决ABA问题</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
     </div>
-    <div class="menu">
-      
-        
-            <a href="/" class="nav-menu ">HOME</a>
-          
-        
-            <a href="/archives" class="nav-menu ">ARCHIVE</a>
-          
-        
-            <a href="/about" class="nav-menu ">ABOUT</a>
-          
-        
-      
+    
+    <div id="fixed-menu-wrap">
+      <span class="icon-toc menu-reset">Toc</span>
+      <span class="iconfont icon-arrowup menu-reset"></span>
     </div>
-  </div>
-</nav>
-    <div id="main"><section class="article">
-  <h2 class="title">并发控制 - 乐观/悲观锁</h2>
-  <p class="sub">8月 8, 2019</p>
-  <article class="content">
+    <div id="fixed-menu">
+      <span class="iconfont icon-menu-"></span>
+    </div>
+    <div id="progress">
+      <div class="line"></div>
+    </div>
+    <div id="search-shade" class="animated hiddenSearch hide">
+      <div class="input-wrap">
+        <input type="text" placeholder="Search">
+        <span class="iconfont icon-close"></span>
+      </div>
+      <div class="search-result">
+        <div class="meta">
+          <span><b id="result-count">0</b> results found</span>
+          <img src="/images/logo.jpeg">
+        </div>
+        <ul id="result-box"></ul>
+      </div>
+    </div>
+    <div id="menu-mask" class="animated hideMenuMask hide">
+      <span class="iconfont icon-close"></span>
+      <div class="nav">
+        
+        <a href="/" class>
+          Home
+        </a>
+        
+        <a href="/archives" class>
+          Archives
+        </a>
+        
+        <a href="/about" class>
+          About
+        </a>
+        
+      </div>
+    </div>
+    <div id="header">
+      <div class="intro">
+        <a href="/" class="logo" style="background-image: url('/images/logo.jpeg')"></a>
+        <div class="author">ShawJie</div>
+      </div>
+      <div class="nav">
+        <span class="iconfont icon-menu menu-icon"></span>
+      </div>
+    </div>
+    <div id="side" class="animated bounceInLeft">
+      <div class="shrink">
+        <a href="/" class="logo" style="background-image: url('/images/logo.jpeg')"></a>
+        <span class="iconfont icon-menu toggle-icon"></span>
+      </div>
+      <div class="magnify">
+        <div class="about">
+          <div class="author">ShawJie</div>
+          <a href="/" class="logo" style="background-image: url('/images/logo.jpeg')"></a>
+        </div>
+
+        <div class="nav">
+          
+          <a href="/" class>
+            Home
+          </a>
+          
+          <a href="/archives" class>
+            Archives
+          </a>
+          
+          <a href="/about" class>
+            About
+          </a>
+          
+        </div>
+        <div class="bottom">
+          <div class="follow">
+            
+            <a href="https://github.com/shawjie" target="_block">
+              <span class="iconfont icon-github"></span>
+            </a>
+             
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="container">
+      <div class="main animated bounceInRight delay-0.7s">
+        <article class="post-entry">
+    <div class="header">
+      
+      <div class="title">并发控制 - 乐观/悲观锁</div>
+      <div class="meta">
+        <span class="item">
+          <span class="iconfont icon-time-circle"></span>
+          <span>2019/08/08</span>
+        </span>
+
+        
+
+        
+        
+         
+          <span class="item">
+            <span class="iconfont icon-tag1"></span>
+            <span>
+                
+                  
+                    <a href="/tags/并发">并发</a>
+                  
+                
+            </span>
+          </span>
+         
+      </div>
+      <div>
+      </div>
+    </div>
     <blockquote>
 <p>在互联网高速发展的今天，网络流量所带来的效益愈发明显，但是高流量所带来一个必然的联系就是高并发，而现代系统对于并发的处理有很多种方式，譬如多线程、异步调用、核心功能加锁、消息队列等，这篇文章主要就谈论一下处理高并发的两种思路，乐观锁（Optimistic Locking）和悲观锁（Pessimistic Concurrency Control）</p>
 </blockquote>
-<h2 id="并发问题"><a href="#并发问题" class="headerlink" title="并发问题"></a>并发问题</h2><blockquote>
+<h2 id="并发问题">并发问题<a class="post-anchor" href="#并发问题"></a></h2><blockquote>
 <p>为了应对并发，开发者提出了事务的概念，以完成原子性的操作。但是在事务进行的过程中，同样也会产生很多问题，譬如脏读，不可重复读，幻读等，当然也就有不同的事务隔离级别去解决对应的问题。</p>
 </blockquote>
-<h3 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h3><p>脏读，指线程A在通过事务修改对象O的状态但未提交时，线程B获取到了对象O未被修改时的状态，这时候线程B读取到的数据就是脏数据，而根据脏数据所进行的操作，无法保证其的正确性。</p>
+<h3 id="脏读">脏读<a class="post-anchor" href="#脏读"></a></h3><p>脏读，指线程A在通过事务修改对象O的状态但未提交时，线程B获取到了对象O未被修改时的状态，这时候线程B读取到的数据就是脏数据，而根据脏数据所进行的操作，无法保证其的正确性。</p>
 <p>举一个简单的栗子：<br>用户A在某电商平台下单了一件商品，根据后台的业务逻辑，对应工作者线程将会开启一个事务，扣除所对应的库存数量，但同一时间，用户B也下单可同样的物品，在用户A线程提交库存扣除事务之前获取到了库存数量，之后执行了下单操作，可想而知用户B所对应的工作者线程执行的一系列操作都是不正确的。</p>
-<h3 id="不可重复读"><a href="#不可重复读" class="headerlink" title="不可重复读"></a>不可重复读</h3><p>不可重复读，指线程A在同一个事务中，两次完全相同的数据读取操作，获取到了不一样的数据，原因可能是在线程A执行事务的过程中，线程B对统一数据提交了事务，导致两次获取数据不一样。</p>
-<h3 id="幻读"><a href="#幻读" class="headerlink" title="幻读"></a>幻读</h3><p>幻读，和不可重复读类似但其中又有所区别，同一个事务内多次查询返回的结果集不一样（比如增加了或者减少了行记录）。</p>
-<h2 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h2><blockquote>
+<h3 id="不可重复读">不可重复读<a class="post-anchor" href="#不可重复读"></a></h3><p>不可重复读，指线程A在同一个事务中，两次完全相同的数据读取操作，获取到了不一样的数据，原因可能是在线程A执行事务的过程中，线程B对统一数据提交了事务，导致两次获取数据不一样。</p>
+<h3 id="幻读">幻读<a class="post-anchor" href="#幻读"></a></h3><p>幻读，和不可重复读类似但其中又有所区别，同一个事务内多次查询返回的结果集不一样（比如增加了或者减少了行记录）。</p>
+<h2 id="悲观锁">悲观锁<a class="post-anchor" href="#悲观锁"></a></h2><blockquote>
 <p>悲观锁，又叫悲观并发控制（PCC），该锁类似Java的显式加锁，之所以叫悲观锁，是因为对数据修改持有悲观态度的并发控制，一般认为数据被并发修改的几率比较大，需要加锁才能保证修改时的数据一致性。</p>
 </blockquote>
 <p>悲观锁实例：<br>线程A、B并发修改数据O -&gt; 线程A获取到锁，进行修改数据状态操作 -&gt; 线程A释放锁，线程B获得锁，进行数据状态修改操作 -&gt; 线程B释放锁 -&gt; 修改操作完成</p>
 <p>由于对数据进行了显式加锁，除了会产生额外的开销以外，还会降低处理效率，增加死锁几率。所以在目前信息系统种，很少会再使用悲观锁。</p>
-<h3 id="悲观锁实现"><a href="#悲观锁实现" class="headerlink" title="悲观锁实现"></a>悲观锁实现</h3><p>悲观锁大多的实现方式都是基于数据库的，即：</p>
+<h3 id="悲观锁实现">悲观锁实现<a class="post-anchor" href="#悲观锁实现"></a></h3><p>悲观锁大多的实现方式都是基于数据库的，即：</p>
 <ul>
 <li>在执行操作之前先给数据加排他锁，若加锁失败视业务要求进行等待或者抛出异常</li>
 <li>加锁成功后执行数据更新修改操作，事务提交后会自动释放锁</li>
 </ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 开启事务</span><br><span class="line"><span class="keyword">BEGIN</span>;</span><br><span class="line">// FOR <span class="keyword">UPDATE</span> 加锁</span><br><span class="line"><span class="keyword">SELECT</span> amount <span class="keyword">FROM</span> goods <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br><span class="line">// 进行数据操作</span><br><span class="line"><span class="keyword">UPDATE</span> goods <span class="keyword">SET</span> amount = <span class="number">15</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span>;</span><br><span class="line">// 提交释放锁</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs sql">// 开启事务
+<span class="hljs-keyword">BEGIN</span>;
+// FOR <span class="hljs-keyword">UPDATE</span> 加锁
+<span class="hljs-keyword">SELECT</span> amount <span class="hljs-keyword">FROM</span> goods <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">id</span> = <span class="hljs-number">233</span> <span class="hljs-keyword">FOR</span> <span class="hljs-keyword">UPDATE</span>;
+// 进行数据操作
+<span class="hljs-keyword">UPDATE</span> goods <span class="hljs-keyword">SET</span> amount = <span class="hljs-number">15</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">id</span> = <span class="hljs-number">233</span>;
+// 提交释放锁
+<span class="hljs-keyword">COMMIT</span>;</code></pre>
 
 <p>通过FOR UPDATE建立一个排他锁，在事务提交前，无法对操作数据进行操作以保证数据的一致性。</p>
 <div style="border:3px solid #ccc;padding: 2px 5px;border-radius: 10px;"><span style="position: relative; top: -1rem;background-color:#fff;padding:0 10px">Tip</span>Mysql在Sql有用到索引的表数据时，会使用行级锁，其它时间会用表级锁。
 </div>
 
 
-<h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><blockquote>
+<h2 id="乐观锁">乐观锁<a class="post-anchor" href="#乐观锁"></a></h2><blockquote>
 <p>乐观锁的乐观，是相对于悲观锁的悲观而存在的。乐观锁假设数据一般情况下不会造成冲突，所以在数据进行提交更新的时候，才会正式对数据的冲突与否进行检测，如果发现冲突了，则让返回用户错误的信息，让用户决定如何去做。</p>
 </blockquote>
 <p>乐观锁实例：<br>线程A、线程B并发读取数据并进行操作 -&gt; 线程A完成操作，进行数据版本检测，若无冲突，则提交事务 -&gt; 线程B完成操作，进行版本检测，检测有冲突，不提交并返回异常</p>
 <p>￼乐观并发控制相信事务之间的数据竞争(data race)的概率是比较小的，因此尽可能直接做下去，直到提交的时候才去锁定</p>
-<h3 id="乐观锁实现"><a href="#乐观锁实现" class="headerlink" title="乐观锁实现"></a>乐观锁实现</h3><p>乐观锁的主要实现方式为冲突检测，CAS(Compare and swap)，CAS是项乐观锁技术，当多个线程尝试使用CAS同时更新同一个变量时，只有其中一个线程能更新变量的值，而其它线程都失败，失败的线程并不会被挂起，而是被告知这次竞争中失败，并可以再次尝试。</p>
+<h3 id="乐观锁实现">乐观锁实现<a class="post-anchor" href="#乐观锁实现"></a></h3><p>乐观锁的主要实现方式为冲突检测，CAS(Compare and swap)，CAS是项乐观锁技术，当多个线程尝试使用CAS同时更新同一个变量时，只有其中一个线程能更新变量的值，而其它线程都失败，失败的线程并不会被挂起，而是被告知这次竞争中失败，并可以再次尝试。</p>
 <p>简单乐观锁实现:</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 得知amount = 4</span><br><span class="line"><span class="keyword">SELECT</span> amount <span class="keyword">FROM</span> goods <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> goods <span class="keyword">SET</span> amount = <span class="number">2</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span> <span class="keyword">AND</span> amount = <span class="number">4</span>;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs sql">// 得知amount = 4
+<span class="hljs-keyword">SELECT</span> amount <span class="hljs-keyword">FROM</span> goods <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">id</span> = <span class="hljs-number">233</span>;
+<span class="hljs-keyword">UPDATE</span> goods <span class="hljs-keyword">SET</span> amount = <span class="hljs-number">2</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">id</span> = <span class="hljs-number">233</span> <span class="hljs-keyword">AND</span> amount = <span class="hljs-number">4</span>;</code></pre>
 
 <p>这样就完成了不加锁的数据更新，若数据一致，则更新，数据不一致，则为过期数据，可以重新发起请求。但这样解决会引发ABA问题。</p>
-<h4 id="ABA问题"><a href="#ABA问题" class="headerlink" title="ABA问题"></a>ABA问题</h4><p>ABA问题指线程A读取到数据amount数值为4，开始进行相关操作，线程B在同时修改了amount为2，又将amount修改为4，此时A线程操作执行完成，判断amount是否等于4，等于则更新。这时候就产生了ABA问题，虽然线程A完成了数据更新，但不能保证过程的正确性。</p>
-<h4 id="解决ABA问题"><a href="#解决ABA问题" class="headerlink" title="解决ABA问题"></a>解决ABA问题</h4><p>为了确认数据版本和第一次获取时一致，可以增加Version字段，在更新数据时同步更新Version字段状态，这样可以保证能知晓数据版本是否一致的问题。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// amount = 4, version = 1</span><br><span class="line"><span class="keyword">SELECT</span> amount, <span class="keyword">version</span> <span class="keyword">FROM</span> goods <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> goods <span class="keyword">SET</span> amount = <span class="number">3</span>, <span class="keyword">version</span> = <span class="number">2</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span> <span class="keyword">AND</span> <span class="keyword">version</span> = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="ABA问题">ABA问题<a class="post-anchor" href="#ABA问题"></a></h4><p>ABA问题指线程A读取到数据amount数值为4，开始进行相关操作，线程B在同时修改了amount为2，又将amount修改为4，此时A线程操作执行完成，判断amount是否等于4，等于则更新。这时候就产生了ABA问题，虽然线程A完成了数据更新，但不能保证过程的正确性。</p>
+<h4 id="解决ABA问题">解决ABA问题<a class="post-anchor" href="#解决ABA问题"></a></h4><p>为了确认数据版本和第一次获取时一致，可以增加Version字段，在更新数据时同步更新Version字段状态，这样可以保证能知晓数据版本是否一致的问题。</p>
+<pre><code class="hljs sql">// amount = 4, version = 1
+<span class="hljs-keyword">SELECT</span> amount, <span class="hljs-keyword">version</span> <span class="hljs-keyword">FROM</span> goods <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">id</span> = <span class="hljs-number">233</span>;
+<span class="hljs-keyword">UPDATE</span> goods <span class="hljs-keyword">SET</span> amount = <span class="hljs-number">3</span>, <span class="hljs-keyword">version</span> = <span class="hljs-number">2</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">id</span> = <span class="hljs-number">233</span> <span class="hljs-keyword">AND</span> <span class="hljs-keyword">version</span> = <span class="hljs-number">1</span>;</code></pre>
 
 <p>虽然增加version的操作可以保证数据版本的一致，但是这样就会造成大量的数据修改失败，这样同样会降低大量的处理效率。</p>
 <p>故而产生了以下解决方案：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// amount = 4</span><br><span class="line"><span class="keyword">SELECT</span> amount <span class="keyword">FROM</span> goods <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span>;</span><br><span class="line"><span class="keyword">UPDATE</span> goods <span class="keyword">SET</span> amount = amount - <span class="number">1</span> <span class="keyword">WHERE</span> <span class="keyword">id</span> = <span class="number">233</span> <span class="keyword">AND</span> amount &gt; <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs sql">// amount = 4
+<span class="hljs-keyword">SELECT</span> amount <span class="hljs-keyword">FROM</span> goods <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">id</span> = <span class="hljs-number">233</span>;
+<span class="hljs-keyword">UPDATE</span> goods <span class="hljs-keyword">SET</span> amount = amount - <span class="hljs-number">1</span> <span class="hljs-keyword">WHERE</span> <span class="hljs-keyword">id</span> = <span class="hljs-number">233</span> <span class="hljs-keyword">AND</span> amount &gt; <span class="hljs-number">0</span>;</code></pre>
 
 <p>即解决了Version字段表入侵，又解决了大量修改失败的问题。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>乐观锁其实并不是真正的锁，只是一种并发控制思路，所以效率相较于普通的锁来说更高，但是限制粒度不掌握好，就会导致大量的业务失败。<br>而悲观锁虽然能保证数据的一致性，但是效率过低，不建议使用。</p>
+<h2 id="总结">总结<a class="post-anchor" href="#总结"></a></h2><p>乐观锁其实并不是真正的锁，只是一种并发控制思路，所以效率相较于普通的锁来说更高，但是限制粒度不掌握好，就会导致大量的业务失败。<br>而悲观锁虽然能保证数据的一致性，但是效率过低，不建议使用。</p>
 
-  </article>
-  <footer class="f-cf">
-    
-      <a href="/2019/08/11/concurrent-lock/" class="link f-fl">⟵并发控制 - Java的锁</a>
-    
-    
-      <a href="/2019/07/15/Immuteable-object/" class="link f-fr">Immuteable Object - 不可变对象⟶</a>
-    
-  </footer>
-</section></div>
-    <footer id="footer" class="f-cf">
-  Loverconcerto@outlook.com
+
   
-    
-      
-        · <a href="https://github.com/ShawJie" target="_blank" class="nav-icn">GitHub</a>
-      
-    
-  
-  <span class="copyright">All rights reserved @Clover Tuan</span>
-</footer>
+  <div class="post-guide">
+    <div class="item left">
+        
+          <a href="/2019/08/11/concurrent-lock/">并发控制 - Java的锁</a>
+        
+    </div>
+    <div class="item right">
+        
+          <a href="/2019/07/15/Immuteable-object/">Immuteable Object - 不可变对象</a>
+        
+    </div>
   </div>
-</body>
+
+  
+
+  <div id="comment"></div>
+
+  
+  
+</article>
+        <footer>
+          <div class="copyright">
+            ©2019
+            <a href="http://yoursite.com">ShawJie</a> Powered by <a href="https://hexo.io">Hexo</a> |
+            <a href="https://github.com/shixiaohu2206/hexo-theme-huhu">hexo-theme-huhu</a>
+          </div>
+          
+        </footer>
+      </div>
+    </div>
+  </body>
+  
 </html>
+<script type="text/javascript">
+                  window.HUHU_CONFIG = JSON.parse("{\"service_worker\":{\"open\":false}}")
+                </script> <script type="text/javascript">window.addEventListener('load', function() {
+    
+    window.loadJs = function(d, m, a) {
+      var c = document.getElementsByTagName('head')[0] || document.head || document.documentElement
+      var b = document.createElement('script')
+      b.defer = true
+      b.setAttribute('type', 'text/javascript')
+      b.setAttribute('charset', 'UTF-8')
+      b.setAttribute('async', 'true')
+      b.setAttribute('src', d)
+      m && b.setAttribute('data-main', '/scripts/app-built')
+      if (typeof a === 'function') {
+        if (window.attachEvent) {
+          b.onreadystatechange = function() {
+            var e = b.readyState
+            if (e === 'loaded' || e === 'complete') {
+              b.onreadystatechange = null
+              a()
+            }
+          }
+        } else {
+          b.onload = a
+        }
+      }
+      c.appendChild(b)
+    }
+    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
+  })</script> <script type="text/javascript">
+                  ;(function() {
+                    var bp = document.createElement('script')
+                    var curProtocol = window.location.protocol.split(':')[0]
+                    if (curProtocol === 'https') {
+                      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js'
+                    } else {
+                      bp.src = 'http://push.zhanzhang.baidu.com/push.js'
+                    }
+                    var s = document.getElementsByTagName('script')[0]
+                    s.parentNode.insertBefore(bp, s)
+                  })()
+                </script> 

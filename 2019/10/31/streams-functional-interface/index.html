@@ -1,147 +1,421 @@
 <!DOCTYPE html>
 <html>
-<head><meta name="generator" content="Hexo 3.9.0">
-  <meta charset="utf-8">
-  
-  <title>Streams标准函数式接口 | Shaw&#39;s Log</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <link rel="shortcut icon" type="image/ico" href="https://www.flaticon.com/premium-icon/icons/svg/1886/1886189.svg">
-  <meta name="description" content="Streams标准函数式接口 前段时间看了InfoQ发表的2019中国Java发展趋势报告，Lambda/Stream语法已经处于晚期大众阶段，在实际开发中确实也给到了很多便利，但对于Lambda/Stream的函数式接口，没有一个系统的学习思路，今天在这边记录一下，巩固一下自己的记忆，也算给不太熟悉Lambda/Stream函数的大家一个学习的方向。  为什么要用StreamStream作为Ja">
-<meta name="keywords" content="Java, Java8, Streams">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Streams标准函数式接口">
-<meta property="og:url" content="http://yoursite.com/2019/10/31/streams-functional-interface/index.html">
-<meta property="og:site_name" content="Shaw&#39;s Log">
-<meta property="og:description" content="Streams标准函数式接口 前段时间看了InfoQ发表的2019中国Java发展趋势报告，Lambda/Stream语法已经处于晚期大众阶段，在实际开发中确实也给到了很多便利，但对于Lambda/Stream的函数式接口，没有一个系统的学习思路，今天在这边记录一下，巩固一下自己的记忆，也算给不太熟悉Lambda/Stream函数的大家一个学习的方向。  为什么要用StreamStream作为Ja">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/streams-functional-interface/65841814_p0.png">
-<meta property="og:updated_time" content="2019-12-02T12:43:53.140Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Streams标准函数式接口">
-<meta name="twitter:description" content="Streams标准函数式接口 前段时间看了InfoQ发表的2019中国Java发展趋势报告，Lambda/Stream语法已经处于晚期大众阶段，在实际开发中确实也给到了很多便利，但对于Lambda/Stream的函数式接口，没有一个系统的学习思路，今天在这边记录一下，巩固一下自己的记忆，也算给不太熟悉Lambda/Stream函数的大家一个学习的方向。  为什么要用StreamStream作为Ja">
-<meta name="twitter:image" content="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/streams-functional-interface/65841814_p0.png">
-  
-  <link rel="stylesheet" href="/css/index.css">
-</head>
-</html>
-<body style="
-
-
-  background-color: #eff0f6
-
-">
-  <div id="container">
-    <nav id="nav">
-  <header class="header">
-    <a href="/" class="title">Shaw&#39;s Log</a>
-    <span class="subtitle">talk is cheap, show me your code</span>
-  </header>
-  <div class="ctnWrap">
-    <div class="icons">
-      
-        
-          
-            <a href="https://github.com/ShawJie" target="_blank" class="nav-icn iconfont icon-github"></a>
-          
-        
-      
+  <head><meta name="generator" content="Hexo 3.9.0">
+      <script>
+  var _hmt = _hmt || []
+  ;(function() {
+    var hm = document.createElement('script')
+    hm.src = 'https://hm.baidu.com/hm.js?5a0acc897fd96474a2c8f4deac84611a'
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(hm, s)
+  })()
+</script> 
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content>
+    <meta name="description" content>
+    
+    <title>
+      Streams标准函数式接口 - Shaw&#39;s Log
+    </title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" href="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/flaticon/049-chat.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style/style.css">
+  </head>
+  <body>
+    
+    <div id="post-toc" class="animated hiddenToc hide">
+      <span class="title">Toc</span>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Streams标准函数式接口"><span class="toc-text">Streams标准函数式接口</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么要用Stream"><span class="toc-text">为什么要用Stream</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是函数式接口"><span class="toc-text">什么是函数式接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Function"><span class="toc-text">Function</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Predicate"><span class="toc-text">Predicate</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Supplier"><span class="toc-text">Supplier</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Consumer"><span class="toc-text">Consumer</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stream-API"><span class="toc-text">Stream API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#映射"><span class="toc-text">映射</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#map"><span class="toc-text">map()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#flatMap"><span class="toc-text">flatMap()</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#过滤和收集"><span class="toc-text">过滤和收集</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#filter"><span class="toc-text">filter()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#collect"><span class="toc-text">collect()</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并行流和顺序流"><span class="toc-text">并行流和顺序流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li></ol></li></ol>
     </div>
-    <div class="menu">
-      
-        
-            <a href="/" class="nav-menu ">HOME</a>
-          
-        
-            <a href="/archives" class="nav-menu ">ARCHIVE</a>
-          
-        
-            <a href="/about" class="nav-menu ">ABOUT</a>
-          
-        
-      
+    
+    <div id="fixed-menu-wrap">
+      <span class="icon-toc menu-reset">Toc</span>
+      <span class="iconfont icon-arrowup menu-reset"></span>
     </div>
-  </div>
-</nav>
-    <div id="main"><section class="article">
-  <h2 class="title">Streams标准函数式接口</h2>
-  <p class="sub">10月 31, 2019</p>
-  <article class="content">
-    <h1 id="Streams标准函数式接口"><a href="#Streams标准函数式接口" class="headerlink" title="Streams标准函数式接口"></a>Streams标准函数式接口</h1><blockquote>
+    <div id="fixed-menu">
+      <span class="iconfont icon-menu-"></span>
+    </div>
+    <div id="progress">
+      <div class="line"></div>
+    </div>
+    <div id="search-shade" class="animated hiddenSearch hide">
+      <div class="input-wrap">
+        <input type="text" placeholder="Search">
+        <span class="iconfont icon-close"></span>
+      </div>
+      <div class="search-result">
+        <div class="meta">
+          <span><b id="result-count">0</b> results found</span>
+          <img src="/images/logo.jpeg">
+        </div>
+        <ul id="result-box"></ul>
+      </div>
+    </div>
+    <div id="menu-mask" class="animated hideMenuMask hide">
+      <span class="iconfont icon-close"></span>
+      <div class="nav">
+        
+        <a href="/" class>
+          Home
+        </a>
+        
+        <a href="/archives" class>
+          Archives
+        </a>
+        
+        <a href="/about" class>
+          About
+        </a>
+        
+      </div>
+    </div>
+    <div id="header">
+      <div class="intro">
+        <a href="/" class="logo" style="background-image: url('/images/logo.jpeg')"></a>
+        <div class="author">ShawJie</div>
+      </div>
+      <div class="nav">
+        <span class="iconfont icon-menu menu-icon"></span>
+      </div>
+    </div>
+    <div id="side" class="animated bounceInLeft">
+      <div class="shrink">
+        <a href="/" class="logo" style="background-image: url('/images/logo.jpeg')"></a>
+        <span class="iconfont icon-menu toggle-icon"></span>
+      </div>
+      <div class="magnify">
+        <div class="about">
+          <div class="author">ShawJie</div>
+          <a href="/" class="logo" style="background-image: url('/images/logo.jpeg')"></a>
+        </div>
+
+        <div class="nav">
+          
+          <a href="/" class>
+            Home
+          </a>
+          
+          <a href="/archives" class>
+            Archives
+          </a>
+          
+          <a href="/about" class>
+            About
+          </a>
+          
+        </div>
+        <div class="bottom">
+          <div class="follow">
+            
+            <a href="https://github.com/shawjie" target="_block">
+              <span class="iconfont icon-github"></span>
+            </a>
+             
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="container">
+      <div class="main animated bounceInRight delay-0.7s">
+        <article class="post-entry">
+    <div class="header">
+      
+      <div class="title">Streams标准函数式接口</div>
+      <div class="meta">
+        <span class="item">
+          <span class="iconfont icon-time-circle"></span>
+          <span>2019/10/31</span>
+        </span>
+
+        
+
+        
+        
+         
+          <span class="item">
+            <span class="iconfont icon-tag1"></span>
+            <span>
+                
+                  
+                    <a href="/tags/Java">Java</a>
+                  
+                
+                  
+                    <a href="/tags/Java8">Java8</a>
+                  
+                
+                  
+                    <a href="/tags/Streams">Streams</a>
+                  
+                
+            </span>
+          </span>
+         
+      </div>
+      <div>
+      </div>
+    </div>
+    <h1 id="Streams标准函数式接口">Streams标准函数式接口<a class="post-anchor" href="#Streams标准函数式接口"></a></h1><blockquote>
 <p>前段时间看了InfoQ发表的<a href="https://www.infoq.cn/article/WomHORGulYaYEDYwoiP8" target="_blank" rel="noopener">2019中国Java发展趋势报告</a>，Lambda/Stream语法已经处于晚期大众阶段，在实际开发中确实也给到了很多便利，但对于Lambda/Stream的函数式接口，没有一个系统的学习思路，今天在这边记录一下，巩固一下自己的记忆，也算给不太熟悉Lambda/Stream函数的大家一个学习的方向。</p>
 </blockquote>
-<h2 id="为什么要用Stream"><a href="#为什么要用Stream" class="headerlink" title="为什么要用Stream"></a>为什么要用Stream</h2><p><code>Stream</code>作为Java8中引入的概念，和<code>java.io</code>的<code>InputStream</code>，<code>OutputStream</code>是不同的概念。可以将<code>Stream</code>理解为对集合（<code>Collection</code>）对象功能的增强，提供了大量的聚合操作，Lambda简明易懂的语法，相对于原有的Step by step操作，在代码的可读性提升的同时，大大降低了代码的复杂度。同时它提供串行和并行两种模式进行汇聚操作，并发模式能够充分利用多核处理器的优势，使用 fork/join 并行方式来拆分任务和加速处理过程。将要处理的元素集合看作一种流， 流在管道中传输， 并且可以在管道的节点上进行处理， 比如筛选、排序、聚合等。元素流在管道中经过中间操作（intermediate operation）的处理，最后由终端操作 (terminal operation) 得到前面处理的结果。</p>
+<h2 id="为什么要用Stream">为什么要用Stream<a class="post-anchor" href="#为什么要用Stream"></a></h2><p><code>Stream</code>作为Java8中引入的概念，和<code>java.io</code>的<code>InputStream</code>，<code>OutputStream</code>是不同的概念。可以将<code>Stream</code>理解为对集合（<code>Collection</code>）对象功能的增强，提供了大量的聚合操作，Lambda简明易懂的语法，相对于原有的Step by step操作，在代码的可读性提升的同时，大大降低了代码的复杂度。同时它提供串行和并行两种模式进行汇聚操作，并发模式能够充分利用多核处理器的优势，使用 fork/join 并行方式来拆分任务和加速处理过程。将要处理的元素集合看作一种流， 流在管道中传输， 并且可以在管道的节点上进行处理， 比如筛选、排序、聚合等。元素流在管道中经过中间操作（intermediate operation）的处理，最后由终端操作 (terminal operation) 得到前面处理的结果。</p>
 <p>在学习使用<code>Stream</code>API前，首先要熟悉一下Java8中引入的几个新的函数式接口，<code>Function</code>、<code>Predicate</code>、<code>Consumer</code>和<code>Supplier</code>。</p>
-<h3 id="什么是函数式接口"><a href="#什么是函数式接口" class="headerlink" title="什么是函数式接口"></a>什么是函数式接口</h3><p>函数式接口是在Java8中引入的概念，即可用于配合Lambda进行使用的接口。既然名叫函数式接口，那么首先它得是一个接口，其次在接口中有且只能有一个抽象方法。我们都知道在Java中，接口内方法的默认修饰符是<code>public abstract</code>, 即我们也可以说只有一个方法的接口就是函数式接口，虽然有注释<code>@FunctionalInterface</code>可用于标注函数式接口，但该注释不是必须的，加上该注解能够更好地让编译器进行检查。如果编写的不是函数式接口，但是加上了<code>@FunctionInterface</code>，那么编译器会报错。</p>
-<h4 id="Function"><a href="#Function" class="headerlink" title="Function"></a>Function</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Represents a function that accepts one argument and produces a result.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;This is a &lt;a href="package-summary.html"&gt;functional interface&lt;/a&gt;</span></span><br><span class="line"><span class="comment"> * whose functional method is &#123;<span class="doctag">@link</span> #apply(Object)&#125;.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &lt;T&gt; the type of the input to the function</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &lt;R&gt; the type of the result of the function</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.8</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Function</span>&lt;<span class="title">T</span>, <span class="title">R</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Applies this function to the given argument.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> t the function argument</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the function result</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">R <span class="title">apply</span><span class="params">(T t)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// other methods</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="什么是函数式接口">什么是函数式接口<a class="post-anchor" href="#什么是函数式接口"></a></h3><p>函数式接口是在Java8中引入的概念，即可用于配合Lambda进行使用的接口。既然名叫函数式接口，那么首先它得是一个接口，其次在接口中有且只能有一个抽象方法。我们都知道在Java中，接口内方法的默认修饰符是<code>public abstract</code>, 即我们也可以说只有一个方法的接口就是函数式接口，虽然有注释<code>@FunctionalInterface</code>可用于标注函数式接口，但该注释不是必须的，加上该注解能够更好地让编译器进行检查。如果编写的不是函数式接口，但是加上了<code>@FunctionInterface</code>，那么编译器会报错。</p>
+<h4 id="Function">Function<a class="post-anchor" href="#Function"></a></h4><pre><code class="hljs java"><span class="hljs-comment">/**
+ * Represents a function that accepts one argument and produces a result.
+ *
+ * &lt;p&gt;This is a &lt;a href="package-summary.html"&gt;functional interface&lt;/a&gt;
+ * whose functional method is &#123;<span class="hljs-doctag">@link</span> #apply(Object)&#125;.
+ *
+ * <span class="hljs-doctag">@param</span> &lt;T&gt; the type of the input to the function
+ * <span class="hljs-doctag">@param</span> &lt;R&gt; the type of the result of the function
+ *
+ * <span class="hljs-doctag">@since</span> 1.8
+ */</span>
+<span class="hljs-meta">@FunctionalInterface</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Function</span>&lt;<span class="hljs-title">T</span>, <span class="hljs-title">R</span>&gt; </span>&#123;
+
+    <span class="hljs-comment">/**
+     * Applies this function to the given argument.
+     *
+     * <span class="hljs-doctag">@param</span> t the function argument
+     * <span class="hljs-doctag">@return</span> the function result
+     */</span>
+    <span class="hljs-function">R <span class="hljs-title">apply</span><span class="hljs-params">(T t)</span></span>;
+
+    <span class="hljs-comment">// other methods</span>
+&#125;</code></pre>
 
 <p>从接口的Java Doc来看，<code>Function&lt;T, R&gt;</code> 表示接受一个参数的函数，输入类型为 <code>T</code>，输出类型为 <code>R</code>。<code>Function</code> 接口只包含一个抽象方法 <code>R apply(T t)</code>，也就是在类型为 <code>T</code> 的输入 <code>t</code> 上应用该函数，得到类型为 <code>R</code> 的输出。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Function&lt;Integer, String&gt; funcDemo = (x) -&gt; <span class="string">"Input value is "</span> + x;</span><br><span class="line">System.out.println(funcDemo.apply(<span class="number">233</span>));  <span class="comment">// Input value is 233</span></span><br></pre></td></tr></table></figure>
+<pre><code class="hljs java">Function&lt;Integer, String&gt; funcDemo = (x) -&gt; <span class="hljs-string">"Input value is "</span> + x;
+System.out.println(funcDemo.apply(<span class="hljs-number">233</span>));  <span class="hljs-comment">// Input value is 233</span></code></pre>
 
 <p>除了接受一个参数的 <code>Function</code> 之外，还有接受两个参数的接口 <code>java.util.function.BiFunction&lt;T, U, R&gt;</code>，<code>T</code> 和 <code>U</code> 分别是两个参数的类型，<code>R</code> 是输出类型。<code>BiFunction</code> 接口的抽象方法为 <code>R apply(T t, U u)</code>。超过 2 个参数的函数在 Java 标准库中并没有定义。如果函数需要 3 个或更多的参数，可以使用第三方库，如 <code>Vavr</code> 中的 <code>Function0</code> 到 <code>Function8</code>。</p>
-<h4 id="Predicate"><a href="#Predicate" class="headerlink" title="Predicate"></a>Predicate</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Represents a predicate (boolean-valued function) of one argument.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;This is a &lt;a href="package-summary.html"&gt;functional interface&lt;/a&gt;</span></span><br><span class="line"><span class="comment"> * whose functional method is &#123;<span class="doctag">@link</span> #test(Object)&#125;.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &lt;T&gt; the type of the input to the predicate</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.8</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Predicate</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Evaluates this predicate on the given argument.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> t the input argument</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> &#123;<span class="doctag">@code</span> true&#125; if the input argument matches the predicate,</span></span><br><span class="line"><span class="comment">     * otherwise &#123;<span class="doctag">@code</span> false&#125;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">test</span><span class="params">(T t)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Predicate">Predicate<a class="post-anchor" href="#Predicate"></a></h4><pre><code class="hljs java"><span class="hljs-comment">/**
+ * Represents a predicate (boolean-valued function) of one argument.
+ *
+ * &lt;p&gt;This is a &lt;a href="package-summary.html"&gt;functional interface&lt;/a&gt;
+ * whose functional method is &#123;<span class="hljs-doctag">@link</span> #test(Object)&#125;.
+ *
+ * <span class="hljs-doctag">@param</span> &lt;T&gt; the type of the input to the predicate
+ *
+ * <span class="hljs-doctag">@since</span> 1.8
+ */</span>
+<span class="hljs-meta">@FunctionalInterface</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Predicate</span>&lt;<span class="hljs-title">T</span>&gt; </span>&#123;
+
+    <span class="hljs-comment">/**
+     * Evaluates this predicate on the given argument.
+     *
+     * <span class="hljs-doctag">@param</span> t the input argument
+     * <span class="hljs-doctag">@return</span> &#123;<span class="hljs-doctag">@code</span> true&#125; if the input argument matches the predicate,
+     * otherwise &#123;<span class="hljs-doctag">@code</span> false&#125;
+     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">test</span><span class="hljs-params">(T t)</span></span>;
+
+&#125;</code></pre>
 
 <p><code>Predicate</code>接口从字面意思上来看是用于判断验证一部分逻辑接口，输入参数为需进行验证的对象，输出为<code>Boolean</code>类型，抽象方法为 <code>boolean test(T t)</code>。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Predicate&lt;String&gt; predicateDemo = (s) -&gt; s.equals(<span class="string">"HelloWorld"</span>);</span><br><span class="line">System.out.println(predicateDemo.test(<span class="string">"HelloWorld"</span>));  <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<pre><code class="hljs java">Predicate&lt;String&gt; predicateDemo = (s) -&gt; s.equals(<span class="hljs-string">"HelloWorld"</span>);
+System.out.println(predicateDemo.test(<span class="hljs-string">"HelloWorld"</span>));  <span class="hljs-comment">// true</span></code></pre>
 
-<h4 id="Supplier"><a href="#Supplier" class="headerlink" title="Supplier"></a>Supplier</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Represents a supplier of results.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;There is no requirement that a new or distinct result be returned each</span></span><br><span class="line"><span class="comment"> * time the supplier is invoked.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;This is a &lt;a href="package-summary.html"&gt;functional interface&lt;/a&gt;</span></span><br><span class="line"><span class="comment"> * whose functional method is &#123;<span class="doctag">@link</span> #get()&#125;.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &lt;T&gt; the type of results supplied by this supplier</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.8</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Supplier</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Gets a result.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> a result</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">T <span class="title">get</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Supplier">Supplier<a class="post-anchor" href="#Supplier"></a></h4><pre><code class="hljs java"><span class="hljs-comment">/**
+ * Represents a supplier of results.
+ *
+ * &lt;p&gt;There is no requirement that a new or distinct result be returned each
+ * time the supplier is invoked.
+ *
+ * &lt;p&gt;This is a &lt;a href="package-summary.html"&gt;functional interface&lt;/a&gt;
+ * whose functional method is &#123;<span class="hljs-doctag">@link</span> #get()&#125;.
+ *
+ * <span class="hljs-doctag">@param</span> &lt;T&gt; the type of results supplied by this supplier
+ *
+ * <span class="hljs-doctag">@since</span> 1.8
+ */</span>
+<span class="hljs-meta">@FunctionalInterface</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Supplier</span>&lt;<span class="hljs-title">T</span>&gt; </span>&#123;
+
+    <span class="hljs-comment">/**
+     * Gets a result.
+     *
+     * <span class="hljs-doctag">@return</span> a result
+     */</span>
+    <span class="hljs-function">T <span class="hljs-title">get</span><span class="hljs-params">()</span></span>;
+&#125;</code></pre>
 
 <p><code>Supplier&lt;T&gt;</code>：没有输入，一个输出。抽象方法为 <code>T get()</code>。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Supplier&lt;StringBuilder&gt; supplierDemo = StringBuilder::<span class="keyword">new</span>;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * StringBuilder::new 写法等同于 () -&gt; new StringBuilder();</span></span><br><span class="line"><span class="comment"> * 同理 x -&gt; instance.method(x) = instance::method 或 Class::method</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">System.out.println(supplierDemo.get().append(<span class="string">"Append in StringBuilder"</span>));  <span class="comment">// Append in StringBuilder</span></span><br></pre></td></tr></table></figure>
+<pre><code class="hljs java">Supplier&lt;StringBuilder&gt; supplierDemo = StringBuilder::<span class="hljs-keyword">new</span>;
+<span class="hljs-comment">/*
+ * StringBuilder::new 写法等同于 () -&gt; new StringBuilder();
+ * 同理 x -&gt; instance.method(x) = instance::method 或 Class::method
+ */</span>
+System.out.println(supplierDemo.get().append(<span class="hljs-string">"Append in StringBuilder"</span>));  <span class="hljs-comment">// Append in StringBuilder</span></code></pre>
 
-<h4 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Represents an operation that accepts a single input argument and returns no</span></span><br><span class="line"><span class="comment"> * result. Unlike most other functional interfaces, &#123;<span class="doctag">@code</span> Consumer&#125; is expected</span></span><br><span class="line"><span class="comment"> * to operate via side-effects.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;This is a &lt;a href="package-summary.html"&gt;functional interface&lt;/a&gt;</span></span><br><span class="line"><span class="comment"> * whose functional method is &#123;<span class="doctag">@link</span> #accept(Object)&#125;.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &lt;T&gt; the type of the input to the operation</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.8</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Consumer</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Performs this operation on the given argument.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> t the input argument</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">accept</span><span class="params">(T t)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Consumer">Consumer<a class="post-anchor" href="#Consumer"></a></h4><pre><code class="hljs java"><span class="hljs-comment">/**
+ * Represents an operation that accepts a single input argument and returns no
+ * result. Unlike most other functional interfaces, &#123;<span class="hljs-doctag">@code</span> Consumer&#125; is expected
+ * to operate via side-effects.
+ *
+ * &lt;p&gt;This is a &lt;a href="package-summary.html"&gt;functional interface&lt;/a&gt;
+ * whose functional method is &#123;<span class="hljs-doctag">@link</span> #accept(Object)&#125;.
+ *
+ * <span class="hljs-doctag">@param</span> &lt;T&gt; the type of the input to the operation
+ *
+ * <span class="hljs-doctag">@since</span> 1.8
+ */</span>
+<span class="hljs-meta">@FunctionalInterface</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Consumer</span>&lt;<span class="hljs-title">T</span>&gt; </span>&#123;
+
+    <span class="hljs-comment">/**
+     * Performs this operation on the given argument.
+     *
+     * <span class="hljs-doctag">@param</span> t the input argument
+     */</span>
+    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">accept</span><span class="hljs-params">(T t)</span></span>;
+&#125;</code></pre>
 
 <p><code>Consumer&lt;T&gt;</code>：接受一个输入，没有输出。抽象方法为 <code>void accept(T t)</code>。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Consumer&lt;List&lt;String&gt;&gt; consumerDemo = (list) -&gt; list.add(<span class="string">"Here is consumer"</span>);</span><br><span class="line">List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">consumerDemo.accept(list);</span><br><span class="line">System.out.println(list.toString());  <span class="comment">// [Here is consumer]</span></span><br></pre></td></tr></table></figure>
+<pre><code class="hljs java">Consumer&lt;List&lt;String&gt;&gt; consumerDemo = (list) -&gt; list.add(<span class="hljs-string">"Here is consumer"</span>);
+List&lt;String&gt; list = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+consumerDemo.accept(list);
+System.out.println(list.toString());  <span class="hljs-comment">// [Here is consumer]</span></code></pre>
 
-<h2 id="Stream-API"><a href="#Stream-API" class="headerlink" title="Stream API"></a>Stream API</h2><h3 id="映射"><a href="#映射" class="headerlink" title="映射"></a>映射</h3><p>可能在我们的日常开发过程中经常会遇到将一个集合转换成另外一个对象的集合，那么这种操作放到 Stream 流中就是映射操作。映射操作主要就是将一个 Stream 流转换成另外一个对象的 Stream 流或者将一个 Stream 流中符合条件的元素放到一个新的 Stream 流里面。</p>
+<h2 id="Stream-API">Stream API<a class="post-anchor" href="#Stream-API"></a></h2><h3 id="映射">映射<a class="post-anchor" href="#映射"></a></h3><p>可能在我们的日常开发过程中经常会遇到将一个集合转换成另外一个对象的集合，那么这种操作放到 Stream 流中就是映射操作。映射操作主要就是将一个 Stream 流转换成另外一个对象的 Stream 流或者将一个 Stream 流中符合条件的元素放到一个新的 Stream 流里面。</p>
 <p>这边主要讨论使用Stream中常用的两个两个映射方法，<code>map(Function mapper)</code>和<code>flatMap(Function mapper)</code>。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Stream</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">BaseStream</span>&lt;<span class="title">T</span>, <span class="title">Stream</span>&lt;<span class="title">T</span>&gt;&gt; </span>&#123;</span><br><span class="line">    &lt;R&gt; <span class="function">Stream&lt;R&gt; <span class="title">map</span><span class="params">(Function&lt;? <span class="keyword">super</span> T, ? extends R&gt; mapper)</span></span>;</span><br><span class="line">    &lt;R&gt; <span class="function">Stream&lt;R&gt; <span class="title">flatMap</span><span class="params">(Function&lt;? <span class="keyword">super</span> T, ? extends Stream&lt;? extends R&gt;&gt;&gt; mapper)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Stream</span>&lt;<span class="hljs-title">T</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">BaseStream</span>&lt;<span class="hljs-title">T</span>, <span class="hljs-title">Stream</span>&lt;<span class="hljs-title">T</span>&gt;&gt; </span>&#123;
+    &lt;R&gt; <span class="hljs-function">Stream&lt;R&gt; <span class="hljs-title">map</span><span class="hljs-params">(Function&lt;? <span class="hljs-keyword">super</span> T, ? extends R&gt; mapper)</span></span>;
+    &lt;R&gt; <span class="hljs-function">Stream&lt;R&gt; <span class="hljs-title">flatMap</span><span class="hljs-params">(Function&lt;? <span class="hljs-keyword">super</span> T, ? extends Stream&lt;? extends R&gt;&gt;&gt; mapper)</span></span>;
+&#125;</code></pre>
 
-<h4 id="map"><a href="#map" class="headerlink" title="map()"></a>map()</h4><p>我们可以看到<code>map()</code>方法的参数是一个<code>Function</code>类型，该方法可以将一个流转换成另外一种对象的流，其中的 <code>T</code> 是原始流中元素的类型，而 <code>R</code> 则是转换之后的流中元素的类型。在以下代码中我们将<code>Integer</code>类型的集合内元素拼接上前缀，并使用换行符连接输出。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">String result = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>).stream()      <span class="comment">// 获取集合的流对象</span></span><br><span class="line">                .map(val -&gt; <span class="string">"value is "</span> + val)       <span class="comment">// 将集合内元素拼接上 "value is " 前缀</span></span><br><span class="line">                .collect(Collectors.joining(<span class="string">"\n"</span>));  <span class="comment">// 将集合内元素通过换行符拼接然后返回</span></span><br><span class="line">        System.out.println(result);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 输出:</span></span><br><span class="line"><span class="comment"> * value is 1</span></span><br><span class="line"><span class="comment"> * value is 2</span></span><br><span class="line"><span class="comment"> * value is 3</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+<h4 id="map">map()<a class="post-anchor" href="#map"></a></h4><p>我们可以看到<code>map()</code>方法的参数是一个<code>Function</code>类型，该方法可以将一个流转换成另外一种对象的流，其中的 <code>T</code> 是原始流中元素的类型，而 <code>R</code> 则是转换之后的流中元素的类型。在以下代码中我们将<code>Integer</code>类型的集合内元素拼接上前缀，并使用换行符连接输出。</p>
+<pre><code class="hljs java">String result = Arrays.asList(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>).stream()      <span class="hljs-comment">// 获取集合的流对象</span>
+                .map(val -&gt; <span class="hljs-string">"value is "</span> + val)       <span class="hljs-comment">// 将集合内元素拼接上 "value is " 前缀</span>
+                .collect(Collectors.joining(<span class="hljs-string">"\n"</span>));  <span class="hljs-comment">// 将集合内元素通过换行符拼接然后返回</span>
+        System.out.println(result);
 
-<h4 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap()"></a>flatMap()</h4><p>flatMap()操作能把原始流中的元素进行一对多的转换，并且将新生成的元素全都合并到它返回的流里面。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; list = Arrays.asList(<span class="string">"192.168.0.1"</span>, <span class="string">"192.168.0.2"</span>, <span class="string">"192.168.0.3"</span>).stream()  <span class="comment">// 获取集合流对象</span></span><br><span class="line">    .flatMap(val -&gt; Arrays.stream(val.split(<span class="string">"\\."</span>)))                                     <span class="comment">// 将字符串以 '.' 分割并转换为流对象</span></span><br><span class="line">    .distinct()                                                                          <span class="comment">// 去重</span></span><br><span class="line">    .collect(Collectors.toList());                                                       <span class="comment">// 收集操作</span></span><br><span class="line">System.out.println(list);  <span class="comment">// [192, 168, 0, 1, 2, 3]</span></span><br></pre></td></tr></table></figure>
+<span class="hljs-comment">/*
+ * 输出:
+ * value is 1
+ * value is 2
+ * value is 3
+ */</span></code></pre>
+
+<h4 id="flatMap">flatMap()<a class="post-anchor" href="#flatMap"></a></h4><p>flatMap()操作能把原始流中的元素进行一对多的转换，并且将新生成的元素全都合并到它返回的流里面。</p>
+<pre><code class="hljs java">List&lt;String&gt; list = Arrays.asList(<span class="hljs-string">"192.168.0.1"</span>, <span class="hljs-string">"192.168.0.2"</span>, <span class="hljs-string">"192.168.0.3"</span>).stream()  <span class="hljs-comment">// 获取集合流对象</span>
+    .flatMap(val -&gt; Arrays.stream(val.split(<span class="hljs-string">"\\."</span>)))                                     <span class="hljs-comment">// 将字符串以 '.' 分割并转换为流对象</span>
+    .distinct()                                                                          <span class="hljs-comment">// 去重</span>
+    .collect(Collectors.toList());                                                       <span class="hljs-comment">// 收集操作</span>
+System.out.println(list);  <span class="hljs-comment">// [192, 168, 0, 1, 2, 3]</span></code></pre>
 
 <p>例子不是很好，但是主要是看一个使用方法。</p>
-<h3 id="过滤和收集"><a href="#过滤和收集" class="headerlink" title="过滤和收集"></a>过滤和收集</h3><p>当我们要在一系列结果中过滤一部分结果，并将其转换为集合、Map、字符串或者是其他类型的话，<code>Stream</code>API中的<code>filter()</code>方法和<code>collect()</code>方法就派上了用场，我们先来看看这两个方法的方法签名。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Stream</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">BaseStream</span>&lt;<span class="title">T</span>, <span class="title">Stream</span>&lt;<span class="title">T</span>&gt;&gt; </span>&#123;</span><br><span class="line">    <span class="function">Stream&lt;T&gt; <span class="title">filter</span><span class="params">(Predicate&lt;? <span class="keyword">super</span> T&gt; predicate)</span></span>;</span><br><span class="line">    &lt;R&gt; <span class="function">R <span class="title">collect</span><span class="params">(Supplier&lt;R&gt; supplier,</span></span></span><br><span class="line"><span class="function"><span class="params">                  BiConsumer&lt;R, ? <span class="keyword">super</span> T&gt; accumulator,</span></span></span><br><span class="line"><span class="function"><span class="params">                  BiConsumer&lt;R, R&gt; combiner)</span></span>;</span><br><span class="line">    &lt;R, A&gt; <span class="function">R <span class="title">collect</span><span class="params">(Collector&lt;? <span class="keyword">super</span> T, A, R&gt; collector)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="过滤和收集">过滤和收集<a class="post-anchor" href="#过滤和收集"></a></h3><p>当我们要在一系列结果中过滤一部分结果，并将其转换为集合、Map、字符串或者是其他类型的话，<code>Stream</code>API中的<code>filter()</code>方法和<code>collect()</code>方法就派上了用场，我们先来看看这两个方法的方法签名。</p>
+<pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Stream</span>&lt;<span class="hljs-title">T</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">BaseStream</span>&lt;<span class="hljs-title">T</span>, <span class="hljs-title">Stream</span>&lt;<span class="hljs-title">T</span>&gt;&gt; </span>&#123;
+    <span class="hljs-function">Stream&lt;T&gt; <span class="hljs-title">filter</span><span class="hljs-params">(Predicate&lt;? <span class="hljs-keyword">super</span> T&gt; predicate)</span></span>;
+    &lt;R&gt; <span class="hljs-function">R <span class="hljs-title">collect</span><span class="hljs-params">(Supplier&lt;R&gt; supplier,
+                  BiConsumer&lt;R, ? <span class="hljs-keyword">super</span> T&gt; accumulator,
+                  BiConsumer&lt;R, R&gt; combiner)</span></span>;
+    &lt;R, A&gt; <span class="hljs-function">R <span class="hljs-title">collect</span><span class="hljs-params">(Collector&lt;? <span class="hljs-keyword">super</span> T, A, R&gt; collector)</span></span>;
+&#125;</code></pre>
 
-<h4 id="filter"><a href="#filter" class="headerlink" title="filter()"></a>filter()</h4><p><code>filter()</code>方法的参数是一个<code>Predicate</code>对象，在之前了解几个基础函数式接口的时候接触过。这边我们直接看一下它的用法。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>).stream()  <span class="comment">// 获取集合的流对象</span></span><br><span class="line">    .filter(item -&gt; item &gt; <span class="number">4</span>)                                               <span class="comment">// 筛选出值大于4的元素</span></span><br><span class="line">    .collect(Collectors.toList());                                          <span class="comment">// 收集过滤后的元素为一个集合</span></span><br><span class="line">System.out.println(list);  <span class="comment">// [5, 6, 7, 8, 9, 10]</span></span><br></pre></td></tr></table></figure>
+<h4 id="filter">filter()<a class="post-anchor" href="#filter"></a></h4><p><code>filter()</code>方法的参数是一个<code>Predicate</code>对象，在之前了解几个基础函数式接口的时候接触过。这边我们直接看一下它的用法。</p>
+<pre><code class="hljs java">List&lt;Integer&gt; list = Arrays.asList(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>).stream()  <span class="hljs-comment">// 获取集合的流对象</span>
+    .filter(item -&gt; item &gt; <span class="hljs-number">4</span>)                                               <span class="hljs-comment">// 筛选出值大于4的元素</span>
+    .collect(Collectors.toList());                                          <span class="hljs-comment">// 收集过滤后的元素为一个集合</span>
+System.out.println(list);  <span class="hljs-comment">// [5, 6, 7, 8, 9, 10]</span></code></pre>
 
-<h4 id="collect"><a href="#collect" class="headerlink" title="collect()"></a>collect()</h4><p>收集操作相当于将流管道内的计算结果转换成你想要的目标类型。<code>collect()</code>重载了两个方法，我们先看一个参数的<code>collect()</code>方法。</p>
+<h4 id="collect">collect()<a class="post-anchor" href="#collect"></a></h4><p>收集操作相当于将流管道内的计算结果转换成你想要的目标类型。<code>collect()</code>重载了两个方法，我们先看一个参数的<code>collect()</code>方法。</p>
 <p><strong>collect(Collector&lt;? super T, A, R&gt; collector)</strong><br>其中 <code>R</code> 指定结果的类型，<code>T</code> 指定了调用流的元素类型。内部积累的类型由 <code>A</code> 指定。<code>collector</code> 是一个收集器，指定收集过程如何执行，<code>collect()</code> 方法是一个终端方法。一般情况我们只需要借助 <code>Collectors</code> 中的方法就可以完成收集操作。<br>常用的有<code>Collectors.toList()</code>、<code>Collectors.joining()</code>、<code>Collectors.toMap()</code>等等，之前的实例很多都用到了这个重载方法，此处就不再编写用例了。</p>
 <hr>
 <p><strong>collect(Supplier&lt;R&gt; supplier, BiConsumer&lt;R, ? super T&gt; accumulator, BiConsumer&lt;R, R&gt; combiner)</strong><br>该重载方法相当于<code>Collectors</code>类的具体实现，通过自定义源类型完成收集操作。我们可以尝试通过<code>collect()</code>方法将一个字符串集合的首字母作为Map的键，整个字符串作为Map的值作为此次用例。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String, String&gt; result = Arrays.asList(<span class="string">"Amazon"</span>, <span class="string">"ByteDance"</span>, <span class="string">"DiDi"</span>, <span class="string">"Netease"</span>, <span class="string">"Tencent"</span>).stream()  <span class="comment">// 获取字符串集合的Stream流对象</span></span><br><span class="line">    .collect(HashMap::<span class="keyword">new</span>, (map, s) -&gt; map.put(String.valueOf(s.charAt(<span class="number">0</span>)), s), HashMap::putAll);</span><br><span class="line"><span class="comment">// 第一个参数是Supplier对象 则通过Lambda构建一个HashMap</span></span><br><span class="line"><span class="comment">// 第二个参数是BiConsumer对象 接受两个输入，无输出，第一个参数为累加器，第二个参数为流内元素，按照需求将元素处理后置入累加器</span></span><br><span class="line"><span class="comment">// 第三个参数是BiConsumer对象 第一个参数为Supplier创建的对象，第二个参数为累加器，则直接将累加器内所有元素放入Map完成操作</span></span><br><span class="line">result.entrySet().stream()</span><br><span class="line">    .forEach(e -&gt; System.out.printf(<span class="string">"key:%s, value:%s\t"</span>, e.getKey(), e.getValue()));  <span class="comment">// 循环格式化输出Map结果</span></span><br><span class="line"><span class="comment">// key:A, value:Amazon    key:B, value:ByteDance    key:D, value:DiDi    key:T, value:Tencent    key:N, value:Netease</span></span><br></pre></td></tr></table></figure>
+<pre><code class="hljs java">Map&lt;String, String&gt; result = Arrays.asList(<span class="hljs-string">"Amazon"</span>, <span class="hljs-string">"ByteDance"</span>, <span class="hljs-string">"DiDi"</span>, <span class="hljs-string">"Netease"</span>, <span class="hljs-string">"Tencent"</span>).stream()  <span class="hljs-comment">// 获取字符串集合的Stream流对象</span>
+    .collect(HashMap::<span class="hljs-keyword">new</span>, (map, s) -&gt; map.put(String.valueOf(s.charAt(<span class="hljs-number">0</span>)), s), HashMap::putAll);
+<span class="hljs-comment">// 第一个参数是Supplier对象 则通过Lambda构建一个HashMap</span>
+<span class="hljs-comment">// 第二个参数是BiConsumer对象 接受两个输入，无输出，第一个参数为累加器，第二个参数为流内元素，按照需求将元素处理后置入累加器</span>
+<span class="hljs-comment">// 第三个参数是BiConsumer对象 第一个参数为Supplier创建的对象，第二个参数为累加器，则直接将累加器内所有元素放入Map完成操作</span>
+result.entrySet().stream()
+    .forEach(e -&gt; System.out.printf(<span class="hljs-string">"key:%s, value:%s\t"</span>, e.getKey(), e.getValue()));  <span class="hljs-comment">// 循环格式化输出Map结果</span>
+<span class="hljs-comment">// key:A, value:Amazon    key:B, value:ByteDance    key:D, value:DiDi    key:T, value:Tencent    key:N, value:Netease</span></code></pre>
 
 <hr>
 <p>以上小结谈论了几个<code>Stream</code>流常用的API，<code>Stream</code>的API还有很多，由于篇幅有限就不逐一介绍并编写用例了，在理解了基础的函数式接口的使用之后，其他的方法相信也能融会贯通。</p>
-<h2 id="并行流和顺序流"><a href="#并行流和顺序流" class="headerlink" title="并行流和顺序流"></a>并行流和顺序流</h2><p>在现在的大流量时代，为有效的应对高并发问题，合理的使用线程资源是很重要的一环。Java8的<code>Stream</code>流具体提供了并行流和顺序流，通过字面意思就能理解，并行流是通过讲流内的一个大人物分割为很多的小任务然后分配给每条线程执行，线程执行完后讲结果返回之后合并为总结果。而顺序流就很简单了，是通过单线程完成所有的操作。并行流的概念用中国人的概念来说可以理解为分而治之，在Java中能对应到Fork/join框架，就是在必要得情况下，将一个大任务，进行拆分（Fork）成若干个小任务（拆分到不能再拆分），再将一个个的小任务运算得结果进行join汇总。本篇由于主要是对<code>Stream</code>进行讨论。Fork/Join框架到此便不再细说。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p><code>Stream</code>流在日常的开发中简化了我们大量的逻辑代码，简化了开发过程提高了代码可读性，在日后的开发过程中，也建议多使用<code>Stream</code>的特性，提高代码书写的流畅程度。<br>Ps: Stream这玩意…学完之后真的回不去…有点爽</p>
+<h2 id="并行流和顺序流">并行流和顺序流<a class="post-anchor" href="#并行流和顺序流"></a></h2><p>在现在的大流量时代，为有效的应对高并发问题，合理的使用线程资源是很重要的一环。Java8的<code>Stream</code>流具体提供了并行流和顺序流，通过字面意思就能理解，并行流是通过讲流内的一个大人物分割为很多的小任务然后分配给每条线程执行，线程执行完后讲结果返回之后合并为总结果。而顺序流就很简单了，是通过单线程完成所有的操作。并行流的概念用中国人的概念来说可以理解为分而治之，在Java中能对应到Fork/join框架，就是在必要得情况下，将一个大任务，进行拆分（Fork）成若干个小任务（拆分到不能再拆分），再将一个个的小任务运算得结果进行join汇总。本篇由于主要是对<code>Stream</code>进行讨论。Fork/Join框架到此便不再细说。</p>
+<h2 id="小结">小结<a class="post-anchor" href="#小结"></a></h2><p><code>Stream</code>流在日常的开发中简化了我们大量的逻辑代码，简化了开发过程提高了代码可读性，在日后的开发过程中，也建议多使用<code>Stream</code>的特性，提高代码书写的流畅程度。<br>Ps: Stream这玩意…学完之后真的回不去…有点爽</p>
 
-  </article>
-  <footer class="f-cf">
-    
-      <a href="/2019/11/01/deepin-mysql-1/" class="link f-fl">⟵深入学习mysql (一)</a>
-    
-    
-      <a href="/2019/09/09/work-design-singleton/" class="link f-fr">工作中用到的设计模式(一)：单例模式⟶</a>
-    
-  </footer>
-</section></div>
-    <footer id="footer" class="f-cf">
-  Loverconcerto@outlook.com
+
   
-    
-      
-        · <a href="https://github.com/ShawJie" target="_blank" class="nav-icn">GitHub</a>
-      
-    
-  
-  <span class="copyright">All rights reserved @Clover Tuan</span>
-</footer>
+  <div class="post-guide">
+    <div class="item left">
+        
+          <a href="/2019/11/01/deepin-mysql-1/">深入学习mysql (一)</a>
+        
+    </div>
+    <div class="item right">
+        
+          <a href="/2019/09/09/work-design-singleton/">工作中用到的设计模式(一)：单例模式</a>
+        
+    </div>
   </div>
-</body>
+
+  
+
+  <div id="comment"></div>
+
+  
+  
+</article>
+        <footer>
+          <div class="copyright">
+            ©2019
+            <a href="http://yoursite.com">ShawJie</a> Powered by <a href="https://hexo.io">Hexo</a> |
+            <a href="https://github.com/shixiaohu2206/hexo-theme-huhu">hexo-theme-huhu</a>
+          </div>
+          
+        </footer>
+      </div>
+    </div>
+  </body>
+  
 </html>
+<script type="text/javascript">
+                  window.HUHU_CONFIG = JSON.parse("{\"service_worker\":{\"open\":false}}")
+                </script> <script type="text/javascript">window.addEventListener('load', function() {
+    
+    window.loadJs = function(d, m, a) {
+      var c = document.getElementsByTagName('head')[0] || document.head || document.documentElement
+      var b = document.createElement('script')
+      b.defer = true
+      b.setAttribute('type', 'text/javascript')
+      b.setAttribute('charset', 'UTF-8')
+      b.setAttribute('async', 'true')
+      b.setAttribute('src', d)
+      m && b.setAttribute('data-main', '/scripts/app-built')
+      if (typeof a === 'function') {
+        if (window.attachEvent) {
+          b.onreadystatechange = function() {
+            var e = b.readyState
+            if (e === 'loaded' || e === 'complete') {
+              b.onreadystatechange = null
+              a()
+            }
+          }
+        } else {
+          b.onload = a
+        }
+      }
+      c.appendChild(b)
+    }
+    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
+  })</script> <script type="text/javascript">
+                  ;(function() {
+                    var bp = document.createElement('script')
+                    var curProtocol = window.location.protocol.split(':')[0]
+                    if (curProtocol === 'https') {
+                      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js'
+                    } else {
+                      bp.src = 'http://push.zhanzhang.baidu.com/push.js'
+                    }
+                    var s = document.getElementsByTagName('script')[0]
+                    s.parentNode.insertBefore(bp, s)
+                  })()
+                </script> 
