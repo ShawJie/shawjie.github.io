@@ -19,7 +19,7 @@
       有关Redis，需要知道的几件事 - Shaw&#39;s Log
     </title>
     <link rel="manifest" href="/manifest.json">
-    <link rel="shortcut icon" href="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/flaticon/049-chat.png" type="image/x-icon">
+    <link rel="shortcut icon" href="https://i.loli.net/2019/12/03/RwXtHdlBG7zmMq1.png" type="image/x-icon">
     <link rel="stylesheet" href="/style/style.css">
   </head>
   <body>
@@ -47,7 +47,7 @@
       <div class="search-result">
         <div class="meta">
           <span><b id="result-count">0</b> results found</span>
-          <img src="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/flaticon/71685071_p0.jpg">
+          <img src="https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg">
         </div>
         <ul id="result-box"></ul>
       </div>
@@ -72,7 +72,7 @@
     </div>
     <div id="header">
       <div class="intro">
-        <a href="/" class="logo" style="background-image: url('https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/flaticon/71685071_p0.jpg')"></a>
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
         <div class="author">ShawJie</div>
       </div>
       <div class="nav">
@@ -81,13 +81,13 @@
     </div>
     <div id="side" class="animated bounceInLeft">
       <div class="shrink">
-        <a href="/" class="logo" style="background-image: url('https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/flaticon/71685071_p0.jpg')"></a>
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
         <span class="iconfont icon-menu toggle-icon"></span>
       </div>
       <div class="magnify">
         <div class="about">
           <div class="author">ShawJie</div>
-          <a href="/" class="logo" style="background-image: url('https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/flaticon/71685071_p0.jpg')"></a>
+          <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
         </div>
 
         <div class="nav">
@@ -199,7 +199,7 @@
 <p>缓存是<code>Redis</code>的主要功能之一，在有大流量访问数据时，缓存能为数据库分担很大一部分压力。说到这就不得不提及使用缓存所要尽量避免的三大问题 穿透、击穿、雪崩。</p>
 </blockquote>
 <h3 id="缓存穿透">缓存穿透<a class="post-anchor" href="#缓存穿透"></a></h3><p>​    缓存穿透在概念上很好理解，即请求者发送了非法的参数请求到应用，应用会先去缓存查询一遍数据是否被缓存，但由于参数非法，这条数据永远也不会被缓存在<code>Redis</code>中，于是应用会去查询数据库，但数据库里依旧不会存在非法数据，所以返回空。当这种非法请求全部打到数据库上的时候，数据库的情况也可想而知了。</p>
-<a href="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/redis-part-1/image-20191202235656373.png" data-caption data-fancybox="images"><img src="https://blogimage-1257020043.cos.ap-shanghai.myqcloud.com/posts/redis-part-1/image-20191202235656373.png" alt></a>
+<a href="https://i.loli.net/2019/12/03/iYP9RDjk5KVto7S.png" data-caption data-fancybox="images"><img src="https://i.loli.net/2019/12/03/iYP9RDjk5KVto7S.png" alt></a>
 
 <p>​    这是一套相对标准的请求流程图，为什么说相对标准，因为该流程图内还没考虑到缓存数据同步的问题，这方面要说的内容也有很多，下回有机会再说。<br>​<br>​    面对这张图，假设数据库存在一张表T，主键ID自增，目前表内有100条数据，服务端提供查询接口，查询参数为ID，目前一百条数据都存在于缓存。现有一个用户，不断地向接口请求<code>ID = -1</code>的数据，结果当然是缓存不命中，直接查询数据库，数据库没有对应数据，但也扛不住请求压力，自然就挂了。<br>​<br>​    当然现在有小可爱肯定就会说：“那我在接口处做一个判断，判断ID小于0就直接返回不就行了嘛。”<br>​<br>​    既然是非法参数请求，自然是能从接口处拦截住并返回的，但是如果只判断了ID &lt; 0，那如果那个用户请求的ID参数大于100了呢？所以对于服务来说，只要是未在数据区间内的请求，都可以说是缓存穿透。至于缓存穿透的解决办法，可以考虑在接口处使用布隆过滤器进行参数校验。至于布隆过滤器的原理和实现，如果有机会的话之后再说吧。</p>
 <h3 id="缓存击穿">缓存击穿<a class="post-anchor" href="#缓存击穿"></a></h3><p>​    缓存击穿是指在有大量并发请求同一个<code>Key</code>时，<code>Key</code>的失效时间到了，此时大量的并发会全部引向数据库，之后数据库瞬间就挂掉了。<br>​<br>​    既然知道原因了那么解决办法也就很明朗了，一是给该数据加上锁，涌入的第一个请求会去数据库里取到数据，之后存进缓存，而之后的请求再去缓存里取就没问题了。</p>
