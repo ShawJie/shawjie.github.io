@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+      <script>
+  var _hmt = _hmt || []
+  ;(function() {
+    var hm = document.createElement('script')
+    hm.src = 'https://hm.baidu.com/hm.js?5a0acc897fd96474a2c8f4deac84611a'
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(hm, s)
+  })()
+</script> 
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content>
+    <meta name="description" content>
+    
+    <title>
+      Mysql 主从部署 - Shaw&#39;s Log
+    </title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" href="https://i.loli.net/2019/12/03/RwXtHdlBG7zmMq1.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style/style.css">
+  </head>
+  <body>
+    
+    <div id="post-toc" class="animated hiddenToc hide">
+      <span class="title">Toc</span>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Mysql-主从部署"><span class="toc-text">Mysql 主从部署</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#权限配置"><span class="toc-text">权限配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主从同步"><span class="toc-text">主从同步</span></a></li></ol></li></ol>
+    </div>
+    
+    <div id="fixed-menu-wrap">
+      <span class="icon-toc menu-reset">Toc</span>
+      <span class="iconfont icon-arrowup menu-reset"></span>
+    </div>
+    <div id="fixed-menu">
+      <span class="iconfont icon-menu-"></span>
+    </div>
+    <div id="progress">
+      <div class="line"></div>
+    </div>
+    <div id="search-shade" class="animated hiddenSearch hide">
+      <div class="input-wrap">
+        <input type="text" placeholder="Search">
+        <span class="iconfont icon-close"></span>
+      </div>
+      <div class="search-result">
+        <div class="meta">
+          <span><b id="result-count">0</b> results found</span>
+          <img src="https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg">
+        </div>
+        <ul id="result-box"></ul>
+      </div>
+    </div>
+    <div id="menu-mask" class="animated hideMenuMask hide">
+      <span class="iconfont icon-close"></span>
+      <div class="nav">
+        
+        <a href="/" class>
+          Home
+        </a>
+        
+        <a href="/archives" class>
+          Archives
+        </a>
+        
+        <a href="/about" class>
+          About
+        </a>
+        
+      </div>
+    </div>
+    <div id="header">
+      <div class="intro">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <div class="author">ShawJie</div>
+      </div>
+      <div class="nav">
+        <span class="iconfont icon-menu menu-icon"></span>
+      </div>
+    </div>
+    <div id="side" class="animated bounceInLeft">
+      <div class="shrink">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <span class="iconfont icon-menu toggle-icon"></span>
+      </div>
+      <div class="magnify">
+        <div class="about">
+          <div class="author">ShawJie</div>
+          <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        </div>
+
+        <div class="nav">
+          
+          <a href="/" class>
+            Home
+          </a>
+          
+          <a href="/archives" class>
+            Archives
+          </a>
+          
+          <a href="/about" class>
+            About
+          </a>
+          
+        </div>
+        <div class="bottom">
+          <div class="follow">
+            
+            <a href="https://github.com/shawjie" target="_block">
+              <span class="iconfont icon-github"></span>
+            </a>
+             
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="container">
+      <div class="main animated bounceInRight delay-0.7s">
+        <article class="post-entry">
+    <div class="header">
+      
+      <div class="title">Mysql 主从部署</div>
+      <div class="meta">
+        <span class="item">
+          <span class="iconfont icon-time-circle"></span>
+          <span>2020/01/22</span>
+        </span>
+
+        
+
+        
+        
+         
+          <span class="item">
+            <span class="iconfont icon-tag1"></span>
+            <span>
+                
+                  
+                    <a href="/tags/Database">Database</a>
+                  
+                
+                  
+                    <a href="/tags/mysql">mysql</a>
+                  
+                
+            </span>
+          </span>
+         
+      </div>
+      <div>
+      </div>
+    </div>
+    <h1 id="Mysql-主从部署">Mysql 主从部署<a class="post-anchor" href="#Mysql-主从部署"></a></h1><blockquote>
+<p>基于<code>Docker</code>的<code>Mysql</code>主从部署测试，<code>Mysql</code>版本为<strong>8.0.18</strong></p>
+</blockquote>
+<h2 id="准备工作">准备工作<a class="post-anchor" href="#准备工作"></a></h2><p>从<code>Docker</code>镜像仓库拉取<code>Mysql</code>的镜像(由于只是为了测试主从部署，所以并没有刻意的去限定版本)</p>
+<pre><code class="hljs undefined">// 拉取Mysql镜像到本地
+$ docker pull mysql
+
+// 查看确认拉取到本地的镜像
+$ docker images</code></pre>
+
+<p>为了简化测试过程的docker命令编写，这边使用了<code>docker-compose</code>辅助进行容器创建控制操作。<br>为了实现主从部署，我们还需要修改一些配置文件。根据Docker Mysql官方的镜像描述称可通过<code>VOLUMES</code>进行配置文件的挂载进行配置文件的加载。<br>但实际进行操作后发现Docker Mysql连接时会抛出<code>UNKNOW variable</code>的异常。后改用启动参数方式设置配置参数，经测试可用。</p>
+<pre><code class="hljs undefined">// docker 命令
+$ docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:tag --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci</code></pre>
+
+<pre><code class="hljs yaml"><span class="hljs-comment"># docker-compose 配置</span>
+
+<span class="hljs-attr">version:</span> <span class="hljs-string">'3.1'</span>
+<span class="hljs-attr">services:</span>
+<span class="hljs-attr">   mysql-db:</span>
+<span class="hljs-attr">      image:</span> <span class="hljs-attr">mysql:tag</span>
+<span class="hljs-attr">      command:</span> <span class="hljs-string">["--character-set-server=utf8mb4",</span> <span class="hljs-string">"--collation-server=utf8mb4_unicode_ci"</span><span class="hljs-string">]</span>
+<span class="hljs-attr">      restart:</span> <span class="hljs-string">always</span></code></pre>
+
+<p><strong>具体配置内容如下</strong><br>Master端:</p>
+<pre><code class="hljs properties">server_id=1 // 节点标识，不可重复
+read-only=0 // 主写从读，则主节点无需控制只读限制
+log-bin=mysql-bin // 由于Mysql的主从同步是通过binlog进行控制 所以需要开启binlog
+
+binlog-do-db=[database name] // 需要进行binlog 记录的数据库
+
+// 若是需要同步的数据库为大部分 也可通过 replicate-ignore-db=[database name] 进行部分的排除</code></pre>
+
+<p>slave端:</p>
+<pre><code class="hljs properties">server_id=[primary identity] // 节点标识 不可重复
+read-only=1                  // 主写从读 设置主节点为只读，保证非super权限用户无法对数据进行修改，保证数据同步安全性
+log-bin=mysql-bin            // 开启binlog
+
+binlog-do-db=[database name] // 需要进行binlog 记录的数据库 （需要进行同步的数据库）</code></pre>
+
+<h2 id="权限配置">权限配置<a class="post-anchor" href="#权限配置"></a></h2><p>由于需要进行主从同步，我们需要让从数据库有权限从主数据库取到binlog并进行同步。则我们需要在主数据库进行一个账户权限的开放。</p>
+<pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">USER</span> <span class="hljs-string">'[username]'</span>@<span class="hljs-string">'%'</span> <span class="hljs-keyword">IDENTIFIED</span> <span class="hljs-keyword">WITH</span> mysql_native_password <span class="hljs-keyword">BY</span> <span class="hljs-string">'[your password]'</span>;
+<span class="hljs-keyword">GRANT</span> <span class="hljs-keyword">REPLICATION</span> <span class="hljs-keyword">SLAVE</span> <span class="hljs-keyword">ON</span> *.* <span class="hljs-keyword">TO</span> <span class="hljs-string">'[username]'</span>@<span class="hljs-string">'%'</span>;</code></pre>
+
+<p>完成这两步之后再进行一个登录的尝试，成功登录后，账户权限的开放就完成了。</p>
+<h2 id="主从同步">主从同步<a class="post-anchor" href="#主从同步"></a></h2><p>在完成账户权限的开放后，我们就需要建立主从之间的连接了。<br>首先既然是主从同步，从数据库需要知道主数据库的地址，连接用户名密码，要读取的binlog日志文件，以及从日志文件开始同步的位置。<br>数据库的连接地址，用户名密码我们都知道了，那么binlog日志文件和同步的位置我们从哪里获取呢。<br>我们可以在主数据库执行<code>SHOW MASTER STATUS;</code>。</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Position</th>
+<th>Binlog_Do_DB</th>
+<th>Binlog_Ignore_DB</th>
+<th>Executed_Gtid_Set</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>mysql-bin.000003</td>
+<td>155</td>
+<td>datebase name</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>日志文件，对应的就是File字段。日志文件开始同步的位置，对应的就是Position字段。</p>
+<p>切换到从数据库，我们就需要开始配置连接主数据库的内容了。</p>
+<pre><code class="hljs sql"><span class="hljs-keyword">CHANGE</span> <span class="hljs-keyword">MASTER</span> <span class="hljs-keyword">TO</span>
+MASTER_HOST = <span class="hljs-string">'[Master database ip]'</span>,
+MASTER_USER = <span class="hljs-string">'[username]'</span>, // 主数据库开放的数据库权限的账号
+MASTER_PASSWORD = <span class="hljs-string">'[password]'</span>,
+MASTER_LOG_FILE = <span class="hljs-string">'[Log file]'</span>,
+MASTER_LOG_POS = [<span class="hljs-keyword">Position</span>],  // 日志文件同步位置
+MASTER_PORT = [<span class="hljs-keyword">Master</span> <span class="hljs-keyword">database</span> port];</code></pre>
+
+<p>在配置完主数据库后，就可以通过执行<code>START SLAVE;</code>命令进行主从同步的过程。通过<code>SHOW SLAVE STATUS\G;</code>命令，可以查看主从同步情况，若连接无问题，则<code>slave_io_running</code>和<code>slave_sql_running</code>值都为YES。</p>
+<p>我们可以在主数据库插入一条数据，然后回到从数据库查看情况。若主数据库插入成功之后从数据库没有同步成功，则我们可以通过<code>SHOW SLAVE STATUS\G;</code>命令的<code>ERROR_MSG</code>查看原因。</p>
+
+
+  
+  <div class="post-guide">
+    <div class="item left">
+        
+          <a href="/2020/02/22/final-log/">Shaw's Log 2020/02/22</a>
+        
+    </div>
+    <div class="item right">
+        
+          <a href="/2019/12/03/About-Redis/">有关Redis，需要知道的几件事</a>
+        
+    </div>
+  </div>
+
+  
+
+  <div id="comment"></div>
+
+  
+  
+</article>
+        <footer>
+          <div class="copyright">
+            ©2020
+            <a href="http://yoursite.com">ShawJie</a> Powered by <a href="https://hexo.io">Hexo</a> |
+            <a href="https://github.com/shixiaohu2206/hexo-theme-huhu">hexo-theme-huhu</a> 
+            
+			| <a class="icp" href="http://www.beian.miit.gov.cn/" target="_blank">浙ICP备20000303号-1</a>
+			
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+  
+</html>
+<script type="text/javascript">
+                  window.HUHU_CONFIG = JSON.parse("{\"service_worker\":{\"open\":false}}")
+                </script> <script type="text/javascript">window.addEventListener('load', function() {
+    
+    window.loadJs = function(d, m, a) {
+      var c = document.getElementsByTagName('head')[0] || document.head || document.documentElement
+      var b = document.createElement('script')
+      b.defer = true
+      b.setAttribute('type', 'text/javascript')
+      b.setAttribute('charset', 'UTF-8')
+      b.setAttribute('async', 'true')
+      b.setAttribute('src', d)
+      m && b.setAttribute('data-main', '/scripts/app-built')
+      if (typeof a === 'function') {
+        if (window.attachEvent) {
+          b.onreadystatechange = function() {
+            var e = b.readyState
+            if (e === 'loaded' || e === 'complete') {
+              b.onreadystatechange = null
+              a()
+            }
+          }
+        } else {
+          b.onload = a
+        }
+      }
+      c.appendChild(b)
+    }
+    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
+  })</script> <script type="text/javascript">
+                  ;(function() {
+                    var bp = document.createElement('script')
+                    var curProtocol = window.location.protocol.split(':')[0]
+                    if (curProtocol === 'https') {
+                      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js'
+                    } else {
+                      bp.src = 'http://push.zhanzhang.baidu.com/push.js'
+                    }
+                    var s = document.getElementsByTagName('script')[0]
+                    s.parentNode.insertBefore(bp, s)
+                  })()
+                </script> 
