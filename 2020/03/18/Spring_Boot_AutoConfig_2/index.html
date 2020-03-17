@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+      <script>
+  var _hmt = _hmt || []
+  ;(function() {
+    var hm = document.createElement('script')
+    hm.src = 'https://hm.baidu.com/hm.js?5a0acc897fd96474a2c8f4deac84611a'
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(hm, s)
+  })()
+</script> 
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content>
+    <meta name="description" content>
+    
+    <title>
+      Spring Boot 自动装配原理 / 2 - Shaw&#39;s Log
+    </title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" href="https://i.loli.net/2019/12/03/RwXtHdlBG7zmMq1.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style/style.css">
+  </head>
+  <body>
+    
+    <div id="post-toc" class="animated hiddenToc hide">
+      <span class="title">Toc</span>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spring-Boot-自动装配原理-2"><span class="toc-text">Spring Boot 自动装配原理 / 2</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#主类是如何被加载注册的"><span class="toc-text">主类是如何被加载注册的</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#加载的META-INF-spring-factories"><span class="toc-text">加载的META-INF/spring.factories</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring应用上下文的创建和准备"><span class="toc-text">Spring应用上下文的创建和准备</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li></ol></li></ol>
+    </div>
+    
+    <div id="fixed-menu-wrap">
+      <span class="icon-toc menu-reset">Toc</span>
+      <span class="iconfont icon-arrowup menu-reset"></span>
+    </div>
+    <div id="fixed-menu">
+      <span class="iconfont icon-menu-"></span>
+    </div>
+    <div id="progress">
+      <div class="line"></div>
+    </div>
+    <div id="search-shade" class="animated hiddenSearch hide">
+      <div class="input-wrap">
+        <input type="text" placeholder="Search">
+        <span class="iconfont icon-close"></span>
+      </div>
+      <div class="search-result">
+        <div class="meta">
+          <span><b id="result-count">0</b> results found</span>
+          <img src="https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg">
+        </div>
+        <ul id="result-box"></ul>
+      </div>
+    </div>
+    <div id="menu-mask" class="animated hideMenuMask hide">
+      <span class="iconfont icon-close"></span>
+      <div class="nav">
+        
+        <a href="/" class>
+          Home
+        </a>
+        
+        <a href="/archives" class>
+          Archives
+        </a>
+        
+        <a href="/about" class>
+          About
+        </a>
+        
+      </div>
+    </div>
+    <div id="header">
+      <div class="intro">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <div class="author">ShawJie</div>
+      </div>
+      <div class="nav">
+        <span class="iconfont icon-menu menu-icon"></span>
+      </div>
+    </div>
+    <div id="side" class="animated bounceInLeft">
+      <div class="shrink">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <span class="iconfont icon-menu toggle-icon"></span>
+      </div>
+      <div class="magnify">
+        <div class="about">
+          <div class="author">ShawJie</div>
+          <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        </div>
+
+        <div class="nav">
+          
+          <a href="/" class>
+            Home
+          </a>
+          
+          <a href="/archives" class>
+            Archives
+          </a>
+          
+          <a href="/about" class>
+            About
+          </a>
+          
+        </div>
+        <div class="bottom">
+          <div class="follow">
+            
+            <a href="https://github.com/shawjie" target="_block">
+              <span class="iconfont icon-github"></span>
+            </a>
+             
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="container">
+      <div class="main animated bounceInRight delay-0.7s">
+        <article class="post-entry">
+    <div class="header">
+      
+      <div class="title">Spring Boot 自动装配原理 / 2</div>
+      <div class="meta">
+        <span class="item">
+          <span class="iconfont icon-time-circle"></span>
+          <span>2020/03/18</span>
+        </span>
+
+        
+
+        
+        
+         
+          <span class="item">
+            <span class="iconfont icon-tag1"></span>
+            <span>
+                
+                  
+                    <a href="/tags/Spring Framework">Spring Framework</a>
+                  
+                
+                  
+                    <a href="/tags/Spring Boot">Spring Boot</a>
+                  
+                
+            </span>
+          </span>
+         
+      </div>
+      <div>
+      </div>
+    </div>
+    <h1 id="Spring-Boot-自动装配原理-2">Spring Boot 自动装配原理 / 2<a class="post-anchor" href="#Spring-Boot-自动装配原理-2"></a></h1><blockquote>
+<p>在上一篇内容中，我们简述了关于Spring Boot应用的几个核心注解，核心注解的元注解，以及Spring Boot应用的粗粒度启动过程，还没有看的同学可以去看一看，链接在<a href="https://shawjie.me/2020/03/12/Spring_Boot_AutoConfig_1/" target="_blank" rel="noopener">这里</a>。这一节我们会对自动装配属性的解析，到自动装配的过程进行一个详细的分析论述，本篇源码会比较多，也希望大家耐心阅读。</p>
+</blockquote>
+<h2 id="主类是如何被加载注册的">主类是如何被加载注册的<a class="post-anchor" href="#主类是如何被加载注册的"></a></h2><p>​    通过第一篇内容我们可以知道，自动装配注解<code>@EnableAutoConfiguration</code>是<code>@SpringBootApplication</code>的元注解，而<code>@SpringBootApplication</code>又注解于我们的应用启动类上，那么我们的应用启动类（即主类）是如何被加载进Spring的容器中的呢？</p>
+<p>​    Spring Boot应用通过<code>SpringApplication.run(primarySource, args)</code>方法进行启动，而参数<code>primarySource</code>需要传入的是应用加载的主要来源，即我们主类的类定义。从<a href="https://start.spring.io/" target="_blank" rel="noopener">Spring initializer</a>构建的Demo我们可以看到，<code>primarySource</code>的传入值是<code>DemoApplication.class</code>。</p>
+<pre><code class="hljs java"><span class="hljs-meta">@SpringBootApplication</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DemoApplication</span> </span>&#123;
+	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;
+		SpringApplication.run(DemoApplication.class, args);
+	&#125;
+&#125;</code></pre>
+
+<p>​    在Spring Boot应用初始化阶段（上篇有提到，没看过的去看一下，明确一下概念），run方法会构建一个<code>SpirngApplication</code>对象实例，并将我们传入的主类定义保存在对象实例的<code>primarySources</code>字段中。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SpringApplication</span><span class="hljs-params">(ResourceLoader resourceLoader, Class&lt;?&gt;... primarySources)</span> </span>&#123;
+    <span class="hljs-keyword">this</span>.resourceLoader = resourceLoader;
+    Assert.notNull(primarySources, <span class="hljs-string">"PrimarySources must not be null"</span>);
+    <span class="hljs-keyword">this</span>.primarySources = <span class="hljs-keyword">new</span> LinkedHashSet&lt;&gt;(Arrays.asList(primarySources));
+    <span class="hljs-keyword">this</span>.webApplicationType = WebApplicationType.deduceFromClasspath();
+    setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
+    setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
+    <span class="hljs-keyword">this</span>.mainApplicationClass = deduceMainApplicationClass();
+&#125;</code></pre>
+
+<p>​    这个字段有什么用我们过会再说，现在先让我们记下<code>SpringApplication</code>对象实例的<code>primarySources</code>储存了我们的启动类定义。</p>
+<h3 id="加载的META-INF-spring-factories">加载的META-INF/spring.factories<a class="post-anchor" href="#加载的META-INF-spring-factories"></a></h3><p>​    我们先顺着往下看<code>deduceFromClasspath()</code>方法，该方法用于推断我们的Spring应用类型（Servlet、Reactive、None），而推断的方法则是通过类加载器对几种Spring应用类型的核心类进行加载，返回true则表示加载成功，反之抛出异常则表示加载失败，类路径中不存在该类。这种推断方式很聪明，在之后的自动装配部分也会有类似的逻辑。再之后是<code>setInitializers()</code>方法，这个方法会设置<code>ApplicationContextInitializer</code>到<code>SpringApplication</code>实例，这不是我们的重点，我们的重点在于它的嵌套方法<code>getSpringFactoriesInstances(type)</code>，也是我在上篇内容标记的第一个重点。</p>
+<p>​    ``getSpringFactoriesInstances()`的内部逻辑如下，具体的操作我用注释标在了代码上面。</p>
+<pre><code class="hljs java"><span class="hljs-keyword">private</span> &lt;T&gt; <span class="hljs-function">Collection&lt;T&gt; <span class="hljs-title">getSpringFactoriesInstances</span><span class="hljs-params">(Class&lt;T&gt; type, Class&lt;?&gt;[] parameterTypes, Object... args)</span> </span>&#123;
+    <span class="hljs-comment">// 获取类加载器</span>
+    ClassLoader classLoader = getClassLoader();
+    <span class="hljs-comment">// 从META-INF/spring.factories获取type对应类的全限定名以确保唯一性</span>
+    Set&lt;String&gt; names = <span class="hljs-keyword">new</span> LinkedHashSet&lt;&gt;(SpringFactoriesLoader.loadFactoryNames(type, classLoader));
+    <span class="hljs-comment">// 通过反射构建对象实例</span>
+    List&lt;T&gt; instances = createSpringFactoriesInstances(type, parameterTypes, classLoader, args, names);
+    <span class="hljs-comment">// 根据注解@Order对实例进行排序</span>
+    AnnotationAwareOrderComparator.sort(instances);
+    <span class="hljs-keyword">return</span> instances;
+&#125;</code></pre>
+
+<p>​    进入<code>SpringFactoriesLoader.loadFactoryNames(type, classLoader)</code>方法我们就可以看到在之前反复提到的<code>META-INF/spring.factories</code>文件加载过程。在阅读加载过程之前，我们先找一个<code>spring.factories</code>文件看看文件结构。在这边我们就看一下<code>spring-boot-autoconfigure-2.2.5.RELEASE.jar</code>里的<code>META-INF/spring.factories</code>文件内容，<code>spring.factories</code>文件在本质上还是一个<code>properties</code>类型文件，由于该文件内容较多，我将从其中抽取部分展示，具体内容还请各位同学把Jar包Down下来研究一下。</p>
+<pre><code class="hljs properties">org.springframework.context.ApplicationContextInitializer=\
+org.springframework.boot.autoconfigure.SharedMetadataReaderFactoryContextInitializer,\
+org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener
+
+org.springframework.context.ApplicationListener=\
+org.springframework.boot.autoconfigure.BackgroundPreinitializer
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration,\
+org.springframework.boot.autoconfigure.aop.AopAutoConfiguration,\
+org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration,\
+...</code></pre>
+
+<p>​    我从其中抽取了些比较具有代表性的自动装配类，就包括在初始化阶段要加载得初始化器类、应用监听器、以及和我们主题密切相关得自动装配类列表。在自动装配类列表中我抽取了Redis、AOP、MongoDB的自动装配类在此作展示，其实<code>autoconfigure</code>包中还有很多我们日常开发中使用到的许多类库、中间件的自动装配类，譬如ElasticSearch、oauth2、Jap等等，就算<code>autoconfigure</code>包中没有包含我们需要的自动装配类，我们也可以依据此规则自行实现，具体实现方法我会在后面的内容进行分析，此处先行搁置。</p>
+<p>​    在看过<code>spring.factories</code>的文件结构之后，去分析<code>SpringFactoriesLoader.loadFactoryNames</code>方法就会简单很多。传入参数<code>type</code>为需要在<code>spring.factories</code>文件集中检索的key，而返回的结果则是文件集中与之相关的所有类的全限定名。具体逻辑如下。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> List&lt;String&gt; <span class="hljs-title">loadFactoryNames</span><span class="hljs-params">(Class&lt;?&gt; factoryType, @Nullable ClassLoader classLoader)</span> </span>&#123;
+    <span class="hljs-comment">// 获取检索类的全限定名</span>
+    String factoryTypeName = factoryType.getName();
+    <span class="hljs-comment">// 进行spring.factories文件集的加载、检索操作，并构以空集为兜底返回数据</span>
+    <span class="hljs-keyword">return</span> loadSpringFactories(classLoader).getOrDefault(factoryTypeName, Collections.emptyList());
+&#125;
+
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Map&lt;String, List&lt;String&gt;&gt; loadSpringFactories(<span class="hljs-meta">@Nullable</span> ClassLoader classLoader) &#123;
+    <span class="hljs-comment">// spring.factories文件集在加载过一次之后会被存入缓存，避免多次进行I/O操作</span>
+    MultiValueMap&lt;String, String&gt; result = cache.get(classLoader);
+    <span class="hljs-keyword">if</span> (result != <span class="hljs-keyword">null</span>) &#123;
+        <span class="hljs-keyword">return</span> result;
+    &#125;
+
+    <span class="hljs-keyword">try</span> &#123;
+        <span class="hljs-comment">// 通过类加载器进行类路径下的所有META-INF/spring.factories文件进行扫描</span>
+        Enumeration&lt;URL&gt; urls = (classLoader != <span class="hljs-keyword">null</span> ?
+                                 classLoader.getResources(FACTORIES_RESOURCE_LOCATION) :
+                                 ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));
+        result = <span class="hljs-keyword">new</span> LinkedMultiValueMap&lt;&gt;();
+        <span class="hljs-comment">// 遍历spring.factories文件集</span>
+        <span class="hljs-keyword">while</span> (urls.hasMoreElements()) &#123;
+            URL url = urls.nextElement();
+            UrlResource resource = <span class="hljs-keyword">new</span> UrlResource(url);
+            <span class="hljs-comment">// 将spring.factories资源转换为Propperties对象</span>
+            Properties properties = PropertiesLoaderUtils.loadProperties(resource);
+            <span class="hljs-keyword">for</span> (Map.Entry&lt;?, ?&gt; entry : properties.entrySet()) &#123;
+                String factoryTypeName = ((String) entry.getKey()).trim();
+                <span class="hljs-comment">// 以逗号为分隔符，对类列表进行拆分遍历</span>
+                <span class="hljs-keyword">for</span> (String factoryImplementationName : StringUtils.commaDelimitedListToStringArray((String) entry.getValue())) &#123;
+                    result.add(factoryTypeName, factoryImplementationName.trim());
+                &#125;
+            &#125;
+        &#125;
+        <span class="hljs-comment">// 将文件集所有结果以类加载器为Key存入内存</span>
+        cache.put(classLoader, result);
+        <span class="hljs-keyword">return</span> result;
+    &#125;
+    <span class="hljs-keyword">catch</span> (IOException ex) &#123;
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">"Unable to load factories from location ["</span> +
+                                           FACTORIES_RESOURCE_LOCATION + <span class="hljs-string">"]"</span>, ex);
+    &#125;
+&#125;</code></pre>
+
+<p>​    看完这<code>spring.factories</code>文件的加载逻辑之后，我们已经知晓了自动装配的装配类来源是哪，接下来我们就需要继续弄明白，主类是如何被加载注册进容器，以及spring是如何解析注解在主类上的注解<code>@SpringBootApplication</code>及其元注解<code>EnableAutoConfiguration</code>的。</p>
+<h3 id="Spring应用上下文的创建和准备">Spring应用上下文的创建和准备<a class="post-anchor" href="#Spring应用上下文的创建和准备"></a></h3><p>​    在完成Spring应用的初始化阶段后，就需要开始进行启动阶段的准备工作，构建Spring应用上下文可以作为这一阶段的核心工作进行解读。</p>
+<p>​    在Spring应用的run方法中我们可以看到Spring应用上下文的构建过程。在Spring应用初始化阶段通过类加载器推断出来的应用类型在此处就派上了用场。Spring会根据不同的应用类型初始化对应的Spring应用上下文。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> ConfigurableApplicationContext <span class="hljs-title">createApplicationContext</span><span class="hljs-params">()</span> </span>&#123;
+    Class&lt;?&gt; contextClass = <span class="hljs-keyword">this</span>.applicationContextClass;
+    <span class="hljs-keyword">if</span> (contextClass == <span class="hljs-keyword">null</span>) &#123;
+        <span class="hljs-keyword">try</span> &#123;
+            <span class="hljs-comment">// 根据不同类型初始化对应的Spring上下文</span>
+            <span class="hljs-keyword">switch</span> (<span class="hljs-keyword">this</span>.webApplicationType) &#123;
+                <span class="hljs-keyword">case</span> SERVLET:
+                    contextClass = Class.forName(DEFAULT_SERVLET_WEB_CONTEXT_CLASS);
+                    <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">case</span> REACTIVE:
+                    contextClass = Class.forName(DEFAULT_REACTIVE_WEB_CONTEXT_CLASS);
+                    <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">default</span>:
+                    contextClass = Class.forName(DEFAULT_CONTEXT_CLASS);
+            &#125;
+        &#125;
+        <span class="hljs-keyword">catch</span> (ClassNotFoundException ex) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalStateException(
+                <span class="hljs-string">"Unable create a default ApplicationContext, please specify an ApplicationContextClass"</span>, ex);
+        &#125;
+    &#125;
+    <span class="hljs-comment">// 对类型进行实例化操作</span>
+    <span class="hljs-keyword">return</span> (ConfigurableApplicationContext) BeanUtils.instantiateClass(contextClass);
+&#125;</code></pre>
+
+<p>​    在初始化Spring上下文的同时，我们的Bean容器，<code>BeanFactory</code>也会同时完成初始化操作。在完成初始化操作之后Spring应用上下文及Bean容器还需要完成一些准备工作以进入应用启动阶段。而主类则是在这一时间点进行的注册装配工作。</p>
+<p>​    在此时间点，Spring上下文会完成环境变量配置、应用初始化器、通知监听器等一系列事件，但与我们所关心（主类装配）的关键代码是这么几行。</p>
+<pre><code class="hljs java">Set&lt;Object&gt; sources = getAllSources();
+Assert.notEmpty(sources, <span class="hljs-string">"Sources must not be empty"</span>);
+load(context, sources.toArray(<span class="hljs-keyword">new</span> Object[<span class="hljs-number">0</span>]));</code></pre>
+
+<p>​    先通过<code>getAllSources</code>方法获取到Spring应用在初始化及准备阶段所有配置的资源内容。还记得前边说<code>SpringApplication</code>对象实例的<code>primarySources</code>储存了我们的启动类么？在这儿就用上了。我们看一看<code>getAllSources()</code>方法的内部逻辑就明白了。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> Set&lt;Object&gt; <span class="hljs-title">getAllSources</span><span class="hljs-params">()</span> </span>&#123;
+    Set&lt;Object&gt; allSources = <span class="hljs-keyword">new</span> LinkedHashSet&lt;&gt;();
+    <span class="hljs-comment">// 获取储存了包括我们应用启动类的主要资源</span>
+    <span class="hljs-keyword">if</span> (!CollectionUtils.isEmpty(<span class="hljs-keyword">this</span>.primarySources)) &#123;
+        allSources.addAll(<span class="hljs-keyword">this</span>.primarySources);
+    &#125;
+    <span class="hljs-comment">// 获取附加的配置资源</span>
+    <span class="hljs-keyword">if</span> (!CollectionUtils.isEmpty(<span class="hljs-keyword">this</span>.sources)) &#123;
+        allSources.addAll(<span class="hljs-keyword">this</span>.sources);
+    &#125;
+    <span class="hljs-keyword">return</span> Collections.unmodifiableSet(allSources);
+&#125;</code></pre>
+
+<p>​    获取到了主类的信息后，就可以通过<code>load(contenxt, source)</code>方法将我们的主类装在进bean容器中了。<code>Load()</code>方法的内部逻辑是Spring应用上下文的<code>BeanFactoy</code>和source构建一个<code>BeanDefinitionLoader</code>，之后检测类资源是否持有<code>@Component</code>注解（由于主类持有<code>@SpringBootApplication</code>注解，而该注解的元注解持有<code>@Configuration</code>注解，<code>@Configuration</code>的元注解中持有<code>@Compontent</code>注解，即持有判定通过），判定通过则进行类注册操作，由于这部分逻辑入栈较多，所以就不在此贴代码了，想要深入了解的同学可以自己跟着方法堆栈看一看。</p>
+<h2 id="小结">小结<a class="post-anchor" href="#小结"></a></h2><p>​    通过上面的内容，我们了解了Spring boot应用的元注解、自动装配的信息来源以及带有自动装配注解的主类是如何被装载进Bean容器的，Spring应用也进入了应用启动阶段。接下来的部分将会具体分析Spring在启动阶段是如何读取主类的自动装配开关以及自动装配过程是如何自动过滤不需要的自动装配类的（在<code>spring.factories</code>中我们看到了很多自动装配类，但实际我们只需要我们需求的部分，而其他的则需要被过滤掉）。</p>
+
+
+  
+  <div class="post-guide">
+    <div class="item left">
+        
+    </div>
+    <div class="item right">
+        
+          <a href="/2020/03/12/Spring_Boot_AutoConfig_1/">Spring Boot 自动装配原理 / 1</a>
+        
+    </div>
+  </div>
+
+  
+
+  <div id="comment"></div>
+
+  
+  
+</article>
+        <footer>
+          <div class="copyright">
+            ©2020
+            <a href="http://yoursite.com">ShawJie</a> Powered by <a href="https://hexo.io">Hexo</a> |
+            <a href="https://github.com/shixiaohu2206/hexo-theme-huhu">hexo-theme-huhu</a> 
+            
+			| <a class="icp" href="http://www.beian.miit.gov.cn/" target="_blank">浙ICP备20000303号-1</a>
+			
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+  
+</html>
+<script type="text/javascript">
+                  window.HUHU_CONFIG = JSON.parse("{\"service_worker\":{\"open\":false}}")
+                </script> <script type="text/javascript">window.addEventListener('load', function() {
+    
+    window.loadJs = function(d, m, a) {
+      var c = document.getElementsByTagName('head')[0] || document.head || document.documentElement
+      var b = document.createElement('script')
+      b.defer = true
+      b.setAttribute('type', 'text/javascript')
+      b.setAttribute('charset', 'UTF-8')
+      b.setAttribute('async', 'true')
+      b.setAttribute('src', d)
+      m && b.setAttribute('data-main', '/scripts/app-built')
+      if (typeof a === 'function') {
+        if (window.attachEvent) {
+          b.onreadystatechange = function() {
+            var e = b.readyState
+            if (e === 'loaded' || e === 'complete') {
+              b.onreadystatechange = null
+              a()
+            }
+          }
+        } else {
+          b.onload = a
+        }
+      }
+      c.appendChild(b)
+    }
+    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
+  })</script> <script type="text/javascript">
+                  ;(function() {
+                    var bp = document.createElement('script')
+                    var curProtocol = window.location.protocol.split(':')[0]
+                    if (curProtocol === 'https') {
+                      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js'
+                    } else {
+                      bp.src = 'http://push.zhanzhang.baidu.com/push.js'
+                    }
+                    var s = document.getElementsByTagName('script')[0]
+                    s.parentNode.insertBefore(bp, s)
+                  })()
+                </script> 
