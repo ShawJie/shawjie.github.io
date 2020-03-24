@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+      <script>
+  var _hmt = _hmt || []
+  ;(function() {
+    var hm = document.createElement('script')
+    hm.src = 'https://hm.baidu.com/hm.js?5a0acc897fd96474a2c8f4deac84611a'
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(hm, s)
+  })()
+</script> 
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content>
+    <meta name="description" content>
+    
+    <title>
+      Spring Boot 自动装配原理 / 3 - Shaw&#39;s Log
+    </title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" href="https://i.loli.net/2019/12/03/RwXtHdlBG7zmMq1.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style/style.css">
+  </head>
+  <body>
+    
+    <div id="post-toc" class="animated hiddenToc hide">
+      <span class="title">Toc</span>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spring-Boot-自动装配原理-3"><span class="toc-text">Spring Boot 自动装配原理 / 3</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#主类的注解解析过程"><span class="toc-text">主类的注解解析过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置类的后置处理器"><span class="toc-text">配置类的后置处理器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ConfigurationClassParser"><span class="toc-text">ConfigurationClassParser</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#自动装配的处理过程"><span class="toc-text">自动装配的处理过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#spring-autoconfigure-metadata-properties"><span class="toc-text">spring-autoconfigure-metadata.properties</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#筛选自动装配类列表"><span class="toc-text">筛选自动装配类列表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最终迎来的自动装配"><span class="toc-text">最终迎来的自动装配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li></ol></li></ol>
+    </div>
+    
+    <div id="fixed-menu-wrap">
+      <span class="icon-toc menu-reset">Toc</span>
+      <span class="iconfont icon-arrowup menu-reset"></span>
+    </div>
+    <div id="fixed-menu">
+      <span class="iconfont icon-menu-"></span>
+    </div>
+    <div id="progress">
+      <div class="line"></div>
+    </div>
+    <div id="search-shade" class="animated hiddenSearch hide">
+      <div class="input-wrap">
+        <input type="text" placeholder="Search">
+        <span class="iconfont icon-close"></span>
+      </div>
+      <div class="search-result">
+        <div class="meta">
+          <span><b id="result-count">0</b> results found</span>
+          <img src="https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg">
+        </div>
+        <ul id="result-box"></ul>
+      </div>
+    </div>
+    <div id="menu-mask" class="animated hideMenuMask hide">
+      <span class="iconfont icon-close"></span>
+      <div class="nav">
+        
+        <a href="/" class>
+          Home
+        </a>
+        
+        <a href="/archives" class>
+          Archives
+        </a>
+        
+        <a href="/about" class>
+          About
+        </a>
+        
+      </div>
+    </div>
+    <div id="header">
+      <div class="intro">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <div class="author">ShawJie</div>
+      </div>
+      <div class="nav">
+        <span class="iconfont icon-menu menu-icon"></span>
+      </div>
+    </div>
+    <div id="side" class="animated bounceInLeft">
+      <div class="shrink">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <span class="iconfont icon-menu toggle-icon"></span>
+      </div>
+      <div class="magnify">
+        <div class="about">
+          <div class="author">ShawJie</div>
+          <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        </div>
+
+        <div class="nav">
+          
+          <a href="/" class>
+            Home
+          </a>
+          
+          <a href="/archives" class>
+            Archives
+          </a>
+          
+          <a href="/about" class>
+            About
+          </a>
+          
+        </div>
+        <div class="bottom">
+          <div class="follow">
+            
+            <a href="https://github.com/shawjie" target="_block">
+              <span class="iconfont icon-github"></span>
+            </a>
+             
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="container">
+      <div class="main animated bounceInRight delay-0.7s">
+        <article class="post-entry">
+    <div class="header">
+      
+      <div class="title">Spring Boot 自动装配原理 / 3</div>
+      <div class="meta">
+        <span class="item">
+          <span class="iconfont icon-time-circle"></span>
+          <span>2020/03/25</span>
+        </span>
+
+        
+
+        
+        
+         
+          <span class="item">
+            <span class="iconfont icon-tag1"></span>
+            <span>
+                
+                  
+                    <a href="/tags/Spring Framework">Spring Framework</a>
+                  
+                
+                  
+                    <a href="/tags/Spring Boot">Spring Boot</a>
+                  
+                
+            </span>
+          </span>
+         
+      </div>
+      <div>
+      </div>
+    </div>
+    <h1 id="Spring-Boot-自动装配原理-3">Spring Boot 自动装配原理 / 3<a class="post-anchor" href="#Spring-Boot-自动装配原理-3"></a></h1><blockquote>
+<p>在上一篇内容中，我们了解了关于Spring Boot在初始化过程和启动准备过程中，主类被加载进Bean容器的过程，以及<code>spring.factories</code>文件的加载过程及内容，还没有看的同学可以去看一看，链接在<a href="https://shawjie.me/2020/03/18/Spring_Boot_AutoConfig_2/" target="_blank" rel="noopener">这里</a>。本节将会针对<code>@EnableAutoConfiguration</code>的解析过程，以及<code>spring.factories</code>内自动装配相关类是如何进行过滤的，本篇由于堆栈过程较多，整体节奏会比较快，也建议大家能打开编译器下载好源码按照文字中的顺序进行阅读。</p>
+</blockquote>
+<h2 id="主类的注解解析过程">主类的注解解析过程<a class="post-anchor" href="#主类的注解解析过程"></a></h2><p>​    在上一节中，我们的Spring Boot应用已经顺利完成了初始化阶段、准备阶段的工作内容，正式进入了启动阶段。接下来就需要面对本系列内容面对的核心问题：”Spring是在何时进行自动装配注解的解析的，以及自动装配类是再何时、如何进行加载的。”</p>
+<p>​    我们都知道，Spring的一大优势是对项目内的对象进行统一的生命周期管理以达成控制反转的目的，而<code>BeanFactory</code>则负责了整体的对象管理的工作。在第一篇内容中我们提到在Spring应用启动阶段，即<code>ApplicationContext.refresh()</code>方法内，会调用<code>BeanFactory</code>的后处理器，以执行Spring Bean的解析、注册操作。</p>
+<p>​    因为Spring的Bean注册解析堆栈太深，关于<code>BeanFactory</code>的后置处理工作就不于此贴代码了，想具体了解的同学可以以<code>AbscractApplicationContext#refresh()</code> -&gt; <code>invokeBeanFactoryPostProcessors()</code> -&gt; <code>PostProcessorRegistrationDelegate#invokeBeanFactoryPostProcessors()</code> -&gt; <code>invokeBeanDefinitionRegistryPostProcessors()</code>为主要调用链路进行代码的阅读，在文章内就只拣重点的部分来看了。</p>
+<h3 id="配置类的后置处理器">配置类的后置处理器<a class="post-anchor" href="#配置类的后置处理器"></a></h3><p>​    在<code>org.springframework.context.support.PostProcessorRegistrationDelegate</code>类的<code>invokeBeanFactoryPostProcessors()</code>方法中，<code>BeanFactory</code>会通过<code>getBeanNamesForType</code>获取<code>BeanDefinitionRegistryPostProcessor</code>实现类。</p>
+<pre><code class="hljs java">String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, <span class="hljs-keyword">true</span>, <span class="hljs-keyword">false</span>);
+<span class="hljs-keyword">for</span> (String ppName : postProcessorNames) &#123;
+    <span class="hljs-keyword">if</span> (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) &#123;
+        currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+        processedBeans.add(ppName);
+    &#125;
+&#125;</code></pre>
+
+<p>​    于此处我们会获得一个实现类<code>ConfigurationClassPostProcessor</code>，该类会负责解析注解了<code>@Configuration</code>的Bean。那么这个类的来源是在哪呢？这里我们就要回头再去看看Spring应用再初始化阶段推断、构建上下文的过程。在通过应用类型构建对应的Spring上下文之后会通过类全限定名获取类信息，而后通过反射进行类构建，但无论是<code>Servlet</code>应用还是<code>Reactive</code>应用，抑或是非web应用，其上下文类构造方法里我们都能看见此段代码<code>this.reader = new AnnotatedBeanDefinitionReader(this)</code>，在<code>AnnotatedBeanDefinitionReader</code>的构造函数中，我们能看到该类会向<code>BeanFactory</code>中注册一些相关的后置处理器，其中就包括了<code>ConfigurationClassPostProcessor</code>。</p>
+<pre><code class="hljs java"><span class="hljs-keyword">if</span> (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) &#123;
+    RootBeanDefinition def = <span class="hljs-keyword">new</span> RootBeanDefinition(ConfigurationClassPostProcessor.class);
+    def.setSource(source);
+    beanDefs.add(registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME));
+&#125;</code></pre>
+
+<p>​    在我们明确了具体的具体的后置处理器之后，就可以跟进到<code>ConfigurationClassPostProcessor#processConfigBeanDefinitions()</code>方法内部去看进一步的解析情况了。</p>
+<h3 id="ConfigurationClassParser">ConfigurationClassParser<a class="post-anchor" href="#ConfigurationClassParser"></a></h3><p>​    在<code>processConfigBeanDefinitions()</code>方法的内部逻比较明确，我会在下面贴出部分代码，省略掉中间一些并不是太重要的内容并用注释描述部分逻辑做用。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">processConfigBeanDefinitions</span><span class="hljs-params">(BeanDefinitionRegistry registry)</span> </span>&#123;
+    List&lt;BeanDefinitionHolder&gt; configCandidates = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+    <span class="hljs-comment">/**
+     * 获取到BeanFactory中所有的Bean信息的名称
+     * 在之前的内容中已经学习了主类的加载注册过程，此时理所当然的主类信息也在其中
+     */</span>
+    String[] candidateNames = registry.getBeanDefinitionNames();
+    
+    <span class="hljs-comment">// 遍历bean名称</span>
+    <span class="hljs-keyword">for</span> (String beanName : candidateNames) &#123;
+        <span class="hljs-comment">// 通过名称获取bean定义信息</span>
+        BeanDefinition beanDef = registry.getBeanDefinition(beanName);
+        <span class="hljs-comment">// 通过获取bean定义的配置属性用于判断该类是否已经被处理过，若处理过则跳过</span>
+        <span class="hljs-keyword">if</span> (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">if</span> (logger.isDebugEnabled()) &#123;
+                logger.debug(<span class="hljs-string">"Bean definition has already been processed as a configuration class: "</span> + beanDef);
+            &#125;
+        &#125;
+        <span class="hljs-comment">/**
+         * checkConfigurationClassCandidate方法会对bean定义信息进行判断
+         * 若该类信息持有<span class="hljs-doctag">@Configuration</span>的定义，则设置其的配置属性并返回true
+         */</span>
+        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, <span class="hljs-keyword">this</span>.metadataReaderFactory)) &#123;
+            <span class="hljs-comment">// 向configCandidates插入配置类的类定义</span>
+            configCandidates.add(<span class="hljs-keyword">new</span> BeanDefinitionHolder(beanDef, beanName));
+        &#125;
+    &#125;
+    <span class="hljs-comment">// 非主要逻辑代码，我们暂时可以不必关心</span>
+    ...
+    
+    <span class="hljs-comment">// 构建一个配置类的解析器</span>
+    ConfigurationClassParser parser = <span class="hljs-keyword">new</span> ConfigurationClassParser(
+				<span class="hljs-keyword">this</span>.metadataReaderFactory, <span class="hljs-keyword">this</span>.problemReporter, <span class="hljs-keyword">this</span>.environment,
+				<span class="hljs-keyword">this</span>.resourceLoader, <span class="hljs-keyword">this</span>.componentScanBeanNameGenerator, registry);
+	<span class="hljs-comment">// 将前面筛选出来配置类定义放进candidates链表中</span>
+    Set&lt;BeanDefinitionHolder&gt; candidates = <span class="hljs-keyword">new</span> LinkedHashSet&lt;&gt;(configCandidates);
+    Set&lt;ConfigurationClass&gt; alreadyParsed = <span class="hljs-keyword">new</span> HashSet&lt;&gt;(configCandidates.size());
+    <span class="hljs-keyword">do</span> &#123;
+        <span class="hljs-comment">// 对配置类信息进行解析</span>
+        parser.parse(candidates);
+    &#125;<span class="hljs-keyword">while</span> (!candidates.isEmpty());
+&#125;</code></pre>
+
+<p>​    进入到类的解析过程，已经里我们的目标越来越近了。该过程将会解析类的<code>@PropertySource</code>、<code>@ComponentScan</code>、<code>@Import</code>、<code>@ImportResource</code>、<code>@Bean</code>几个注解。在第一篇内容中我们提到了<code>@EnableAutoConfiguration</code>的元注解<code>@Import(AutoConfigurationImportSelector.class)</code>在这终于派上了用场。我们暂且忽略其它的注解处理逻辑，只关注相关的<code>@Import</code>部分。</p>
+<pre><code class="hljs java"><span class="hljs-comment">/**
+ * ConfigurationClassParser#processImports方法用于处理类的<span class="hljs-doctag">@import</span>注解信息
+ * 通过getImports方法可以通过类源信息获取到类的直接注解以及其元注解<span class="hljs-doctag">@import</span>相关的类
+ * 即在此处可以通过getImorts方法获取到主类的<span class="hljs-doctag">@EnableAutoConfiruation</span>的元注解
+ * <span class="hljs-doctag">@import</span>的值 AutoConfigurationImportSelector.class
+ */</span>
+processImports(configClass, sourceClass, getImports(sourceClass), filter, <span class="hljs-keyword">true</span>);</code></pre>
+
+<p>​    在<code>procressImports()</code>方法内部，我们也只需要关注其中一部分：</p>
+<pre><code class="hljs java"><span class="hljs-keyword">for</span> (SourceClass candidate : importCandidates) &#123;
+    <span class="hljs-comment">/**
+     * 判断类是否是ImportSelector的子类，这方面我们可以具体看一看
+     * AutoConfigurationImportSelector类的实现继承关系
+     */</span>
+    <span class="hljs-keyword">if</span> (candidate.isAssignable(ImportSelector.class)) &#123;
+        <span class="hljs-comment">// 确保类已经加载</span>
+        Class&lt;?&gt; candidateClass = candidate.loadClass();
+        <span class="hljs-comment">// 进行类实例化工作</span>
+        ImportSelector selector = 
+            ParserStrategyUtils.instantiateClass(candidateClass, ImportSelector.class,
+            	<span class="hljs-keyword">this</span>.environment, <span class="hljs-keyword">this</span>.resourceLoader, <span class="hljs-keyword">this</span>.registry);
+        <span class="hljs-comment">// 获取需要排除的类信息</span>
+        Predicate&lt;String&gt; selectorFilter = selector.getExclusionFilter();
+        <span class="hljs-keyword">if</span> (selectorFilter != <span class="hljs-keyword">null</span>) &#123;
+            exclusionFilter = exclusionFilter.or(selectorFilter);
+        &#125;
+        <span class="hljs-comment">/**
+         * 由于AutoConfigurationImportSelector实现于DeferredImportSelector
+         * 所以会在初次解析时先加入延迟处理器中，等解析逻辑完成之后再由解析器进行逻辑调用
+         */</span>
+        <span class="hljs-keyword">if</span> (selector <span class="hljs-keyword">instanceof</span> DeferredImportSelector) &#123;
+            <span class="hljs-keyword">this</span>.deferredImportSelectorHandler.handle(configClass, (DeferredImportSelector) selector);
+        &#125;
+        ...
+    &#125;
+    <span class="hljs-comment">// 其它非主要相关逻辑</span>
+	...
+&#125;</code></pre>
+
+<p>​    在解析过程结束后，解析器就会通过<code>this.deferredImportSelectorHandler.process()</code>，进行解析过程中设定的延迟处理操作。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">process</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-comment">// 获取到延迟执行的ImportSelector</span>
+    List&lt;DeferredImportSelectorHolder&gt; deferredImports = <span class="hljs-keyword">this</span>.deferredImportSelectors;
+    <span class="hljs-comment">// 清空延迟执行列表，保证不会被多次执行</span>
+    <span class="hljs-keyword">this</span>.deferredImportSelectors = <span class="hljs-keyword">null</span>;
+    <span class="hljs-keyword">try</span> &#123;
+        <span class="hljs-keyword">if</span> (deferredImports != <span class="hljs-keyword">null</span>) &#123;
+            DeferredImportSelectorGroupingHandler handler = 
+                <span class="hljs-keyword">new</span> DeferredImportSelectorGroupingHandler();
+            <span class="hljs-comment">// 根据Order对ImportSelector进行排序</span>
+            deferredImports.sort(DEFERRED_IMPORT_COMPARATOR);
+            <span class="hljs-comment">// 通过Register对ImprotSelector根据类型进行分组，并构建封装成Grouping对象</span>
+            deferredImports.forEach(handler::register);
+            <span class="hljs-comment">// 实际调用ImportSelector的处理操作</span>
+            handler.processGroupImports();
+        &#125;
+    &#125;
+    <span class="hljs-keyword">finally</span> &#123;
+        <span class="hljs-comment">// 初始化一个集合，保证之后不会出现空指针异常</span>
+        <span class="hljs-keyword">this</span>.deferredImportSelectors = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+    &#125;
+&#125;</code></pre>
+
+<h2 id="自动装配的处理过程">自动装配的处理过程<a class="post-anchor" href="#自动装配的处理过程"></a></h2><p>​    跟进<code>handler#processGroupImports()</code>方法，在该方法内部，会通过调用<code>ImprotSelecot</code>的<code>process()</code>方法获取需要导入的定义列表。因为<code>@EnableAutoConfiguration</code>导入的类是<code>AutoConfigurationImportSelector</code>，我们可以从此类的<code>AutoConfigurationGroup#procress()</code>方法作为起始点进行分析。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">process</span><span class="hljs-params">(AnnotationMetadata annotationMetadata, DeferredImportSelector deferredImportSelector)</span> </span>&#123;
+    AutoConfigurationEntry autoConfigurationEntry = ((AutoConfigurationImportSelector) deferredImportSelector)
+        .getAutoConfigurationEntry(getAutoConfigurationMetadata(), annotationMetadata);
+    <span class="hljs-keyword">this</span>.autoConfigurationEntries.add(autoConfigurationEntry);
+    <span class="hljs-keyword">for</span> (String importClassName : autoConfigurationEntry.getConfigurations()) &#123;
+        <span class="hljs-keyword">this</span>.entries.putIfAbsent(importClassName, annotationMetadata);
+    &#125;
+&#125;</code></pre>
+
+<h3 id="spring-autoconfigure-metadata-properties">spring-autoconfigure-metadata.properties<a class="post-anchor" href="#spring-autoconfigure-metadata-properties"></a></h3><p>​    在<code>process()</code>方法内主要有两个要点需要注意，第一部分是<code>getAutoConfigurationMetadata()</code>方法，该方法会通过类加载器扫描类路径下的<code>META-INF/spring-autoconfigure-metadata.properties</code>，这个文件记录了关于自动装配类的一些元信息，我们可以先看一下这个文件的内容结构，具体的做用过会儿我们再说。</p>
+<pre><code class="hljs properties">org.springframework.boot.autoconfigure.data.solr.SolrRepositoriesAutoConfiguration.ConditionalOnClass=org.apache.solr.client.solrj.SolrClient,org.springframework.data.solr.repository.SolrRepository
+org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration.ConditionalOnWebApplication=SERVLET
+org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration.ConditionalOnBean=javax.jms.ConnectionFactory</code></pre>
+
+<p>​    文件内容结构可以总结为：<code>[类全限定名].[条件]=[条件值]</code></p>
+<h3 id="筛选自动装配类列表">筛选自动装配类列表<a class="post-anchor" href="#筛选自动装配类列表"></a></h3><p>​    <code>process()</code>方法内的第二个要点就是<code>getAutoConfigurationEntry()</code>方法的内部逻辑，该部分也是Spring Boot自动装配的核心之所在。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> AutoConfigurationEntry <span class="hljs-title">getAutoConfigurationEntry</span><span class="hljs-params">(AutoConfigurationMetadata autoConfigurationMetadata,
+			AnnotationMetadata annotationMetadata)</span> </span>&#123;
+    <span class="hljs-comment">// 判断是否允许自动装配 若不允许则直接返回空集 默认允许</span>
+    <span class="hljs-keyword">if</span> (!isEnabled(annotationMetadata)) &#123;
+        <span class="hljs-keyword">return</span> EMPTY_ENTRY;
+    &#125;
+    <span class="hljs-comment">// 获取@EnableAutoConfiguration注解的参数列表</span>
+    AnnotationAttributes attributes = getAttributes(annotationMetadata);
+    <span class="hljs-comment">/**
+     * 从spring.factories文件(缓存)中获取EnableAutoConfiguration相关的配置类
+     * 具体的获取方法在第二篇内容已经做过分析 这里不再赘述
+     */</span> 
+    List&lt;String&gt; configurations = getCandidateConfigurations(annotationMetadata, attributes);
+    <span class="hljs-comment">// 去重</span>
+    configurations = removeDuplicates(configurations);
+    <span class="hljs-comment">// 根据注解参数里的exclude配置进行类排除</span>
+    Set&lt;String&gt; exclusions = getExclusions(annotationMetadata, attributes);
+    checkExcludedClasses(configurations, exclusions);
+    configurations.removeAll(exclusions);
+    <span class="hljs-comment">// 进行类定义的过滤操作</span>
+    configurations = filter(configurations, autoConfigurationMetadata);
+    <span class="hljs-comment">// 通知监听器</span>
+    fireAutoConfigurationImportEvents(configurations, exclusions);
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> AutoConfigurationEntry(configurations, exclusions);
+&#125;</code></pre>
+
+<p>​    除了从<code>spring.factories</code>获取到自动配置类列表之外，对类定义进行过滤操作也是十分重要的一环，我们需要排除掉自动配置条件不成立的自动配置类，只处理条件成立的那些自动装配类。这部分也是由于堆栈过多于此不再详细描述，就把重点的部分拎出来说一说。</p>
+<p>​    <code>filter()</code>方法的内部逻辑是会从<code>spring.factories</code>文件内容(缓存)中获取到<code>AutoConfigurationImportFilter</code>相关的过滤类，默认的会有<code>OnBeanCondition</code>、<code>OnClassCondition</code>、<code>OnWebApplicationCondition</code>三种过滤器（可在<code>spring-boot-autoconfigure-2.2.5.RELEASE.jar!META-INF/spring.factories</code>找到这三个类的配置信息），当然我们也可以根据这种规则添加自己的过滤器（tip: 可在自定义过滤器中排除掉一些项目不需要的自动装配类，以减少自动装配类的解析时间，也是一种提升Spring Boot应用启动速度的小技巧）。通过<code>spring.factories</code>里获取到的类全限定名，拼接过滤方式，以在元信息列表里获取到过滤条件，而过滤器则会按照各自的规则进行判断。</p>
+<ul>
+<li>过滤方式<ul>
+<li><code>OnClassCondition</code><ul>
+<li>获取到过滤条件，即需要存在的类全限定名之后。通过类加载器对类进行解析，若解析失败，抛出类不存在异常，则类不存在，反之则存在。</li>
+</ul>
+</li>
+<li><code>OnWebApplicationCondition</code><ul>
+<li>获取到过滤条件，即需要对应的应用类型之后。通过对应用类型名称作对比，以及类类型所对应关键类的加载进行验证。若两者比对通过，则条件成立，反之则不成立</li>
+</ul>
+</li>
+<li><code>OnBeanCondition</code><ul>
+<li><code>OnBeanCondition</code>的条件判定方式与<code>onClassCondition</code>类似，也是通过类加载器对类进行解析，若需求的类全部都存在则条件成立，反之则不成立。（这一块会留下一个疑惑，为什么判断的是类是否在类加载器中存在而不是在<code>BeanFactory</code>中存在呢？）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>通过以上三种过滤方式对自动装配类列表进行<strong>第一次</strong>过滤，我们将<code>spring.factories</code>中大部分不需要的自动装配类已经被过滤掉了。之后就需要对类进行细粒度的解析，在<code>processGroupImports()</code>方法中，我们可以看到这么一行代码：</p>
+<pre><code class="hljs java">processImports(configurationClass, 
+               asSourceClass(configurationClass, exclusionFilter),
+			   Collections.singleton(
+                   asSourceClass(entry.getImportClassName(), exclusionFilter)),
+								exclusionFilter, <span class="hljs-keyword">false</span>);</code></pre>
+
+<h2 id="最终迎来的自动装配">最终迎来的自动装配<a class="post-anchor" href="#最终迎来的自动装配"></a></h2><p>​    <code>procressImports()</code>方法，是不是很熟悉。在上边我们提到的控制类解析过程中出现过它，Spring会对经过第一次筛选的配置类进行二次条件验证，即通过封装过的类定义获取到标注的条件信息，譬如<code>@ConditionalOnMissingBean</code>、<code>@ConditionalOnProperty</code>以及其它一些自定义条件注解，关于<code>@Conditional</code>这方面的内容可能会在之后用一篇构建如何一个自定义Starter的过程中进行分析。在所有条件均判定通过后，<code>shouldSkip()</code>方法会返回false，之后则会进入配置类的解析过程，其中就包括<code>@ComponentScan</code>的扫描，<code>@Bean</code>的注册解析等等，解析的内容前面也提到了，于此就不再赘述了，而我们的Spring Boot 自动装配过程，也与此完成了它的全部流程。</p>
+<h2 id="小结">小结<a class="post-anchor" href="#小结"></a></h2><p>​    从第一篇开始到现在，总算是把Spring Boot的自动装配流程梳理清楚，于此我再大致用链的方式梳理一遍。</p>
+<p>​    注解于主类之上的<code>@SpringBootApplication</code> -&gt; 将主类注册进容器 -&gt; 将<code>spring.factories</code>写入缓存 -&gt; 配置类的注解解析 -&gt; <code>@Import</code>注解的注入逻辑 -&gt; 从<code>spring.factories</code>获取自动装配类列表 -&gt; 进行第一次粗粒度过滤 -&gt; 进行第二次精确过滤 -&gt; 解析自动装配类实现自动装配过程。</p>
+<p>​    至此关于自动装配的过程就已经结束了，关于这这部分的内容大致我自觉已经讲清楚了，但是关于装配过程中的<code>@Conditional</code>注解判断可能之后还会拎出来一篇自动装配原理Plus配合构建自定义Starter进行一个收尾，既然的之后的事情那就之后再说把。关于内容的问题或者说有什么建议也欢迎直接联系我，我的邮箱是：<a href="mailto:Loverconcerto@outlook.com" target="_blank" rel="noopener">Loverconcerto@outlook.com</a>，个人微信可以搜索：Qt1491717547。总之，生活还要继续。加油。</p>
+
+
+  
+  <div class="post-guide">
+    <div class="item left">
+        
+    </div>
+    <div class="item right">
+        
+          <a href="/2020/03/18/Spring_Boot_AutoConfig_2/">Spring Boot 自动装配原理 / 2</a>
+        
+    </div>
+  </div>
+
+  
+
+  <div id="comment"></div>
+
+  
+  
+</article>
+        <footer>
+          <div class="copyright">
+            ©2020
+            <a href="http://yoursite.com">ShawJie</a> Powered by <a href="https://hexo.io">Hexo</a> |
+            <a href="https://github.com/shixiaohu2206/hexo-theme-huhu">hexo-theme-huhu</a> 
+            
+			| <a class="icp" href="http://www.beian.miit.gov.cn/" target="_blank">浙ICP备20000303号-1</a>
+			
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+  
+</html>
+<script type="text/javascript">
+                  window.HUHU_CONFIG = JSON.parse("{\"service_worker\":{\"open\":false}}")
+                </script> <script type="text/javascript">window.addEventListener('load', function() {
+    
+    window.loadJs = function(d, m, a) {
+      var c = document.getElementsByTagName('head')[0] || document.head || document.documentElement
+      var b = document.createElement('script')
+      b.defer = true
+      b.setAttribute('type', 'text/javascript')
+      b.setAttribute('charset', 'UTF-8')
+      b.setAttribute('async', 'true')
+      b.setAttribute('src', d)
+      m && b.setAttribute('data-main', '/scripts/app-built')
+      if (typeof a === 'function') {
+        if (window.attachEvent) {
+          b.onreadystatechange = function() {
+            var e = b.readyState
+            if (e === 'loaded' || e === 'complete') {
+              b.onreadystatechange = null
+              a()
+            }
+          }
+        } else {
+          b.onload = a
+        }
+      }
+      c.appendChild(b)
+    }
+    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
+  })</script> <script type="text/javascript">
+                  ;(function() {
+                    var bp = document.createElement('script')
+                    var curProtocol = window.location.protocol.split(':')[0]
+                    if (curProtocol === 'https') {
+                      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js'
+                    } else {
+                      bp.src = 'http://push.zhanzhang.baidu.com/push.js'
+                    }
+                    var s = document.getElementsByTagName('script')[0]
+                    s.parentNode.insertBefore(bp, s)
+                  })()
+                </script> 
