@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+      <script>
+  var _hmt = _hmt || []
+  ;(function() {
+    var hm = document.createElement('script')
+    hm.src = 'https://hm.baidu.com/hm.js?5a0acc897fd96474a2c8f4deac84611a'
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(hm, s)
+  })()
+</script> 
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content>
+    <meta name="description" content>
+    
+    <title>
+      MongoDB的索引策略分析 /1 - Shaw&#39;s Log
+    </title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" href="https://i.loli.net/2019/12/03/RwXtHdlBG7zmMq1.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style/style.css">
+  </head>
+  <body>
+    
+    <div id="post-toc" class="animated hiddenToc hide">
+      <span class="title">Toc</span>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MongoDB的索引策略分析-1"><span class="toc-text">MongoDB的索引策略分析 /1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#索引存储结构"><span class="toc-text">索引存储结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#B-树"><span class="toc-text">B+树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#B树"><span class="toc-text">B树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#尾巴"><span class="toc-text">尾巴</span></a></li></ol></li></ol></li></ol>
+    </div>
+    
+    <div id="fixed-menu-wrap">
+      <span class="icon-toc menu-reset">Toc</span>
+      <span class="iconfont icon-arrowup menu-reset"></span>
+    </div>
+    <div id="fixed-menu">
+      <span class="iconfont icon-menu-"></span>
+    </div>
+    <div id="progress">
+      <div class="line"></div>
+    </div>
+    <div id="search-shade" class="animated hiddenSearch hide">
+      <div class="input-wrap">
+        <input type="text" placeholder="Search">
+        <span class="iconfont icon-close"></span>
+      </div>
+      <div class="search-result">
+        <div class="meta">
+          <span><b id="result-count">0</b> results found</span>
+          <img src="https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg">
+        </div>
+        <ul id="result-box"></ul>
+      </div>
+    </div>
+    <div id="menu-mask" class="animated hideMenuMask hide">
+      <span class="iconfont icon-close"></span>
+      <div class="nav">
+        
+        <a href="/" class>
+          Home
+        </a>
+        
+        <a href="/archives" class>
+          Archives
+        </a>
+        
+        <a href="/about" class>
+          About
+        </a>
+        
+      </div>
+    </div>
+    <div id="header">
+      <div class="intro">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <div class="author">ShawJie</div>
+      </div>
+      <div class="nav">
+        <span class="iconfont icon-menu menu-icon"></span>
+      </div>
+    </div>
+    <div id="side" class="animated bounceInLeft">
+      <div class="shrink">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <span class="iconfont icon-menu toggle-icon"></span>
+      </div>
+      <div class="magnify">
+        <div class="about">
+          <div class="author">ShawJie</div>
+          <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        </div>
+
+        <div class="nav">
+          
+          <a href="/" class>
+            Home
+          </a>
+          
+          <a href="/archives" class>
+            Archives
+          </a>
+          
+          <a href="/about" class>
+            About
+          </a>
+          
+        </div>
+        <div class="bottom">
+          <div class="follow">
+            
+            <a href="https://github.com/shawjie" target="_block">
+              <span class="iconfont icon-github"></span>
+            </a>
+             
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="container">
+      <div class="main animated bounceInRight delay-0.7s">
+        <article class="post-entry">
+    <div class="header">
+      
+      <div class="title">MongoDB的索引策略分析 /1</div>
+      <div class="meta">
+        <span class="item">
+          <span class="iconfont icon-time-circle"></span>
+          <span>2020/04/25</span>
+        </span>
+
+        
+
+        
+        
+         
+          <span class="item">
+            <span class="iconfont icon-tag1"></span>
+            <span>
+                
+                  
+                    <a href="/tags/Database">Database</a>
+                  
+                
+                  
+                    <a href="/tags/MongoDB">MongoDB</a>
+                  
+                
+            </span>
+          </span>
+         
+      </div>
+      <div>
+      </div>
+    </div>
+    <h1 id="MongoDB的索引策略分析-1">MongoDB的索引策略分析 /1<a class="post-anchor" href="#MongoDB的索引策略分析-1"></a></h1><blockquote>
+<p>近期换了工作，新公司在数据持久化的方面的技术栈用到了MongoDB，遂有了这篇内容，旨在学习Mongo的同时，对Mongo的一些设计进行刨析分解。本篇主要侧重于MongoDB的索引存储策略与传统关系型数据库Mysql的对比与差异原因。</p>
+</blockquote>
+<h2 id="索引存储结构">索引存储结构<a class="post-anchor" href="#索引存储结构"></a></h2><p>​    谈及索引，对于目标检索的过程次数以及<code>I/O</code>次数是存储结构权衡优劣的关键。在<code>Mysql(Innodb)</code>中，我们的聚簇索引、二级索引默认都是由B+树进行索引的存储管理。而在MongoDB中，则采用了B树进行索引的构建。对于二者的孰优孰劣暂不论定，我们先得弄明白这两种数据结构的优势和劣势分别在哪。接下来内容可能会比较偏基础，关于<code>Mysql</code>的部分我会配合着一些基础结构进行分析（因为目前更熟悉一点的还是<code>Mysql</code>）。</p>
+<p>​    B-Tree、B+tree可以说是为磁盘或其它存储工具而生，不同于基础的二叉搜索树，B-树，B+树都有着矮胖的特征，而我们都知道磁盘在读取数据时是以块为基础单位，矮胖的特征意味着一个盘块内可以存放更多的内容，在查找数据的过程中得以减少盘块的读取次数。</p>
+<h3 id="B-树">B+树<a class="post-anchor" href="#B-树"></a></h3><p>​    B+树是<code>Mysql(InnoDB)</code>的默认索引结构，包括聚簇索引和二级索引。而其存储的方式也很简单明了，<code>Mysql</code>定义了很多种类型的页面以存放各种数据譬如说Undo日志页（FIL_PAGE_UNDO_LOG）、系统页（FIL_PAGE_TYPE_SYS）、段信息页（FIL_PAGE_INODE），还有我们最基本的存放数据的页叫索引页或者数据页（FIL_PAGE_INDEX），而索引页中的数据，在数据头的数据结构有一个字段叫<code>record_type</code>用于标注数据类型，0代表非叶子节点记录，1代表普通记录。听到这里是不是比较熟悉，让我们来看看一个<code>Mysql</code>存放一张表的数据结构是怎样的。</p>
+<p><a href="https://i.loli.net/2020/04/25/76usxzyBCdeW2wr.png" data-caption data-fancybox="images"><img src="https://i.loli.net/2020/04/25/76usxzyBCdeW2wr.png" alt></a></p>
+<p>​    基本的东西我已经在图上标出来了，虽然已经略去了很多信息，但是大体结构大家可以意会一下。可以从图上看到数据之间通过指针关联，在叶子节点页面间也通过指针关联，主键有序排列，这就是我们<code>Mysql</code>数据存储数据所构建的一个聚簇索引，二级索引把主键替换为索引列，数据替换为数据主键就好了。从大体结构上看就是一个标准的B+树，即非叶子节点只存放主键范围，而叶子节点存放主键和数据，叶子节点间通过指针相互连接。通过以上结构我们也可以看出一些问题。</p>
+<ul>
+<li>非叶子节点由于不存储具体数据，所以可以存放更多的主键范围指向，即我们每次IO可以搜索更多数据。</li>
+<li>所有的数据全部存放在叶子节点，非叶子节点只负责索引的工作，所以每次查询的时间复杂度都固定在了<code>O(logn)</code></li>
+<li>在叶子节点部分还通过指针将叶子节点串联起来，而叶子节点间的数据也是有序的，所以提高了区间范围的搜索访问性、</li>
+</ul>
+<h3 id="B树">B树<a class="post-anchor" href="#B树"></a></h3><p>​    B+树其实是基于B树的矮胖基础形态下，添加了【非叶子节点不存储具体数据内容，只存放索引】、【叶子节点存放全部数据并使用指针连接】两种特性。换句话说，B树的所有节点都存放数据，节点的左子树小于当前节点值，右子树大于当前节点值。</p>
+<p>​    <code>MongoDB</code>是一种面向文档的数据库管理系统，与传统关系型数据库譬如<code>Mysql</code>不同的是<code>Mysql</code>的数据是扁平化的，构建结构化的数据往往需要通过连表查询在业务中进行组合。而<code>MongoDB</code>是面向文档的数据库，数据在存储阶段就是结构化的，聚合的。</p>
+<p>​    我们可以看一下Mongo的数据存储结构是怎样的（按照理解画的）。</p>
+<p><a href="https://i.loli.net/2020/04/25/G3O1FZBI7WfUCYk.png" data-caption data-fancybox="images"><img src="https://i.loli.net/2020/04/25/G3O1FZBI7WfUCYk.png" alt></a></p>
+<p>​    Mongo在索引上也区分为主键索引和非主键索引，这方面与<code>Mysql</code>的聚簇索引和二级索引类似，主键索引储存主键以及数据内容，非主键索引储存索引列数据以及主键。从数据存储结构图来进行分析，我们大致能得出以下几个结论：</p>
+<ul>
+<li>搜索从根节点开始，由于B树所有节点都会负责数据存储的工作。所以搜索的时间复杂度和数据在结构中的位置强相关，最好的状态是数据在根节点中就搜索到了，可以直接返回，时间复杂度是O(1)。即从平均搜索速度来看<code>MongoDB</code>查询速度会比<code>Mysql</code>更快</li>
+<li>单纯从存储结构上看，数据的存储分布在各个节点，因此如果需要对数据进行遍历，则需要对整个树进行数据的读取。但是从整体的角度层面来看，<code>MongoDB</code>的数据是结构化存储，所有的数据都可以以聚合的方式进行存储，对于数据的遍历需求并没有关系型数据库那么高。在数据的存储底层，<code>Mongo</code>使用的也是BSON(Binary Json)进行存储，在类型支持和网络传输效率上相较于Json也有了很大的提升。</li>
+</ul>
+<h3 id="小结">小结<a class="post-anchor" href="#小结"></a></h3><p>​    本篇我们从传统的关系型数据库和非关系型数据库的视角做了对比，了解了<code>Mongo</code>在数据存储方面使用的结构，以及与关系型数据库在存储方面的差异。数据结构同技术一样没有优劣之分，适合的才是最好的。<code>Mongo</code>作为非关系型数据库，在效率的综合考量上采用了b-tree和bson进行搭配使用，也在搜索速度上达到了一个不差的水平。</p>
+<p>​    以上就是我的一个对于<code>Mongo</code>的初步概览，后续对于Mongo的具体索引模式，以及一个索引优化的思路也会有些总结，对内容中有疑问、错误的部分也欢迎大家指正，交流。</p>
+<h3 id="尾巴">尾巴<a class="post-anchor" href="#尾巴"></a></h3><p>​    最近换了工作，新公司从各方面来看都很好，我也需要花上一些时间精力去融入公司，融入项目。可能与年终总结中定下定期更新博客内容有些冲突，时间没有那么确定。但是至少一月两篇的原创内容还是会尽量去保证的。2020年对于我来说也是个新开始，总之，加油。</p>
+
+
+  
+  <div class="post-guide">
+    <div class="item left">
+        
+    </div>
+    <div class="item right">
+        
+          <a href="/2020/03/25/Spring_Boot_AutoConfig_3/">Spring Boot 自动装配原理 / 3</a>
+        
+    </div>
+  </div>
+
+  
+
+  <div id="comment"></div>
+
+  
+  
+</article>
+        <footer>
+          <div class="copyright">
+            ©2020
+            <a href="http://yoursite.com">ShawJie</a> Powered by <a href="https://hexo.io">Hexo</a> |
+            <a href="https://github.com/shixiaohu2206/hexo-theme-huhu">hexo-theme-huhu</a> 
+            
+			| <a class="icp" href="http://www.beian.miit.gov.cn/" target="_blank">浙ICP备20000303号-1</a>
+			
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+  
+</html>
+<script type="text/javascript">
+                  window.HUHU_CONFIG = JSON.parse("{\"service_worker\":{\"open\":false}}")
+                </script> <script type="text/javascript">window.addEventListener('load', function() {
+    
+    window.loadJs = function(d, m, a) {
+      var c = document.getElementsByTagName('head')[0] || document.head || document.documentElement
+      var b = document.createElement('script')
+      b.defer = true
+      b.setAttribute('type', 'text/javascript')
+      b.setAttribute('charset', 'UTF-8')
+      b.setAttribute('async', 'true')
+      b.setAttribute('src', d)
+      m && b.setAttribute('data-main', '/scripts/app-built')
+      if (typeof a === 'function') {
+        if (window.attachEvent) {
+          b.onreadystatechange = function() {
+            var e = b.readyState
+            if (e === 'loaded' || e === 'complete') {
+              b.onreadystatechange = null
+              a()
+            }
+          }
+        } else {
+          b.onload = a
+        }
+      }
+      c.appendChild(b)
+    }
+    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
+  })</script> <script type="text/javascript">
+                  ;(function() {
+                    var bp = document.createElement('script')
+                    var curProtocol = window.location.protocol.split(':')[0]
+                    if (curProtocol === 'https') {
+                      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js'
+                    } else {
+                      bp.src = 'http://push.zhanzhang.baidu.com/push.js'
+                    }
+                    var s = document.getElementsByTagName('script')[0]
+                    s.parentNode.insertBefore(bp, s)
+                  })()
+                </script> 
