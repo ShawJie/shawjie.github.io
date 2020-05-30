@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+      <script>
+  var _hmt = _hmt || []
+  ;(function() {
+    var hm = document.createElement('script')
+    hm.src = 'https://hm.baidu.com/hm.js?5a0acc897fd96474a2c8f4deac84611a'
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(hm, s)
+  })()
+</script> 
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content>
+    <meta name="description" content>
+    
+    <title>
+      Spring Boot Starter 非权威指南 - Shaw&#39;s Log
+    </title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" href="https://i.loli.net/2019/12/03/RwXtHdlBG7zmMq1.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style/style.css">
+  </head>
+  <body>
+    
+    <div id="post-toc" class="animated hiddenToc hide">
+      <span class="title">Toc</span>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spring-Boot-Starter-非权威指南"><span class="toc-text">Spring Boot Starter 非权威指南</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Starter模块开发"><span class="toc-text">Starter模块开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#单模块Starter"><span class="toc-text">单模块Starter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#依赖包Starter"><span class="toc-text">依赖包Starter</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Starter的兄弟"><span class="toc-text">Starter的兄弟</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Conditional"><span class="toc-text">@Conditional</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ConfigurationProperties"><span class="toc-text">@ConfigurationProperties</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#尾巴"><span class="toc-text">尾巴</span></a></li></ol></li></ol>
+    </div>
+    
+    <div id="fixed-menu-wrap">
+      <span class="icon-toc menu-reset">Toc</span>
+      <span class="iconfont icon-arrowup menu-reset"></span>
+    </div>
+    <div id="fixed-menu">
+      <span class="iconfont icon-menu-"></span>
+    </div>
+    <div id="progress">
+      <div class="line"></div>
+    </div>
+    <div id="search-shade" class="animated hiddenSearch hide">
+      <div class="input-wrap">
+        <input type="text" placeholder="Search">
+        <span class="iconfont icon-close"></span>
+      </div>
+      <div class="search-result">
+        <div class="meta">
+          <span><b id="result-count">0</b> results found</span>
+          <img src="https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg">
+        </div>
+        <ul id="result-box"></ul>
+      </div>
+    </div>
+    <div id="menu-mask" class="animated hideMenuMask hide">
+      <span class="iconfont icon-close"></span>
+      <div class="nav">
+        
+        <a href="/" class>
+          Home
+        </a>
+        
+        <a href="/archives" class>
+          Archives
+        </a>
+        
+        <a href="/about" class>
+          About
+        </a>
+        
+      </div>
+    </div>
+    <div id="header">
+      <div class="intro">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <div class="author">ShawJie</div>
+      </div>
+      <div class="nav">
+        <span class="iconfont icon-menu menu-icon"></span>
+      </div>
+    </div>
+    <div id="side" class="animated bounceInLeft">
+      <div class="shrink">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <span class="iconfont icon-menu toggle-icon"></span>
+      </div>
+      <div class="magnify">
+        <div class="about">
+          <div class="author">ShawJie</div>
+          <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        </div>
+
+        <div class="nav">
+          
+          <a href="/" class>
+            Home
+          </a>
+          
+          <a href="/archives" class>
+            Archives
+          </a>
+          
+          <a href="/about" class>
+            About
+          </a>
+          
+        </div>
+        <div class="bottom">
+          <div class="follow">
+            
+            <a href="https://github.com/shawjie" target="_block">
+              <span class="iconfont icon-github"></span>
+            </a>
+             
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="container">
+      <div class="main animated bounceInRight delay-0.7s">
+        <article class="post-entry">
+    <div class="header">
+      
+      <div class="title">Spring Boot Starter 非权威指南</div>
+      <div class="meta">
+        <span class="item">
+          <span class="iconfont icon-time-circle"></span>
+          <span>2020/05/30</span>
+        </span>
+
+        
+
+        
+        
+         
+          <span class="item">
+            <span class="iconfont icon-tag1"></span>
+            <span>
+                
+                  
+                    <a href="/tags/Spring Framework">Spring Framework</a>
+                  
+                
+                  
+                    <a href="/tags/Spring Boot">Spring Boot</a>
+                  
+                
+                  
+                    <a href="/tags/Spring Boot Starter">Spring Boot Starter</a>
+                  
+                
+            </span>
+          </span>
+         
+      </div>
+      <div>
+      </div>
+    </div>
+    <h1 id="Spring-Boot-Starter-非权威指南">Spring Boot Starter 非权威指南<a class="post-anchor" href="#Spring-Boot-Starter-非权威指南"></a></h1><blockquote>
+<p>本篇内容算是对之前的Spring Boot自动装配装配原理做一个实践性的总结，结合在实际开发过程中对于Starter模块化的使用，算是给Spring Boot自动装配系列画上一个句号。</p>
+</blockquote>
+<p>​    关于Spring Boot Starter想必大家都不陌生，在实际项目开发中，使用到Spring Boot应用或多或少都引入了一些应用功能相关所需求的Starter，譬如<code>spring-boot-starter-web</code>，<code>spring-boot-starter-data-jpa</code>等等。在Spring Boot官方文档的特性描述中就有如此一句：<code>Provide opinionated &#39;starter&#39; dependencies to simplify your build configuration</code>（提供启动依赖模块以简化构建项目的配置）。作为Spring Boot的宣传点<code>stand-alone &amp; production-grade</code>，starter是不可或缺的重要基石之一。</p>
+<h2 id="Starter模块开发">Starter模块开发<a class="post-anchor" href="#Starter模块开发"></a></h2><p>​    关于Starter的模块结构目前没有一个强制性的规定，可以使用单模块开发，也可以使用依赖包（即starter包 + autoconfiguration包）模式进行开发。我个人对于Starter的性质理解更像是一种插件，就像Spring官方在描述里所说的一样，目的是简化构建项目构建的配置，提升开发效率。所以Starter应该是模块化的，可拔插的，对于项目核心部分来说使用是无需关心内部逻辑的。目前生产应用中的Spring-boot项目从starter的角度来看是这样的。</p>
+<a href="https://i.loli.net/2020/05/30/1YFBmJGabTSsPVw.png" data-caption="image-20200530201612616" data-fancybox="images"><img src="https://i.loli.net/2020/05/30/1YFBmJGabTSsPVw.png" alt="image-20200530201612616"></a>
+
+<h3 id="单模块Starter">单模块Starter<a class="post-anchor" href="#单模块Starter"></a></h3><p>​    单模块Starter结构较为简单，一般不需要做额外的拆分，在模块的代码目录中创建一个<code>@Configuration</code>类，在资源目录中创建<code>META-INF/spring.factories</code>文件即可完成一个最简易starter的定义。为什么通过这两者能完成spring-starter的自动装配，其中的原理在之前的<a href="https://shawjie.me/2020/03/25/Spring_Boot_AutoConfig_3/" target="_blank" rel="noopener">spring boot自动装配原理</a>已经提到过，于此不再赘述。</p>
+<p>DemoAutoConfiguration.java</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DemoAutoConfiguration</span> </span>&#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> HelloService <span class="hljs-title">helloService</span><span class="hljs-params">()</span> </span>&#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> HelloService();
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HelloService</span> </span>&#123;
+        <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">sayHello</span><span class="hljs-params">()</span> </span>&#123;
+            <span class="hljs-keyword">return</span> <span class="hljs-string">"hello world"</span>;
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<p>spring.facoties</p>
+<pre><code class="hljs properties">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.shawjie.demo.DemoAutoConfiguration</code></pre>
+
+<p>​    在完成以上工作之后，在项目中进行starter的引用。</p>
+<p>pom.xml</p>
+<pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.shawjie<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>demo-spring-boot-starter<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.0-SNAPSHOT<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre>
+
+<p>​    在主应用中使用starter内的功能。</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Autowired</span>
+<span class="hljs-keyword">private</span> DemoAutoConfiguration.HelloService helloService;
+
+<span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">"/test"</span>)
+<span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getHelloWorld</span><span class="hljs-params">()</span> </span>&#123;
+    <span class="hljs-keyword">return</span> helloService.sayHello();
+&#125;</code></pre>
+
+<pre><code class="hljs shell">curl -X GET localhost:8080/test
+// hello world</code></pre>
+
+<p>​    自此一个简单的单模块spring boot starter的开发到使用就已经结束。其中注册、自动装配的过程全部由Spring boot autoconfiguration完成了，我们只需要按照约定进行对于内容的开发即可，也符合Spring boot应用约定大于配置的基本原则。</p>
+<h3 id="依赖包Starter">依赖包Starter<a class="post-anchor" href="#依赖包Starter"></a></h3><p>​    依赖包Starter模式是目前第三方应用Starter所采用比较多的模式，和单模块Starter的区别在于使用者引入的starter包内只有<code>pom</code>依赖，无实际代码，而<code>pom</code>依赖中的<code>autoconfiguration</code>才是starter的功能核心，负责相关<code>@Bean</code>装配以及逻辑处理的过程。</p>
+<p>​    以下是<code>mybatis-spring-boot-starter</code>的依赖树，依赖结构算是第三方starter模块中比较经典的，大致的模块依赖结构如下。</p>
+<pre><code class="hljs undefined">[INFO] --- maven-dependency-plugin:3.1.1:tree (default-cli) @ mybatis-spring-boot-starter ---
+[INFO] org.mybatis.spring.boot:mybatis-spring-boot-starter:jar:2.1.2
+[INFO] +- org.springframework.boot:spring-boot-starter:jar:2.2.5.RELEASE:compile
+[INFO] |  +- org.springframework.boot:spring-boot:jar:2.2.5.RELEASE:compile
+[INFO] |  |  \- org.springframework:spring-context:jar:5.2.4.RELEASE:compile
+[INFO] |  |     +- org.springframework:spring-aop:jar:5.2.4.RELEASE:compile
+[INFO] |  |     \- org.springframework:spring-expression:jar:5.2.4.RELEASE:compile
+[INFO] |  +- org.springframework.boot:spring-boot-autoconfigure:jar:2.2.5.RELEASE:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-logging:jar:2.2.5.RELEASE:compile
+[INFO] |  |  +- ch.qos.logback:logback-classic:jar:1.2.3:compile
+[INFO] |  |  |  \- ch.qos.logback:logback-core:jar:1.2.3:compile
+[INFO] |  |  +- org.apache.logging.log4j:log4j-to-slf4j:jar:2.12.1:compile
+[INFO] |  |  |  \- org.apache.logging.log4j:log4j-api:jar:2.12.1:compile
+[INFO] |  |  \- org.slf4j:jul-to-slf4j:jar:1.7.30:compile
+[INFO] |  +- jakarta.annotation:jakarta.annotation-api:jar:1.3.5:compile
+[INFO] |  +- org.springframework:spring-core:jar:5.2.4.RELEASE:compile
+[INFO] |  |  \- org.springframework:spring-jcl:jar:5.2.4.RELEASE:compile
+[INFO] |  \- org.yaml:snakeyaml:jar:1.25:runtime
+[INFO] +- org.springframework.boot:spring-boot-starter-jdbc:jar:2.2.5.RELEASE:compile
+[INFO] |  +- com.zaxxer:HikariCP:jar:3.4.2:compile
+[INFO] |  |  \- org.slf4j:slf4j-api:jar:1.7.30:compile
+[INFO] |  \- org.springframework:spring-jdbc:jar:5.2.4.RELEASE:compile
+[INFO] |     +- org.springframework:spring-beans:jar:5.2.4.RELEASE:compile
+[INFO] |     \- org.springframework:spring-tx:jar:5.2.4.RELEASE:compile
+[INFO] +- org.mybatis.spring.boot:mybatis-spring-boot-autoconfigure:jar:2.1.2:compile
+[INFO] +- org.mybatis:mybatis:jar:3.5.4:compile
+[INFO] \- org.mybatis:mybatis-spring:jar:2.0.4:compile</code></pre>
+
+<p>​    从依赖树我们可以看出，<code>mybatis-spring-boot-starter</code>依赖了<code>spring-boot-starter</code>以保证引用目标对象持有最基础的spring-boot自动装配能力，而<code>mybatis-spring-boot-autoconfigure</code>实现了<code>mybatis</code>对于Spring-boot应用的支持（包括<code>SqlSession</code>的装配、<code>MapperScanner</code>的注册等等），<code>mybatis-spring</code>实现了对spring的功能支持，<code>mybatis</code>则负责了基础的能力实现。</p>
+<p>​    依赖树的可读性不高，我们可以转换成图来看。</p>
+<a href="https://i.loli.net/2020/05/30/i6y7CofgjZvaIHY.png" data-caption="image-20200530222112332" data-fancybox="images"><img src="https://i.loli.net/2020/05/30/i6y7CofgjZvaIHY.png" alt="image-20200530222112332"></a>
+
+<h2 id="Starter的兄弟">Starter的兄弟<a class="post-anchor" href="#Starter的兄弟"></a></h2><h3 id="Conditional">@Conditional<a class="post-anchor" href="#Conditional"></a></h3><p>​    关于<code>@Conditional</code>注解的内容在Spring boot 自动装配原理中也有较为详尽的分析和描述，于此对原理方面的内容也就不打算过多深究了，感兴趣的朋友可以回看一下之前的内容。</p>
+<p>​    在实际Starter模块开发过程中，经常会遇到starter所依赖的类、Spring Bean、配置不存在的情况，于此我们也就不再需要Spring自动装配功能对starter的配置进行解析处理。Spring也提供了以<code>@Conditional</code>作为元注解的衍生注解以完成以上需求，由于衍生注解较多，于此用表格进行展示。</p>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>@ConditionalOnProperty</code></td>
+<td>该注解用于对应用配置项进行检查，使用<code>prefix</code>进行注解的前缀匹配，用<code>havingVal</code>以检查配置项是否存在，用<code>matchIfMissing</code>用于应对配置不存在采用默认值的情况</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnResource</code></td>
+<td>用于检查指向资源是否存在，若不存在则自动配置类不会被加载</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnClass</code>/<code>@ConditionalOnMissingClass</code></td>
+<td><code>OnClass</code>和<code>OnMissingClass</code>是相对的，用于检查<code>classpath</code>下类是否存在或是否不存在，检查方式是通过<code>asm</code>读取类元信息，而后通过<code>classloader</code>对目标类进行加载，若加载成功则说明类存在，反之则不存在，具体逻辑在Spring boot自动装配系列中也有提到</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnBean</code>/<code>@ConditionalOnMissingBean</code></td>
+<td>与<code>OnClass</code>类似，该注解用于检查Bean是否存在或不存在于Spring容器中</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnWebApplication</code>/<code>@ConditionalOnNotWebApplication</code></td>
+<td>用于检查当前应用类型是否为WEB应用（可细化到检查是否是Servlet应用或Reactive应用）</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnExpression</code></td>
+<td>检查是否包含SpringEL的结果</td>
+</tr>
+</tbody></table>
+<p>​    其实基于<code>@Conditional</code>注解的衍生还不止这些，<code>@ConditionalOnJava</code>用于判断Jvm所运行的Java版本，<code>@ConditionalOnJndi</code>用于检查目标资源是否存在等等，甚至说你也可以实现自己的<code>@Conditional</code>衍生注解，只需要实现自己的<code>Condition</code>类即可。</p>
+<h3 id="ConfigurationProperties">@ConfigurationProperties<a class="post-anchor" href="#ConfigurationProperties"></a></h3><p>​    在你为你的Starter定义了一套配置属性时，通过<code>@Value</code>注解取值的效率往往太低了，此时不妨试一试<code>@ConfigurationProperties</code>，让Spring将注解转换成你的Properties类，简化配置内容值的获取步骤，提高获取效率。注意，<code>@ConfigurationProperties</code>和<code>@Value</code>的功能是冲突的，当在<code>@ConfigurationProperties</code>标注的类中使用<code>@Value</code>，<code>@Value</code>会进行值的覆盖。</p>
+<h2 id="小结">小结<a class="post-anchor" href="#小结"></a></h2><p>​    在实际开发过程中，对于泛用性较高的功能，譬如用户中心、数据查询分页、数据中台等等功能，都可以采用Starter的开发模式，以减少主应用的重复开发，同时也提高模块的复用率。Spring Cloud的系列微服务，在本质上也都是一个个的Starter插件，在进行少量的配置工作后提供强有力的功能。</p>
+<p>​    当然在这里要小提一句，Spring官方不建议第三方的模块Starter命名以<code>spring-boot-starter-xxx</code>进行，该命名方式通常适用于spring-boot的官方<code>Starter</code>，在必要的情况下，官方会使用对你的自动装配特性进行支持。而建议的命名方式为<code>xxx-spring-boot-starter</code>，如<code>mybatis-spring-boot-starter</code>。</p>
+<h2 id="尾巴">尾巴<a class="post-anchor" href="#尾巴"></a></h2><p>​    最近对于自己的学习效率还是不太满意，之前许下的一个月两篇质量更新也已经连续两个月没有完成。对自己也有些稍许失望，但是在新的工作上也慢慢步入了正轨，希望…砥砺前行吧。以上，加油。</p>
+
+
+  
+  <div class="post-guide">
+    <div class="item left">
+        
+    </div>
+    <div class="item right">
+        
+          <a href="/2020/04/25/mongo-index-1/">MongoDB的索引策略分析 /1</a>
+        
+    </div>
+  </div>
+
+  
+
+  <div id="comment"></div>
+
+  
+  
+</article>
+        <footer>
+          <div class="copyright">
+            ©2020
+            <a href="http://yoursite.com">ShawJie</a> Powered by <a href="https://hexo.io">Hexo</a> |
+            <a href="https://github.com/shixiaohu2206/hexo-theme-huhu">hexo-theme-huhu</a> 
+            
+			| <a class="icp" href="http://www.beian.miit.gov.cn/" target="_blank">浙ICP备20000303号-1</a>
+			
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+  
+</html>
+<script type="text/javascript">
+                  window.HUHU_CONFIG = JSON.parse("{\"service_worker\":{\"open\":false}}")
+                </script> <script type="text/javascript">window.addEventListener('load', function() {
+    
+    window.loadJs = function(d, m, a) {
+      var c = document.getElementsByTagName('head')[0] || document.head || document.documentElement
+      var b = document.createElement('script')
+      b.defer = true
+      b.setAttribute('type', 'text/javascript')
+      b.setAttribute('charset', 'UTF-8')
+      b.setAttribute('async', 'true')
+      b.setAttribute('src', d)
+      m && b.setAttribute('data-main', '/scripts/app-built')
+      if (typeof a === 'function') {
+        if (window.attachEvent) {
+          b.onreadystatechange = function() {
+            var e = b.readyState
+            if (e === 'loaded' || e === 'complete') {
+              b.onreadystatechange = null
+              a()
+            }
+          }
+        } else {
+          b.onload = a
+        }
+      }
+      c.appendChild(b)
+    }
+    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
+  })</script> <script type="text/javascript">
+                  ;(function() {
+                    var bp = document.createElement('script')
+                    var curProtocol = window.location.protocol.split(':')[0]
+                    if (curProtocol === 'https') {
+                      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js'
+                    } else {
+                      bp.src = 'http://push.zhanzhang.baidu.com/push.js'
+                    }
+                    var s = document.getElementsByTagName('script')[0]
+                    s.parentNode.insertBefore(bp, s)
+                  })()
+                </script> 
