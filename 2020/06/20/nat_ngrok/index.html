@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+      <script>
+  var _hmt = _hmt || []
+  ;(function() {
+    var hm = document.createElement('script')
+    hm.src = 'https://hm.baidu.com/hm.js?5a0acc897fd96474a2c8f4deac84611a'
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(hm, s)
+  })()
+</script> 
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content>
+    <meta name="description" content>
+    
+    <title>
+      关于搭建自己的NAT穿透服务这件事 - Shaw&#39;s Log
+    </title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" href="https://i.loli.net/2019/12/03/RwXtHdlBG7zmMq1.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style/style.css">
+  </head>
+  <body>
+    
+    <div id="post-toc" class="animated hiddenToc hide">
+      <span class="title">Toc</span>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#关于搭建自己的NAT穿透服务这件事"><span class="toc-text">关于搭建自己的NAT穿透服务这件事</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#内网-→-公网"><span class="toc-text">内网 → 公网</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DDNS-端口映射"><span class="toc-text">DDNS + 端口映射</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NAT穿透"><span class="toc-text">NAT穿透</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ngrok"><span class="toc-text">Ngrok</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#搭建过程"><span class="toc-text">搭建过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#服务端"><span class="toc-text">服务端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#客户端"><span class="toc-text">客户端</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#尾巴"><span class="toc-text">尾巴</span></a></li></ol></li></ol>
+    </div>
+    
+    <div id="fixed-menu-wrap">
+      <span class="icon-toc menu-reset">Toc</span>
+      <span class="iconfont icon-arrowup menu-reset"></span>
+    </div>
+    <div id="fixed-menu">
+      <span class="iconfont icon-menu-"></span>
+    </div>
+    <div id="progress">
+      <div class="line"></div>
+    </div>
+    <div id="search-shade" class="animated hiddenSearch hide">
+      <div class="input-wrap">
+        <input type="text" placeholder="Search">
+        <span class="iconfont icon-close"></span>
+      </div>
+      <div class="search-result">
+        <div class="meta">
+          <span><b id="result-count">0</b> results found</span>
+          <img src="https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg">
+        </div>
+        <ul id="result-box"></ul>
+      </div>
+    </div>
+    <div id="menu-mask" class="animated hideMenuMask hide">
+      <span class="iconfont icon-close"></span>
+      <div class="nav">
+        
+        <a href="/" class>
+          Home
+        </a>
+        
+        <a href="/archives" class>
+          Archives
+        </a>
+        
+        <a href="/about" class>
+          About
+        </a>
+        
+      </div>
+    </div>
+    <div id="header">
+      <div class="intro">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <div class="author">ShawJie</div>
+      </div>
+      <div class="nav">
+        <span class="iconfont icon-menu menu-icon"></span>
+      </div>
+    </div>
+    <div id="side" class="animated bounceInLeft">
+      <div class="shrink">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <span class="iconfont icon-menu toggle-icon"></span>
+      </div>
+      <div class="magnify">
+        <div class="about">
+          <div class="author">ShawJie</div>
+          <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        </div>
+
+        <div class="nav">
+          
+          <a href="/" class>
+            Home
+          </a>
+          
+          <a href="/archives" class>
+            Archives
+          </a>
+          
+          <a href="/about" class>
+            About
+          </a>
+          
+        </div>
+        <div class="bottom">
+          <div class="follow">
+            
+            <a href="https://github.com/shawjie" target="_block">
+              <span class="iconfont icon-github"></span>
+            </a>
+             
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="container">
+      <div class="main animated bounceInRight delay-0.7s">
+        <article class="post-entry">
+    <div class="header">
+      
+      <div class="title">关于搭建自己的NAT穿透服务这件事</div>
+      <div class="meta">
+        <span class="item">
+          <span class="iconfont icon-time-circle"></span>
+          <span>2020/06/20</span>
+        </span>
+
+        
+
+        
+        
+         
+          <span class="item">
+            <span class="iconfont icon-tag1"></span>
+            <span>
+                
+                  
+                    <a href="/tags/内网穿透">内网穿透</a>
+                  
+                
+                  
+                    <a href="/tags/Ngrok">Ngrok</a>
+                  
+                
+            </span>
+          </span>
+         
+      </div>
+      <div>
+      </div>
+    </div>
+    <h1 id="关于搭建自己的NAT穿透服务这件事">关于搭建自己的NAT穿透服务这件事<a class="post-anchor" href="#关于搭建自己的NAT穿透服务这件事"></a></h1><blockquote>
+<p>最近买了一台NAS，不想仅仅止步于在内网的使用。那么需求也就应运而生，我需要把我的NAS映射在公网上。在分析了各种技术方案之后根据现实条件选择了NAT穿透，因此也就有了这一篇内容，于此做个记录，也给可能会碰到同类型需求的各位分享一下自己的实现步骤。</p>
+</blockquote>
+<h2 id="内网-→-公网">内网 → 公网<a class="post-anchor" href="#内网-→-公网"></a></h2><p>​    在说明这个映射过程之前，我们需要先知道NAT是什么。上个世纪80年代，当时的人们在设计网络地址的时候，没考虑过2的32次幂台终端设备连入互联网情况，以及增加IP的长度（即使是从4字节增到6字节）对当时设备的计算、存储、传输成本也是相当巨大的。而后，IP地址不够用了，NAT（Network Address Translation）网络地址转换技术也就诞生了，NAT的本质是一群机器共用一个公网IP，即内网的机器发出的请求会通过NAT转换为公网地址，隐藏内网IP，而公网的响应通过NAT映射到对应的机器。</p>
+<h3 id="DDNS-端口映射">DDNS + 端口映射<a class="post-anchor" href="#DDNS-端口映射"></a></h3><p>​    DDNS（Dynamic Domain Name Server）即动态域名服务，是将用户的动态IP地址映射到一个固定的域名解析服务上，用户每次连接网络的时候客户端程序就会通过信息传递把该主机的动态IP地址传送给位于服务商主机上的服务器程序，在目前家用网络大多使用动态IP的大环境情况下，DDNS可以保证域名指向的正确性。而配合DDNS进行的端口映射操作就可以把内网机器上的服务映射出去。</p>
+<h3 id="NAT穿透">NAT穿透<a class="post-anchor" href="#NAT穿透"></a></h3><p>​    NAT穿透实现服务向外暴露的思路和通过DDNS+端口映射不太一样，NAT穿透的前提是需要在有公网IP的服务器上部署Server端，在需要进行暴露的服务器部署Client端。Client端在启动后会与Server端完成身份验证并建立隧道，而后用户访问行为会先到Server端，Server端会根据Client端在启动时的注册信息分配到对应的Client端，Client端将响应传输到Server端，Server端将Client端的响应返回给用户。整个调用链路比较类似反向代理。</p>
+<h2 id="Ngrok">Ngrok<a class="post-anchor" href="#Ngrok"></a></h2><blockquote>
+<p>Ngrok是NAT穿透的一个具体实现应用，官网对于Ngrok的描述如下：Ngrok is a reverse proxy that creates a secure tunnel from a public endpoint to a locally running web service. ngrok captures and analyzes all traffic over the tunnel for later inspection and replay.（翻译：Ngrok是一个可以从公网端点创建安全通道到本地Web服务的反向代理，Ngrok会捕获并分析所有通过隧道的流量以用于之后的检查和重播）</p>
+</blockquote>
+<p>关于Ngrok的运行时序图如下：</p>
+<a href="https://i.loli.net/2020/06/20/3lYovp85zyGWKcs.png" data-caption data-fancybox="images"><img src="https://i.loli.net/2020/06/20/3lYovp85zyGWKcs.png" alt></a>
+
+<h3 id="搭建过程">搭建过程<a class="post-anchor" href="#搭建过程"></a></h3><p>​    由于整体的Ngrok服务端/客户端搭建操作步骤较为繁琐，涉及的环境包括Go、Git、make。在搭建过程中为了简化搭建的操作，同时在多机器部署时保证环境的一致性，使用<code>Docker</code>进行了整体的服务端、客户端构建。</p>
+<h4 id="服务端">服务端<a class="post-anchor" href="#服务端"></a></h4><p>​    目前服务端部署于Aliyun ECS，系统为CentOS 7.x。Dockerfile如下：</p>
+<pre><code class="hljs dockerfile"><span class="hljs-comment">## 基于Golang-alpine镜像进行构建</span>
+<span class="hljs-keyword">FROM</span> golang:alpine  
+
+<span class="hljs-comment">## 设定Ngrok服务端域名参数</span>
+<span class="hljs-keyword">ARG</span> DOMAIN_NAME   
+
+<span class="hljs-comment">## 对apline系统包仓库进行换源并安装 openssl make git</span>
+<span class="hljs-comment">## 在安装完成之后通过git将Ngrok源码克隆到本地</span>
+<span class="hljs-keyword">RUN</span> sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories &amp;&amp; \
+    apk add --no-cache openssl make git &amp;&amp; \
+    cd / &amp;&amp; \
+    mkdir data &amp;&amp; \
+    cd data &amp;&amp; \
+    git clone https://github.com/inconshreveable/ngrok.git source
+
+<span class="hljs-comment">## 添加Ngrok 编译构建脚本到镜像</span>
+<span class="hljs-keyword">ADD</span> build.sh /data
+
+<span class="hljs-keyword">WORKDIR</span> /data
+
+<span class="hljs-comment">## 调用编译构建的脚本</span>
+<span class="hljs-keyword">RUN</span> sh build.sh $DOMAIN_NAME &amp;&amp; \
+    export PATH=$PATH:/data/source/bin
+
+<span class="hljs-keyword">VOLUME</span> ["/data"]
+
+<span class="hljs-comment">## 将Ngrok通道监听地址向外暴露</span>
+<span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">4443</span>
+
+<span class="hljs-comment">## 启动Ngrok服务端</span>
+<span class="hljs-keyword">CMD</span> ["/data/source/bin/ngrokd"]</code></pre>
+
+<p><em>build.sh</em></p>
+<pre><code class="hljs shell">export NGROK_DOMAIN="$0"
+
+cd /data/source
+<span class="hljs-meta">
+#</span># 基于传入的Ngrok域名生成ssl证书
+export NGROK_DOMAIN="$DOMAIN_NAME" &amp;&amp; \
+    openssl genrsa -out rootCA.key 2048 &amp;&amp; \
+    openssl req -x509 -new -nodes -key rootCA.key -subj "/CN=$NGROK_DOMAIN" -days 5000 -out rootCA.pem &amp;&amp; \
+    openssl genrsa -out device.key 2048 &amp;&amp; \
+    openssl req -new -key device.key -subj "/CN=$NGROK_DOMAIN" -out device.csr &amp;&amp; \
+    openssl x509 -req -in device.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out device.crt -days 5000 &amp;&amp; \
+    cp -f rootCA.pem assets/client/tls/ngrokroot.crt &amp;&amp; \
+    cp -f device.crt assets/server/tls/snakeoil.crt &amp;&amp; \
+    cp -f device.key assets/server/tls/snakeoil.key
+
+echo "ready to make server -&gt;"
+<span class="hljs-meta">
+#</span># 编译Ngrok-server端
+make release-server
+<span class="hljs-meta">
+#</span># 编译Ngrok-client端
+echo "ready to make client -&gt;"
+GOOS=linux GOARCH=amd64 make release-client</code></pre>
+
+<p>Ngrok通过<code>GOOS</code>、<code>GOARCH</code>两个参数支持多平台客户端的构建，默认构建的是linux-amd64的客户端，若需要构建其它平台的客户端，可以自行修改<code>build.sh</code>。对应图表如下：</p>
+<table>
+<thead>
+<tr>
+<th>GOOS</th>
+<th>GOARCH</th>
+<th>平台</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>linux</td>
+<td>386</td>
+<td>linux 32位系统</td>
+</tr>
+<tr>
+<td>linux</td>
+<td>amd64</td>
+<td>linux 64位系统</td>
+</tr>
+<tr>
+<td>windows</td>
+<td>386</td>
+<td>windows 32位系统</td>
+</tr>
+<tr>
+<td>windows</td>
+<td>amd64</td>
+<td>windows 64位系统</td>
+</tr>
+<tr>
+<td>darwin</td>
+<td>386</td>
+<td>Macos 32位系统</td>
+</tr>
+<tr>
+<td>darwin</td>
+<td>amd64</td>
+<td>Macos 64位系统</td>
+</tr>
+<tr>
+<td>linux</td>
+<td>arm</td>
+<td>arm架构Linux系统</td>
+</tr>
+</tbody></table>
+<p>​    在完成以上准备工作之后，即可通过<code>docker build --tag [你的镜像名称:版本] --build-arg DOMAIN_NAME=[你的域名] .</code>进行镜像的构建。</p>
+<p>​    在构建完成之后镜像的启动我通过了<code>docker-compose</code>来完成。<code>docker-compose.yml</code>如下：</p>
+<pre><code class="hljs yml"><span class="hljs-attr">version:</span> <span class="hljs-string">"3.1"</span>
+
+<span class="hljs-attr">services:</span>
+
+<span class="hljs-attr">   ngrok:</span>
+<span class="hljs-attr">      image:</span> <span class="hljs-string">shawjie/ngrok:latest</span> <span class="hljs-comment">## 构建完的镜像</span>
+<span class="hljs-attr">      command:</span> <span class="hljs-string">"/data/source/bin/ngrokd -domain='[你的域名]' -httpAddr=':8081'"</span> <span class="hljs-comment">## http的监听端口</span>
+<span class="hljs-attr">      ports:</span>
+<span class="hljs-bullet">         -</span> <span class="hljs-string">"4443:4443"</span>
+<span class="hljs-bullet">         -</span> <span class="hljs-string">"8081:8081"</span>
+
+<span class="hljs-comment">## 在Ngrok之前还有一个Nginx作为整体的服务器网关</span>
+<span class="hljs-comment">## 于此将Ngrok和Ngink配置在了同一个网络环境下</span>
+<span class="hljs-attr">networks:</span>
+<span class="hljs-attr">  default:</span>
+<span class="hljs-attr">    external:</span>
+<span class="hljs-attr">      name:</span> <span class="hljs-string">bin_nginx_default</span></code></pre>
+
+<p>​    在Nginx侧的配置如下</p>
+<pre><code class="hljs conf">server &#123;
+   listen             80;
+   server_name        *.ngrok.xxx.com;  ## 你在DNS解析时配置的域名
+
+   charset            utf-8;
+
+   location / &#123;
+       proxy_pass                 http://ngrok:80;  ## 用于转发http请求
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header Host      $host;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header X-Forwarded-Proto https;
+       proxy_redirect off;
+   &#125;
+&#125;
+
+server &#123;
+   listen             80;
+   server_name        ngrok.xxx.com;  ## 你在DNS解析时配置的域名
+
+   charset            utf-8;
+
+   location / &#123;
+       proxy_pass                 http://ngrok:4443;   ## 用于转发客户端连接请求
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header Host      $host;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header X-Forwarded-Proto https;
+       proxy_redirect off;
+   &#125;
+&#125;</code></pre>
+
+<p>​    于此，Server端的配置就已经完成了。至于客户端，你还得先把构建完成的ngrok-client从运行的镜像中Copy出来。</p>
+<p>​    <code>docker cp [你的容器名称]:/data/source/bin .</code>而后根据你自己系统，将对应的client复制到client端去。</p>
+<h4 id="客户端">客户端<a class="post-anchor" href="#客户端"></a></h4><p>​    目前客户端部署于Synology 218+ DMS上。<br>​    在ngrok-client的同级目录下创建config.yml文件，用于配置ngrok-client连接服务端，以及相关通道的内容。</p>
+<p><em>config.yml</em></p>
+<pre><code class="hljs yaml"><span class="hljs-attr">server_addr:</span> <span class="hljs-string">"ngrok.xxx.com:4443"</span>  <span class="hljs-comment">## 你的域名：端口号</span>
+<span class="hljs-attr">trust_host_root_certs:</span> <span class="hljs-literal">false</span>
+
+<span class="hljs-attr">tunnels:</span>
+<span class="hljs-attr">   synology_nas:</span>
+<span class="hljs-attr">      subdomain:</span> <span class="hljs-string">nas</span>  <span class="hljs-comment">## 三级域名所对应的子域名前缀 也可以使用remote_port:</span>
+<span class="hljs-attr">      proto:</span>
+<span class="hljs-attr">         http:</span> <span class="hljs-number">5000</span>  <span class="hljs-comment">## 支持 http tcp值为对应的地址或端口号</span></code></pre>
+
+<p>​    为了操作方便环境统一，方便管理，我依旧使用了docker来进客户端的部署。首先就是客户端运行所依托的镜像基础<code>dockerfile</code>:</p>
+<pre><code class="hljs dockerfile"><span class="hljs-keyword">FROM</span> alpine:latest  <span class="hljs-comment">## 基于alpine进行镜像的构建以减小镜像大小</span>
+
+<span class="hljs-keyword">RUN</span> cd /usr/local &amp;&amp; \
+    mkdir service
+
+<span class="hljs-keyword">WORKDIR</span> /usr/local/service
+
+<span class="hljs-keyword">VOLUME</span> ["/usr/local/service"]
+
+<span class="hljs-comment">## 启动客户端 配置</span>
+<span class="hljs-keyword">CMD</span> /usr/local/service/ngrok -config=config.yml -log=ngrok_access.log start-all</code></pre>
+
+<p>​    而后通过<code>docker run</code>建立volume之间的链接，即可完成整体Ngrok Server-Client的构建、启动。</p>
+<p>​    <code>docker run --name shawjie_ngrok_client -v /usr/local/data:/usr/local/service --net host -d [你构建的客户端镜像名称]</code></p>
+<p>​    至此，你就可以通过域名直接访问到你内网的服务了。</p>
+<h2 id="尾巴">尾巴<a class="post-anchor" href="#尾巴"></a></h2><p>​    最近的工作也还比较忙，因为入手了一台Nas，而且家里路由器也没有公网IP，所以DDNS + 端口映射的方案就不可行了，只能另求他法，Ngrok2.x的项目作者不打算开源，而是进行了商业化运作。但是简单的功能Ngrok1.x已经能完全从容应对了，Ngrok的功能除了能把我的Nas映射出去，也可完成很多别的事情，譬如微信相关开发的回调，又或是你想把一个应用临时性的向外展示，甚至说你想把内网的服务器通过Ngrok将ssh映射出来。总之，这个功能完全只是局限于你的想象力就是了，明天22岁生日，我要安心过生日去了，这个月底之前计划还要整理一篇内容，总之…加油。</p>
+
+
+  
+  <div class="post-guide">
+    <div class="item left">
+        
+    </div>
+    <div class="item right">
+        
+          <a href="/2020/05/30/spring-boot-starter/">Spring Boot Starter 非权威指南</a>
+        
+    </div>
+  </div>
+
+  
+
+  <div id="comment"></div>
+
+  
+  
+</article>
+        <footer>
+          <div class="copyright">
+            ©2020
+            <a href="http://yoursite.com">ShawJie</a> Powered by <a href="https://hexo.io">Hexo</a> |
+            <a href="https://github.com/shixiaohu2206/hexo-theme-huhu">hexo-theme-huhu</a> 
+            
+			| <a class="icp" href="http://www.beian.miit.gov.cn/" target="_blank">浙ICP备20000303号-1</a>
+			
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+  
+</html>
+<script type="text/javascript">
+                  window.HUHU_CONFIG = JSON.parse("{\"service_worker\":{\"open\":false}}")
+                </script> <script type="text/javascript">window.addEventListener('load', function() {
+    
+    window.loadJs = function(d, m, a) {
+      var c = document.getElementsByTagName('head')[0] || document.head || document.documentElement
+      var b = document.createElement('script')
+      b.defer = true
+      b.setAttribute('type', 'text/javascript')
+      b.setAttribute('charset', 'UTF-8')
+      b.setAttribute('async', 'true')
+      b.setAttribute('src', d)
+      m && b.setAttribute('data-main', '/scripts/app-built')
+      if (typeof a === 'function') {
+        if (window.attachEvent) {
+          b.onreadystatechange = function() {
+            var e = b.readyState
+            if (e === 'loaded' || e === 'complete') {
+              b.onreadystatechange = null
+              a()
+            }
+          }
+        } else {
+          b.onload = a
+        }
+      }
+      c.appendChild(b)
+    }
+    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
+  })</script> <script type="text/javascript">
+                  ;(function() {
+                    var bp = document.createElement('script')
+                    var curProtocol = window.location.protocol.split(':')[0]
+                    if (curProtocol === 'https') {
+                      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js'
+                    } else {
+                      bp.src = 'http://push.zhanzhang.baidu.com/push.js'
+                    }
+                    var s = document.getElementsByTagName('script')[0]
+                    s.parentNode.insertBefore(bp, s)
+                  })()
+                </script> 
