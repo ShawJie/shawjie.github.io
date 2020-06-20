@@ -276,10 +276,9 @@ GOOS=linux GOARCH=amd64 make release-client</code></pre>
 
 <span class="hljs-attr">   ngrok:</span>
 <span class="hljs-attr">      image:</span> <span class="hljs-string">shawjie/ngrok:latest</span> <span class="hljs-comment">## 构建完的镜像</span>
-<span class="hljs-attr">      command:</span> <span class="hljs-string">"/data/source/bin/ngrokd -domain='[你的域名]' -httpAddr=':8081'"</span> <span class="hljs-comment">## http的监听端口</span>
+<span class="hljs-attr">      command:</span> <span class="hljs-string">"/data/source/bin/ngrokd -domain='[你的域名]' -httpAddr=':80'"</span> <span class="hljs-comment">## http的监听端口</span>
 <span class="hljs-attr">      ports:</span>
 <span class="hljs-bullet">         -</span> <span class="hljs-string">"4443:4443"</span>
-<span class="hljs-bullet">         -</span> <span class="hljs-string">"8081:8081"</span>
 
 <span class="hljs-comment">## 在Ngrok之前还有一个Nginx作为整体的服务器网关</span>
 <span class="hljs-comment">## 于此将Ngrok和Ngink配置在了同一个网络环境下</span>
@@ -297,22 +296,6 @@ GOOS=linux GOARCH=amd64 make release-client</code></pre>
 
    location / &#123;
        proxy_pass                 http://ngrok:80;  ## 用于转发http请求
-       proxy_set_header X-Real-IP $remote_addr;
-       proxy_set_header Host      $host;
-       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-       proxy_set_header X-Forwarded-Proto https;
-       proxy_redirect off;
-   &#125;
-&#125;
-
-server &#123;
-   listen             80;
-   server_name        ngrok.xxx.com;  ## 你在DNS解析时配置的域名
-
-   charset            utf-8;
-
-   location / &#123;
-       proxy_pass                 http://ngrok:4443;   ## 用于转发客户端连接请求
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header Host      $host;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
