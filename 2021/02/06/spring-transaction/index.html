@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html>
+  <head><meta name="generator" content="Hexo 3.9.0">
+      <script>
+  var _hmt = _hmt || []
+  ;(function() {
+    var hm = document.createElement('script')
+    hm.src = 'https://hm.baidu.com/hm.js?5a0acc897fd96474a2c8f4deac84611a'
+    var s = document.getElementsByTagName('script')[0]
+    s.parentNode.insertBefore(hm, s)
+  })()
+</script> 
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content>
+    <meta name="description" content>
+    
+    <title>
+      Spring Transaction 之 不离不弃生死相依 - Shaw&#39;s Log
+    </title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" href="https://i.loli.net/2019/12/03/RwXtHdlBG7zmMq1.png" type="image/x-icon">
+    <link rel="stylesheet" href="/style/style.css">
+  </head>
+  <body>
+    
+    <div id="post-toc" class="animated hiddenToc hide">
+      <span class="title">Toc</span>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spring-Transaction-之-不离不弃生死相依"><span class="toc-text">Spring Transaction 之 不离不弃生死相依</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#北京猿人辈儿的事务实现"><span class="toc-text">北京猿人辈儿的事务实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring-Transaction的具体实现"><span class="toc-text">Spring Transaction的具体实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#准备阶段：管家报道"><span class="toc-text">准备阶段：管家报道</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#认领服务对象"><span class="toc-text">认领服务对象</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事务执行：管家干活"><span class="toc-text">事务执行：管家干活</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#创建事务-起个好头"><span class="toc-text">创建事务 - 起个好头</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#回滚事务-诶呀，出错了"><span class="toc-text">回滚事务 - 诶呀，出错了</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#提交事务-事情做完惹"><span class="toc-text">提交事务 - 事情做完惹</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#尾巴"><span class="toc-text">尾巴</span></a></li></ol></li></ol>
+    </div>
+    
+    <div id="fixed-menu-wrap">
+      <span class="icon-toc menu-reset">Toc</span>
+      <span class="iconfont icon-arrowup menu-reset"></span>
+    </div>
+    <div id="fixed-menu">
+      <span class="iconfont icon-menu-"></span>
+    </div>
+    <div id="progress">
+      <div class="line"></div>
+    </div>
+    <div id="search-shade" class="animated hiddenSearch hide">
+      <div class="input-wrap">
+        <input type="text" placeholder="Search">
+        <span class="iconfont icon-close"></span>
+      </div>
+      <div class="search-result">
+        <div class="meta">
+          <span><b id="result-count">0</b> results found</span>
+          <img src="https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg">
+        </div>
+        <ul id="result-box"></ul>
+      </div>
+    </div>
+    <div id="menu-mask" class="animated hideMenuMask hide">
+      <span class="iconfont icon-close"></span>
+      <div class="nav">
+        
+        <a href="/" class>
+          Home
+        </a>
+        
+        <a href="/archives" class>
+          Archives
+        </a>
+        
+        <a href="/about" class>
+          About
+        </a>
+        
+      </div>
+    </div>
+    <div id="header">
+      <div class="intro">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <div class="author">ShawJie</div>
+      </div>
+      <div class="nav">
+        <span class="iconfont icon-menu menu-icon"></span>
+      </div>
+    </div>
+    <div id="side" class="animated bounceInLeft">
+      <div class="shrink">
+        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <span class="iconfont icon-menu toggle-icon"></span>
+      </div>
+      <div class="magnify">
+        <div class="about">
+          <div class="author">ShawJie</div>
+          <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        </div>
+
+        <div class="nav">
+          
+          <a href="/" class>
+            Home
+          </a>
+          
+          <a href="/archives" class>
+            Archives
+          </a>
+          
+          <a href="/about" class>
+            About
+          </a>
+          
+        </div>
+        <div class="bottom">
+          <div class="follow">
+            
+            <a href="https://github.com/shawjie" target="_block">
+              <span class="iconfont icon-github"></span>
+            </a>
+             
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="container">
+      <div class="main animated bounceInRight delay-0.7s">
+        <article class="post-entry">
+    <div class="header">
+      
+      <div class="title">Spring Transaction 之 不离不弃生死相依</div>
+      <div class="meta">
+        <span class="item">
+          <span class="iconfont icon-time-circle"></span>
+          <span>2021/02/06</span>
+        </span>
+
+        
+
+        
+        
+         
+          <span class="item">
+            <span class="iconfont icon-tag1"></span>
+            <span>
+                
+                  
+                    <a href="/tags/Spring Framework">Spring Framework</a>
+                  
+                
+                  
+                    <a href="/tags/Spring Book">Spring Book</a>
+                  
+                
+                  
+                    <a href="/tags/Spring Transaction">Spring Transaction</a>
+                  
+                
+            </span>
+          </span>
+         
+      </div>
+      <div>
+      </div>
+    </div>
+    <h1 id="Spring-Transaction-之-不离不弃生死相依">Spring Transaction 之 不离不弃生死相依<a class="post-anchor" href="#Spring-Transaction-之-不离不弃生死相依"></a></h1><blockquote>
+<p>事务是什么？小A排了很长很长一条多米诺骨牌序列，小C拿着相机表示：“只要你排的没有岔子，这一定是一条超酷的素材”。诶，这就是事务，不可分割，结果只有成功或者失败，没有成功了一部分之说，如果小A的骨牌序列是完美的，那小C就能得到他想要的素材，但是只要中间除了定点岔子，小A小C就啥也没有了。</p>
+</blockquote>
+<h2 id="前言">前言<a class="post-anchor" href="#前言"></a></h2><p>​    引子的举例可能不是那么的准确，所以还是来看看<a href="https://en.wikipedia.org/wiki/Transaction_processing" target="_blank" rel="noopener">Wikipedia</a>对事务的定义：</p>
+<blockquote>
+<p><strong>Transaction processing</strong> is information processing in computer science that is divided into individual, indivisible operations called <em>transactions</em>. Each transaction must succeed or fail as a complete unit;</p>
+<p>事务处理是计算机科学中的信息处理，原子的、不可分割的操作被称作事务，每个完整单元有且只有成功或失败两个状态。</p>
+</blockquote>
+<p>​    事务的具体操作是数据库层面的内容，本篇内容不会有过多提及，而<code>Spring Transaction</code>更像是一个DB上层的管家，这次主要关注的是基于<code>SpringAOP</code>的<code>Spring Transaction</code>如何使我们无感知使用事务的同时肩负起事务的开启、回滚、提交操作。上次已经对<code>Spring AOP</code>的实现有过相关分析，所以也请各位对<code>AOP</code>门道还不是太清晰的小朋友移步<strong><a href="https://shawjie.me/2020/12/31/Spring-aop/" target="_blank" rel="noopener">SpringAOP篇</a></strong>先看看，以获得本篇更愉快的阅读体验。</p>
+<p>​    Ps: 本篇内容所有逻辑分析是基于Spring-Boot (v2.2.9.RELEASE) 的somke-test-data-jdbc项目。Git地址: <a href="https://github.com/spring-projects/spring-boot.git" target="_blank" rel="noopener">https://github.com/spring-projects/spring-boot.git</a>。</p>
+<h2 id="北京猿人辈儿的事务实现">北京猿人辈儿的事务实现<a class="post-anchor" href="#北京猿人辈儿的事务实现"></a></h2><p>​    在正式开始接触<code>Spring Transaction</code>之前，我们还是得按老规矩，先来看看北京猿人辈儿，纯JDBC时代，是怎么样开启、回滚、提交一个事务的。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">updateSomething</span><span class="hljs-params">(Connection con, Coffee coffee, MarketGoods goods)</span> </span>&#123;
+    <span class="hljs-comment">// 定义需要执行的语句</span>
+    String updateCoffeeSql = <span class="hljs-string">"UPDATE coffee SET price = ? WHERE type = ?"</span>;
+    String updateMarketSql = <span class="hljs-string">"UPDATE market SET sale = sale + ? WHERE coffee_type = ?"</span>;
+    <span class="hljs-keyword">try</span> (
+        PreparedStatement updateCoffee = <span class="hljs-keyword">new</span> PreparedStatement(updateCoffeeSql);
+        PreparedStatement updateMarket = <span class="hljs-keyword">new</span> PreparedStatement(updateCoffeeSql)
+    ) &#123;
+        <span class="hljs-comment">// 将数据库连接设置为手动提交(即开启事务)</span>
+        con.setAutoCommit(<span class="hljs-keyword">false</span>);
+        <span class="hljs-comment">// 对Sql参数进行赋值</span>
+       	updateCoffee.setBigDecimal(<span class="hljs-number">1</span>, coffee.getPrice());
+        updateCoffee.setString(<span class="hljs-number">2</span>, coffee.getString());
+        <span class="hljs-comment">// 执行更新操作</span>
+        updateCoffee.executeUpdate();
+        
+        ...doSomethingOthers();
+        
+        updateMarket.setInt(<span class="hljs-number">1</span>, goods.getSale());
+        updateMarket.setString(<span class="hljs-number">2</span>, goods.getCoffeeType());
+        updateMarket.executeUpdate();
+        
+        <span class="hljs-comment">// 完成所有操作后对进行提交动作</span>
+        con.commit();
+    &#125; <span class="hljs-keyword">catch</span> (SQLException e) &#123;
+        <span class="hljs-comment">// 执行逻辑失败后对事务进行回滚操作</span>
+        logger.warn(<span class="hljs-string">"execute transaction wrong"</span>, e);
+        <span class="hljs-keyword">if</span> (con != <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">try</span> &#123;
+                <span class="hljs-comment">// 回滚操作</span>
+            	con.rollback();
+            &#125; <span class="hljs-keyword">catch</span> (SQLException excep) &#123;
+                logger.warn(<span class="hljs-string">"rollback failed"</span>, e);
+            &#125;
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<h2 id="Spring-Transaction的具体实现">Spring Transaction的具体实现<a class="post-anchor" href="#Spring-Transaction的具体实现"></a></h2><blockquote>
+<p>在上边儿咱们过了一下基于原生JDBC的事务实现逻辑，整体来看还是挺冗长的，从局部的逻辑来看设置为手动提交，以及在执行完成或执行失败时提交和回滚操作都是通用的，我们只需要关系具体的数据操作实现。那么作为事务管家的<code>Spring Transaction</code>是如何完成这部分的工作的呢？</p>
+</blockquote>
+<h3 id="准备阶段：管家报道">准备阶段：管家报道<a class="post-anchor" href="#准备阶段：管家报道"></a></h3><p>​    咱在前言里稍稍提到了一嘴，说<code>Spring Transaction</code>是基于<code>AOP</code>进行实现的，那么肯定有一个<code>Advice</code>作为事务逻辑的具体执行者。先给大家透个底，具体执行者是一个叫<code>TransactionInterceptor</code>的<code>MethodInterceptor</code>类，它是哪来的呢？别急，我们慢慢看。</p>
+<p>​    在“万物”溯源皆可溯到的<code>spring-boot-autoconfigure</code>的项目中，<code>spring.factories</code>文件里我们可以看到两个类配置，<code>TransactionAutoConfiguration</code>和<code>DataSourceTransactionManagerAutoConfiguration</code>，在<code>DataSourceTransactionManagerAutoConfiguration</code>自动配置类里，会根据我们应用的数据源，向<code>IoC</code>容器中注册事务管理器<code>DateSourceTransactionManager</code>，而<code>TransactionAutoConfiguration</code>则会在事务管理器完成注册后执行。</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>(proxyBeanMethods = <span class="hljs-keyword">false</span>)
+<span class="hljs-meta">@ConditionalOnBean</span>(TransactionManager.class)
+<span class="hljs-meta">@ConditionalOnMissingBean</span>(AbstractTransactionManagementConfiguration.class)
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EnableTransactionManagementConfiguration</span> </span>&#123;
+	
+    ...
+
+    <span class="hljs-meta">@Configuration</span>(proxyBeanMethods = <span class="hljs-keyword">false</span>)
+    <span class="hljs-meta">@EnableTransactionManagement</span>(proxyTargetClass = <span class="hljs-keyword">true</span>)
+    <span class="hljs-meta">@ConditionalOnProperty</span>(prefix = <span class="hljs-string">"spring.aop"</span>, name = <span class="hljs-string">"proxy-target-class"</span>, havingValue = <span class="hljs-string">"true"</span>,
+                           matchIfMissing = <span class="hljs-keyword">true</span>)
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CglibAutoProxyConfiguration</span> </span>&#123;
+
+    &#125;
+
+&#125;</code></pre>
+
+<p>​    根据Spring自动装配的执行逻辑，<code>CglibAutoProxyConfiguration</code>会被认为是符合配置规则的配置类，撇开配置类的定义注解和配置规则的定义注解，那么现在我们能关注点就是在<code>@EnableTransactionManagement</code>这个注解上。嗯？你问我Spring自动装配是什么？去看看<a href="https://shawjie.me/2020/03/12/Spring_Boot_AutoConfig_1/" target="_blank" rel="noopener">这个</a>，虽然挺长的，但或许能解开你那一星半点儿的疑惑。</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Import</span>(TransactionManagementConfigurationSelector.class)
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@interface</span> EnableTransactionManagement &#123;
+    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">proxyTargetClass</span><span class="hljs-params">()</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">false</span></span>;
+    
+    <span class="hljs-function">AdviceMode <span class="hljs-title">mode</span><span class="hljs-params">()</span> <span class="hljs-keyword">default</span> AdviceMode.PROXY</span>;
+    
+    <span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">order</span><span class="hljs-params">()</span> <span class="hljs-keyword">default</span> Ordered.LOWEST_PRECEDENCE</span>;
+&#125;
+
+<span class="hljs-comment">// TransactionManagementConfigurationSelector</span>
+<span class="hljs-keyword">protected</span> String[] selectImports(AdviceMode adviceMode) &#123;
+    <span class="hljs-keyword">switch</span> (adviceMode) &#123;
+        <span class="hljs-keyword">case</span> PROXY:
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> String[] &#123;AutoProxyRegistrar.class.getName(),
+                                 ProxyTransactionManagementConfiguration.class.getName()&#125;;
+        <span class="hljs-keyword">case</span> ASPECTJ:
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> String[] &#123;determineTransactionAspectClass()&#125;;
+        <span class="hljs-keyword">default</span>:
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+    &#125;
+&#125;</code></pre>
+
+<p>​    这个注解里引入了<code>TransactionManagementConfigurationSelector</code>配置选择类，默认的切面模式是<code>PROXY</code>，在配置选择类中根据切面模式，会加载一个叫<code>ProxyTransactionManagementConfiguration</code>配置类。当然你也可以不使用Spring默认的<code>PROXY</code>模式，转而使用<code>ASPECTJ</code>模式，那么<code>Spring Transaction</code>的切入方式就会由<code>AspectJ</code>进行实现，本篇主要关注的是<code>SpringAOP</code>实现的事务关理，所有关于<code>AspectJ</code>的事务实现就不过多分析了。</p>
+<p>​    在<code>ProxyTransactionManagementConfiguration</code>的配置里，我们终于找到了最初的那个目标<code>TransactionInterceptor</code>，还有另一个小伙伴<code>AnnotationTransactionAttributeSource</code>，它俩相辅相成，但是我们可以晚点再说它。</p>
+<h4 id="认领服务对象">认领服务对象<a class="post-anchor" href="#认领服务对象"></a></h4><p>​    找到了事务逻辑的执行者后，我们得知道它是怎么和我们应用内需要事务执行的类做绑定的。上回书说道：</p>
+<blockquote>
+<p>Spring在从缓存里捞出所有的Advice后，会将Advice列表和Bean元信息交由<code>AopUtils#findAdvisorsThatCanApply</code>进行查找筛选并返回可匹配的Advice子集，其内部匹配逻辑由<code>org.aspectj.weaver.patterns.Pointcut#match</code>负责。<code>Pointcut#match</code>方法会判断目标类中的每个方法是否适配切面的要求，只要有一个方法符合要求，则会对目标类进行增强操作。</p>
+</blockquote>
+<p>​    找到包裹了我们<code>TransactionInterceptor</code>的<code>Advice</code>类<code>BeanFactoryTransactionAttributeSourceAdvisor</code>其成员属性pointcut的<code>match()</code>方法。</p>
+<pre><code class="hljs java"><span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">matches</span><span class="hljs-params">(Method method, Class&lt;?&gt; targetClass)</span> </span>&#123;
+    TransactionAttributeSource tas = getTransactionAttributeSource();
+    <span class="hljs-keyword">return</span> (tas == <span class="hljs-keyword">null</span> || tas.getTransactionAttribute(method, targetClass) != <span class="hljs-keyword">null</span>);
+&#125;</code></pre>
+
+<p>​    在<code>getTransactionAttribute</code>中，会对检查过的方法进行缓存，在后期具体执行事务逻辑时，若缓存中方法被标记为<code>NULL_TRANSACTION_ATTRIBUTE</code>，则会跳过事务开启逻辑。由于篇幅限制，整个<code>getTransactionAttribute</code>方法中，我们主要关注其中的一小段，感兴趣的小朋友可以前往阅读剩余逻辑。</p>
+<pre><code class="hljs java"><span class="hljs-comment">// AbstractFallbackTransactionAttributeSource#computeTransactionAttribute</span>
+<span class="hljs-function"><span class="hljs-keyword">protected</span> TransactionAttribute <span class="hljs-title">computeTransactionAttribute</span><span class="hljs-params">(Method method, @Nullable Class&lt;?&gt; targetClass)</span> </span>&#123;
+    <span class="hljs-comment">/*
+     * 由于使用的是Cglib基于子类的增强逻辑，所以无法继承父类的私有方法
+     * 因此要由Spring Transaction托管的方法也不能是私有方法
+     * Ps: 至于为啥不能是protected和package-private等级的方法
+     * 大概是SpringAOP的cglib实现要和jdkproxy一致吧
+     */</span>
+    <span class="hljs-keyword">if</span> (allowPublicMethodsOnly() &amp;&amp; !Modifier.isPublic(method.getModifiers())) &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+    &#125;
+
+    <span class="hljs-comment">/*
+     * 方法的定义及实现可能在接口上，实现类并没有给出方法的重写实现
+     * 因此需要从定义方法的目标类上重新获得方法，
+     * E.g ICustomerService.saveCustomer() 方法有default实现，
+     * 但是CustomerServiceImpl并未给出saveCustomer()的重写实现
+     */</span>
+    Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
+
+    <span class="hljs-comment">// 在特殊方法上查找是否持有@Transactional注解属性（如果没有特殊方法则会在当前方法上查找</span>
+    TransactionAttribute txAttr = findTransactionAttribute(specificMethod);
+    <span class="hljs-keyword">if</span> (txAttr != <span class="hljs-keyword">null</span>) &#123;
+        <span class="hljs-keyword">return</span> txAttr;
+    &#125;
+
+    <span class="hljs-comment">// 在特殊方法的目标类上查找@Transactional的注解属性</span>
+    txAttr = findTransactionAttribute(specificMethod.getDeclaringClass());
+    <span class="hljs-keyword">if</span> (txAttr != <span class="hljs-keyword">null</span> &amp;&amp; ClassUtils.isUserLevelMethod(method)) &#123;
+        <span class="hljs-keyword">return</span> txAttr;
+    &#125;
+
+    <span class="hljs-keyword">if</span> (specificMethod != method) &#123;
+        <span class="hljs-comment">// 回退到原方法上查找@Transactional注解属性</span>
+        txAttr = findTransactionAttribute(method);
+        <span class="hljs-keyword">if</span> (txAttr != <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">return</span> txAttr;
+        &#125;
+         <span class="hljs-comment">// 回退到原方法定义类上查找@Transactional注解属性</span>
+        txAttr = findTransactionAttribute(method.getDeclaringClass());
+        <span class="hljs-keyword">if</span> (txAttr != <span class="hljs-keyword">null</span> &amp;&amp; ClassUtils.isUserLevelMethod(method)) &#123;
+            <span class="hljs-keyword">return</span> txAttr;
+        &#125;
+    &#125;
+
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+&#125;</code></pre>
+
+<p>​    在<code>computeTransactionAttribute</code>方法中，我们可以看到Spring会在目标类上搜索<code>@Transactional</code>注解，若注解存在，则会将配置信息在内部解析器中构建为<code>RuleBasedTransactionAttribute</code>对象并缓存进<code>attributeCache</code>对象中。而底层使用的则是<code>java.lang.reflect</code>反射获取类注解信息，当Spring查找到类/方法上标记了<code>@Transactional</code>注解时，就会将事务拦截器添加进目标类的切面链中，以进行后续的事务包装操作。</p>
+<div style="border-radius: 5px; padding: 5px 15px; background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+    <span style="color: #6a11cb;">一点点小尾巴ﾉ)ﾟДﾟ( </span>
+    <p style="color: #000;">
+    &nbsp;&nbsp;在SpringFramwork2.0.x版本的<a style="color: #222;" href="https://docs.spring.io/spring-framework/docs/2.0.x/reference/transaction.html#transaction-declarative-annotations" target="_blank" rel="noopener">官方文档</a>中有过这么一段描述："The Spring team's recommendation is that you only annotate concrete classes with the <code>@Transactional</code> annotation, as opposed to annotating interfaces. You certainly can place the <code>@Transactional</code> annotation on an interface (or an interface method), <b style="color: #222;">but this will only work as you would expect it to if you are using interface-based proxies</b>. The fact that annotations are <b style="color: #222;">not inherited</b> means that if you are using class-based proxies then the transaction settings will not be recognised by the class-based proxying infrastructure and the object will not be wrapped in a transactional proxy (which would be decidedly <b style="color: #222;">bad</b>)"，简单翻译一下就是：“Spring团队建议将<code>@Transactional</code>注解标记在具体的实现类而非接口上，虽然注解可以被标记在接口或接口方法上，但只在其为<b style="color: #222;">基于接口代理</b>时才生效（即JDKProxy），由于注解的不可继承性，在使用<b style="color: #222;">基于类代理</b>时（即CglibProxy)无法识别事务设置，以至于对象不会被事务管理器所管理”。这也是现在网络上现存的大部分博客对<code>@Transactional</code>注解进行提要时，会有<b style="color: #222;">“不建议在接口上进行标记”</b>的原因所在。
+    </p>
+  <p style="color: #000;">
+    &nbsp;&nbsp;但是依据阿消（指自己）的测试和源码逻辑阅读，在<code>SpringBoot2.2.9.RELEASE(SpringFramework5.2.8.RELEASE)</code>版本中，Spring的事务托管并不受代理实现是Cglib或是JDKProxy的影响，之和能否通过<code>getTransactionAttribute()</code>在目标方法上获取到@Transactional注解元信息有关。由于目前Github上SpringFramework的源码版本最早只能追溯到3.0.x版本，所以依然无法再了解当时SpringTransaction的实现，有了解的朋友也欢迎分享一下。虽然确实依旧还是不建议把@Transactional注解标记在接口上（因为接口只是抽象，而是否需要事务是实现应该关心的），但是原因确实和是基于类的代理实现还是基于接口的代理实现没关系了。（在SpringFramwork5的文档上已经找不到相关描述了，当然如果是我的测试步骤有问题也希望大家指正）
+  </p>
+</div>
+
+
+<h3 id="事务执行：管家干活">事务执行：管家干活<a class="post-anchor" href="#事务执行：管家干活"></a></h3><blockquote>
+<p>在上一小节，我们知道了<code>SpringTransaction</code>的事务管理器是怎么来的，以及它是怎么找到它需要服务的对象的。对象都找到了，那么作为资本家（bushi）就需要唆使打工人<code>TransactionManager</code>开始干活了。由于前文关于<code>SpringAOP</code>的流程分析是基于<code>Cglib</code>增强的，所以这部分也会按照<code>Cglib</code>的流程走，本篇可能会有较多的源码内容，也请大家耐心阅读。<code>JDKProxy</code>的流程在大体上是相似的，所以也不再赘述了。</p>
+</blockquote>
+<p>​    在Spring应用启动完成之后，IoC容器中存放着我们被增强后的类实例，而我们需要以事务方式执行的类或者方法，则会执行时被拦截器中的<code>TransactionInterceptor</code>事务拦截器截获，进行Spring给我们抽象好的事务包装操作。让我来看看<code>TransactionInterceptor</code>方法。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> Object <span class="hljs-title">invoke</span><span class="hljs-params">(MethodInvocation invocation)</span> <span class="hljs-keyword">throws</span> Throwable </span>&#123;
+    <span class="hljs-comment">// 获取到被拦截的方法的目标类</span>
+    Class&lt;?&gt; targetClass = (invocation.getThis() != <span class="hljs-keyword">null</span> ? AopUtils.getTargetClass(invocation.getThis()) : <span class="hljs-keyword">null</span>);
+
+    <span class="hljs-comment">/*
+     * 调用父类TransactionAspectSupport的invokeWithinTransaction方法
+     * 而在完成事务执行的需求判断和事务开启逻辑后，回调用invocation#proceed()方法
+     * 以进行方法后续的逻辑运行，并等待方法的正常或异常返回，进行后续的事务提交/回滚处理
+     */</span>
+    <span class="hljs-keyword">return</span> invokeWithinTransaction(invocation.getMethod(), targetClass, invocation::proceed);
+&#125;</code></pre>
+
+<p>​    <code>TransactionInterceptor</code>中的逻辑很简单，主要的核心方法就是<code>TransactionAspectSupport#invokeWithinTransaction</code>，该方法内容比较多，整体挪过来也比较占篇幅，所以我会把部分我觉得重要的点提溜出来，剩余一些辅助性质的逻辑感兴趣的小朋友也可以自己进到方法里去看一看。</p>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">protected</span> Object <span class="hljs-title">invokeWithinTransaction</span><span class="hljs-params">(Method method, @Nullable Class&lt;?&gt; targetClass,
+			<span class="hljs-keyword">final</span> InvocationCallback invocation)</span> <span class="hljs-keyword">throws</span> Throwable </span>&#123;
+
+    <span class="hljs-comment">/*
+     * 还记得我们之前提到过会对方法的@Transactional注解信息进行缓存的TransactionAttributeSource么
+     * 在这会根据方法和之前在TransactionInterceptor的invoke方法中获取到的目标类进行缓存的读取
+     * 因为在增强逻辑判断中只要有一个方法符合事务的注入要求，就会对类进行增强
+     * 所以这里也会对剩余方法进行事务执行必要的判断并缓存
+     */</span>
+    TransactionAttributeSource tas = getTransactionAttributeSource();
+    <span class="hljs-comment">/*
+     * 方法之前被扫描过，则会直接从缓存中读取注解信息，若方法被标记为NULL_TRANSACTION_ATTRIBUTE则会于此返回空
+     * 反之则会在这个节点进行一次注解的扫描动作，并缓存返回
+     */</span>
+    <span class="hljs-keyword">final</span> TransactionAttribute txAttr = (tas != <span class="hljs-keyword">null</span> ? tas.getTransactionAttribute(method, targetClass) : <span class="hljs-keyword">null</span>);
+    <span class="hljs-comment">/*
+     * 若方法有@Tranactional注解信息，并且配置了需求的事务管理器名称
+     * 则会在IoC容器中查找指定的事务管理器，反之则会在Ioc容器中查找TransactionManager对象
+     * 若只存在一个，则配置为默认事务管理器并返回
+     * 若存在多个，则需要指定一个为主要事务管理器，若不指定会直接返回空
+     */</span>
+    <span class="hljs-keyword">final</span> TransactionManager tm = determineTransactionManager(txAttr);
+
+    <span class="hljs-comment">/*
+     * 响应式事务的实现...
+     * 不是我们关注的重点...这次先略过
+     */</span>
+
+    <span class="hljs-comment">// 将transactionManager做一个中心接口的转换，保证多种类型的事务管理器执行流程是统一的</span>
+    PlatformTransactionManager ptm = asPlatformTransactionManager(tm);
+    <span class="hljs-comment">// 获取且入方法的限定名，作为之后创建事务的默认名称</span>
+    <span class="hljs-keyword">final</span> String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
+
+    <span class="hljs-keyword">if</span> (txAttr == <span class="hljs-keyword">null</span> || !(ptm <span class="hljs-keyword">instanceof</span> CallbackPreferringPlatformTransactionManager)) &#123;
+        <span class="hljs-comment">// 进行具体的事务创建逻辑，若事务属性为空，则不会进行事务的创建执行操作</span>
+        TransactionInfo txInfo = createTransactionIfNecessary(ptm, txAttr, joinpointIdentification);
+
+        Object retVal;
+        <span class="hljs-keyword">try</span> &#123;
+            <span class="hljs-comment">// 因为连接器是链式操作，所以于此调用进行方法的后续流程执行并等待之后的流程返回</span>
+            retVal = invocation.proceedWithInvocation();
+        &#125;
+        <span class="hljs-keyword">catch</span> (Throwable ex) &#123;
+            <span class="hljs-comment">// 当方法后续流程执行出错时，则会完结当前事务，并进行一些一场事务处理逻辑，譬如回滚</span>
+            completeTransactionAfterThrowing(txInfo, ex);
+            <span class="hljs-keyword">throw</span> ex;
+        &#125;
+        <span class="hljs-keyword">finally</span> &#123;
+            <span class="hljs-comment">// 重置事务信息（涉及嵌套事务逻辑）</span>
+            cleanupTransactionInfo(txInfo);
+        &#125;
+        <span class="hljs-comment">// 当事务正常返回时进行一些后续操作，譬如提交</span>
+        commitTransactionAfterReturning(txInfo);
+        <span class="hljs-comment">// 返回流程的处理结果</span>
+        <span class="hljs-keyword">return</span> retVal;
+    &#125; <span class="hljs-keyword">else</span> &#123;
+        <span class="hljs-comment">/*
+         * CallbackPreferringPlatformTransactionManager事务管理器
+         * 通过事务流程中的回调对事务进行提交回滚等操作
+         * 不是本文关心重点 于此略过
+         */</span>
+    &#125;
+&#125;</code></pre>
+
+<p>​    整个事务的执行流程我们大致的先过了一遍，流程不是很复杂，相关的方法我都补充了注释，从注释当中我们能拎出几个核心方法：</p>
+<ul>
+<li><code>TransactionAspectSupport#createTransactionIfNecessary</code>创建事务逻辑</li>
+<li><code>TransactionAspectSupport#completeTransactionAfterThrowing</code> 事务异常流程处理逻辑</li>
+<li><code>TransactionAspectSupport#commitTransactionAfterReturning</code> 事务正常流程处理逻辑</li>
+</ul>
+<p>​    我们就按顺序一个一个往下看。</p>
+<h4 id="创建事务-起个好头">创建事务 - 起个好头<a class="post-anchor" href="#创建事务-起个好头"></a></h4><pre><code class="hljs java"><span class="hljs-comment">// TransactionAspectSupport#createTransactionIfNecessary</span>
+<span class="hljs-function"><span class="hljs-keyword">protected</span> TransactionInfo <span class="hljs-title">createTransactionIfNecessary</span><span class="hljs-params">(@Nullable PlatformTransactionManager tm,
+			@Nullable TransactionAttribute txAttr, <span class="hljs-keyword">final</span> String joinpointIdentification)</span> </span>&#123;
+    <span class="hljs-comment">// 如果在@Transactional注解上没有指定事务的名称，则会使用方法限定名作为事务名称</span>
+    <span class="hljs-keyword">if</span> (txAttr != <span class="hljs-keyword">null</span> &amp;&amp; txAttr.getName() == <span class="hljs-keyword">null</span>) &#123;
+        txAttr = <span class="hljs-keyword">new</span> DelegatingTransactionAttribute(txAttr) &#123;
+            <span class="hljs-meta">@Override</span>
+            <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>&#123;
+                <span class="hljs-keyword">return</span> joinpointIdentification;
+            &#125;
+        &#125;;
+    &#125;
+
+    TransactionStatus status = <span class="hljs-keyword">null</span>;
+    <span class="hljs-comment">/*
+     * 当存在方法的事务相关标记时，并且应用内存在事务管理器则会通过
+     * PlatformTransactionManager#getTransaction进行事务示例的创建获取
+     */</span>
+    <span class="hljs-keyword">if</span> (txAttr != <span class="hljs-keyword">null</span>) &#123;
+        <span class="hljs-keyword">if</span> (tm != <span class="hljs-keyword">null</span>) &#123;
+            status = tm.getTransaction(txAttr);
+        &#125;
+        <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">if</span> (logger.isDebugEnabled()) &#123;
+                logger.debug(<span class="hljs-string">"Skipping transactional joinpoint ["</span> + joinpointIdentification +
+                             <span class="hljs-string">"] because no transaction manager has been configured"</span>);
+            &#125;
+        &#125;
+    &#125;
+    <span class="hljs-comment">// 将事务信息封装进transactionInfo对象并与先当前线程绑定</span>
+    <span class="hljs-keyword">return</span> prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);
+&#125;</code></pre>
+
+<p>​    当方法不存在事务属性配置时，根据运行逻辑，不会进行相关的事务创建，而事务的创建过程<code>getTransaction</code>，则被抽象到了<code>AbstractPlatformTransactionManager</code>类上，该方法中会获取方法事务配置的事务传播等级、隔离等级，是否只读、过期时间等配置，而后会根据事务的传播等级进行相关的逻辑操作，譬如<code>PROPAGATION_MANDATORY</code>等级会在没有事务存在时抛出异常。具体每个传播等级所对应执行的逻辑操作这次就不细说了，我们主要来看看其中的<code>startTranaction</code>以及其中的<code>doBegin</code>逻辑。</p>
+<pre><code class="hljs java"><span class="hljs-comment">// AbstractPlatformTransactionManager#startTransaction</span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> TransactionStatus <span class="hljs-title">startTransaction</span><span class="hljs-params">(TransactionDefinition definition, Object transaction,
+			<span class="hljs-keyword">boolean</span> debugEnabled, @Nullable SuspendedResourcesHolder suspendedResources)</span> </span>&#123;
+    <span class="hljs-comment">/*
+     * 获取当前事务管理器是否是同步执行的，如果是，则会在后续的prepareSynchronization方法中
+     * 将事务属性绑定进当前线程中
+     */</span>
+    <span class="hljs-keyword">boolean</span> newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+    DefaultTransactionStatus status = newTransactionStatus(
+        definition, transaction, <span class="hljs-keyword">true</span>, newSynchronization, debugEnabled, suspendedResources);
+    <span class="hljs-comment">// 具体的事务开启逻辑</span>
+    doBegin(transaction, definition);
+    prepareSynchronization(status, definition);
+    <span class="hljs-keyword">return</span> status;
+&#125;
+
+<span class="hljs-comment">/*
+ * 我们就来看看somke-test-data-jdbc项目中默认的TransactionManager
+ * DataSourceTransactionManager的事务开启流程是如何操作的
+ * DataSourceTransactionManager#doBegin
+ */</span> 
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doBegin</span><span class="hljs-params">(Object transaction, TransactionDefinition definition)</span> </span>&#123;
+    <span class="hljs-comment">// 获取事务对象</span>
+    DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
+    Connection con = <span class="hljs-keyword">null</span>;
+
+    <span class="hljs-keyword">try</span> &#123;
+        <span class="hljs-comment">// 尝试从事务对象中获取数据库连接，若不存在连接，则会创建一个新的连接并绑定到事务上</span>
+        <span class="hljs-keyword">if</span> (!txObject.hasConnectionHolder() ||
+            txObject.getConnectionHolder().isSynchronizedWithTransaction()) &#123;
+            Connection newCon = obtainDataSource().getConnection();
+            <span class="hljs-keyword">if</span> (logger.isDebugEnabled()) &#123;
+                logger.debug(<span class="hljs-string">"Acquired Connection ["</span> + newCon + <span class="hljs-string">"] for JDBC transaction"</span>);
+            &#125;
+            txObject.setConnectionHolder(<span class="hljs-keyword">new</span> ConnectionHolder(newCon), <span class="hljs-keyword">true</span>);
+        &#125;
+		
+        <span class="hljs-comment">// 标记为同步执行事务</span>
+        txObject.getConnectionHolder().setSynchronizedWithTransaction(<span class="hljs-keyword">true</span>);
+        <span class="hljs-comment">// 获取连接</span>
+        con = txObject.getConnectionHolder().getConnection();
+
+        <span class="hljs-comment">// 对连接进行一些前缀配置，如设置连接只读，设置连接隔离等级之类的操作</span>
+        Integer previousIsolationLevel = DataSourceUtils.prepareConnectionForTransaction(con, definition);
+        <span class="hljs-comment">// 将隔离等级、是否只读信息复写回事务上</span>
+        txObject.setPreviousIsolationLevel(previousIsolationLevel);
+        txObject.setReadOnly(definition.isReadOnly());
+
+        <span class="hljs-comment">/*
+         * 若数据库连接的配置为自动提交，则于此改成手动提交以开启事务
+         * 至于为什么不直接修改而是要加一层判断，Spring团队的说法是将连接设置为手动提交
+         * 对于JDBC驱动来说是非常重的操作，他们希望在不必要的时候不进行该设置
+         */</span> 
+        <span class="hljs-keyword">if</span> (con.getAutoCommit()) &#123;
+            txObject.setMustRestoreAutoCommit(<span class="hljs-keyword">true</span>);
+            <span class="hljs-keyword">if</span> (logger.isDebugEnabled()) &#123;
+                logger.debug(<span class="hljs-string">"Switching JDBC Connection ["</span> + con + <span class="hljs-string">"] to manual commit"</span>);
+            &#125;
+            <span class="hljs-comment">// 设置连接开启事务</span>
+            con.setAutoCommit(<span class="hljs-keyword">false</span>);
+        &#125;
+	
+        <span class="hljs-comment">/*
+         * 若事务为只读事务，且事务管理器配置类显示指定只读
+         * 则会于此开启一个会话并执行 'SET TRANSACTION READ ONLY' 显示设置事务只读
+         */</span>
+        prepareTransactionalConnection(con, definition);
+        <span class="hljs-comment">// 标记事务为开启状态</span>
+        txObject.getConnectionHolder().setTransactionActive(<span class="hljs-keyword">true</span>);
+
+        <span class="hljs-comment">// 设置事务过期时间</span>
+        <span class="hljs-keyword">int</span> timeout = determineTimeout(definition);
+        <span class="hljs-keyword">if</span> (timeout != TransactionDefinition.TIMEOUT_DEFAULT) &#123;
+            txObject.getConnectionHolder().setTimeoutInSeconds(timeout);
+        &#125;
+
+        <span class="hljs-comment">// 若事务为新开启的事务，则将连接，数据源信息绑定到当前线程中</span>
+        <span class="hljs-keyword">if</span> (txObject.isNewConnectionHolder()) &#123;
+            TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());
+        &#125;
+    &#125;
+
+    <span class="hljs-keyword">catch</span> (Throwable ex) &#123;
+        <span class="hljs-comment">// 事务开启异常时对连接进行释放</span>
+        <span class="hljs-keyword">if</span> (txObject.isNewConnectionHolder()) &#123;
+            DataSourceUtils.releaseConnection(con, obtainDataSource());
+            txObject.setConnectionHolder(<span class="hljs-keyword">null</span>, <span class="hljs-keyword">false</span>);
+        &#125;
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> CannotCreateTransactionException(<span class="hljs-string">"Could not open JDBC Connection for transaction"</span>, ex);
+    &#125;
+&#125;</code></pre>
+
+<p>​    在<code>doBegin</code>方法中，我们最初想要找的，在内容开头写的那个“北京猿人辈儿”的事务开启逻辑，已经出现了。还有一个小重点，<code>SpringTransaction</code>中对数据源、连接、事务信息、方法切入点等信息绑定到线程的操作，调用的<code>TransactionSynchronizationManager</code>逻辑，都是通过<code>ThreadLocal</code>对象进行实现的，这也就是在标记为事务的方法上通过异步逻辑调用其它事务方法，会导致事务失效的原因。<code>ThreadLocal</code>对象的分析我们之后有机会再说，看到这个点的时候，或许…可以考虑一下在多线程执行事务方法时，如何保证事务不失效的逻辑。</p>
+<h4 id="回滚事务-诶呀，出错了">回滚事务 - 诶呀，出错了<a class="post-anchor" href="#回滚事务-诶呀，出错了"></a></h4><pre><code class="hljs java"><span class="hljs-comment">// TransactionAspectSupport#completeTransactionAfterThrowing</span>
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">completeTransactionAfterThrowing</span><span class="hljs-params">(@Nullable TransactionInfo txInfo, Throwable ex)</span> </span>&#123;
+    <span class="hljs-keyword">if</span> (txInfo != <span class="hljs-keyword">null</span> &amp;&amp; txInfo.getTransactionStatus() != <span class="hljs-keyword">null</span>) &#123;
+        <span class="hljs-comment">// 获取方法事务配置并判断异常是否需要回滚</span>
+        <span class="hljs-keyword">if</span> (txInfo.transactionAttribute != <span class="hljs-keyword">null</span> &amp;&amp; txInfo.transactionAttribute.rollbackOn(ex)) &#123;
+            <span class="hljs-keyword">try</span> &#123;
+                <span class="hljs-comment">// 进行具体回滚操作</span>
+                txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
+            &#125;
+            <span class="hljs-keyword">catch</span> (Exception ex2) &#123;
+               <span class="hljs-comment">// ...</span>
+            &#125;
+        &#125;
+        <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-comment">// 若不需要根据配置异常回滚，则仍会进行提交操作</span>
+            <span class="hljs-keyword">try</span> &#123;
+                txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
+            &#125;
+            <span class="hljs-keyword">catch</span> (Exception ex2) &#123;
+                <span class="hljs-comment">// ...</span>
+            &#125;
+        &#125;
+    &#125;
+&#125;
+
+<span class="hljs-comment">/*
+ * 在执行回滚操作时，spring会对状态进行一系列检测，譬如事务状态是否为已完成，事务是否有保存点等等
+ * 执行完成回滚操作后，spring会将绑定在线程上的事务信息进行重置操作，我们来看看回滚的具体操作逻辑
+ * DataSourceTransactionManager#doRollback
+ */</span>
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doRollback</span><span class="hljs-params">(DefaultTransactionStatus status)</span> </span>&#123;
+    <span class="hljs-comment">// 获取事务对象</span>
+    DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
+    <span class="hljs-comment">// 获取连接</span>
+    Connection con = txObject.getConnectionHolder().getConnection();
+    <span class="hljs-keyword">if</span> (status.isDebug()) &#123;
+        logger.debug(<span class="hljs-string">"Rolling back JDBC transaction on Connection ["</span> + con + <span class="hljs-string">"]"</span>);
+    &#125;
+    <span class="hljs-keyword">try</span> &#123;
+        <span class="hljs-comment">// 执行熟悉的rollback操作</span>
+        con.rollback();
+    &#125;
+    <span class="hljs-keyword">catch</span> (SQLException ex) &#123;
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> TransactionSystemException(<span class="hljs-string">"Could not roll back JDBC transaction"</span>, ex);
+    &#125;
+&#125;</code></pre>
+
+<p>​    在事务的回滚逻辑中还有一个点需要注意，即<code>TransactionAttribute#rollbackOn</code>方法的判定是否需要回滚，由于<code>SpringTransactionAnnotationParser</code>默认构建的是<code>RuleBasedTransactionAttribute</code>，在解析时会将<code>rollbackFor</code>、<code>rollbackForClassName</code>封装成<code>RollbackRuleAttribute</code>对象，将<code>noRollbackFor</code>、<code>noRollbackForClassName</code>封装成<code>NoRollbackRuleAttribute</code>对象并塞进rules列表中，进行后续的回滚判断操作依据，所以我们就来看看它的回滚逻辑是怎样的。</p>
+<pre><code class="hljs java"><span class="hljs-comment">// RuleBasedTransactionAttribute#rollbackOn</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">rollbackOn</span><span class="hljs-params">(Throwable ex)</span> </span>&#123;
+    RollbackRuleAttribute winner = <span class="hljs-keyword">null</span>;
+    <span class="hljs-keyword">int</span> deepest = Integer.MAX_VALUE;
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.rollbackRules != <span class="hljs-keyword">null</span>) &#123;
+        <span class="hljs-comment">// 获取所有的回滚规则</span>
+        <span class="hljs-keyword">for</span> (RollbackRuleAttribute rule : <span class="hljs-keyword">this</span>.rollbackRules) &#123;
+            <span class="hljs-comment">// 比对回滚规则并获取深度</span>
+            <span class="hljs-keyword">int</span> depth = rule.getDepth(ex);
+            <span class="hljs-keyword">if</span> (depth &gt;= <span class="hljs-number">0</span> &amp;&amp; depth &lt; deepest) &#123;
+                <span class="hljs-comment">// 将深度最小且匹配的异常作为优选者</span>
+                deepest = depth;
+                winner = rule;
+            &#125;
+        &#125;
+    &#125;
+
+    <span class="hljs-comment">/*
+     * 当没有异常匹配时，则进行默认的回滚判断
+     * 即若异常是RuntimeException或是Error则进行回滚操作
+     */</span>
+    <span class="hljs-keyword">if</span> (winner == <span class="hljs-keyword">null</span>) &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">super</span>.rollbackOn(ex);
+    &#125;
+
+    <span class="hljs-comment">// 若最终优选者是不需要回滚的异常类型，则不进行回滚操作，反之则进行回滚操作</span>
+    <span class="hljs-keyword">return</span> !(winner <span class="hljs-keyword">instanceof</span> NoRollbackRuleAttribute);
+&#125;</code></pre>
+
+<p>​    从以上逻辑能获取几个信息：</p>
+<ol>
+<li>所有的<code>RuntimeException</code>和Error都会进行回滚，除非<code>RuntimeException</code>被配置进了<code>noRollbackFor</code>列表中</li>
+<li>回采取优胜者回滚模式进行回滚，譬如子类异常配置为不回滚，父类异常配置为回滚，因为子类异常深度更小，所以会采取子类异常的不回滚操作</li>
+</ol>
+<h4 id="提交事务-事情做完惹">提交事务 - 事情做完惹<a class="post-anchor" href="#提交事务-事情做完惹"></a></h4><pre><code class="hljs java"><span class="hljs-comment">// TransactionAspectSupport#commitTransactionAfterReturning</span>
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">commitTransactionAfterReturning</span><span class="hljs-params">(@Nullable TransactionInfo txInfo)</span> </span>&#123;
+    <span class="hljs-keyword">if</span> (txInfo != <span class="hljs-keyword">null</span> &amp;&amp; txInfo.getTransactionStatus() != <span class="hljs-keyword">null</span>) &#123;
+        <span class="hljs-comment">// 事务管理器的提交逻辑</span>
+        txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
+    &#125;
+&#125;
+
+<span class="hljs-comment">/*
+ * 执行提交操作的前置逻辑倒是不算复杂，会释放事务的保存点，然后进行具体的提交操作
+ * 在提交完成后，会重置绑定在线程上的事务对象属性，但若在提交时出现RuntimeException或Error
+ * 则仍会进行回滚操作
+ * DataSourceTransactionManager#doCommit
+ */</span>
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doCommit</span><span class="hljs-params">(DefaultTransactionStatus status)</span> </span>&#123;
+    <span class="hljs-comment">// 获取事务信息</span>
+    DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
+    <span class="hljs-comment">// 获取连接</span>
+    Connection con = txObject.getConnectionHolder().getConnection();
+    <span class="hljs-keyword">try</span> &#123;
+        <span class="hljs-comment">// 执行具体提交操作</span>
+        con.commit();
+    &#125;
+    <span class="hljs-keyword">catch</span> (SQLException ex) &#123;
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> TransactionSystemException(<span class="hljs-string">"Could not commit JDBC transaction"</span>, ex);
+    &#125;
+&#125;</code></pre>
+
+<h2 id="尾巴">尾巴<a class="post-anchor" href="#尾巴"></a></h2><p>​    至此，我大概是把<code>SpringTransaction</code>讲清楚了吧，从头看到现在的你辛苦了，也希望你通过这个流程，知道了Spring事务在执行过程中为什么会失效，譬如没有作为<code>SpringBean</code>被<code>IoC</code>容器所管理的Bean不会被进行增强；在本类中进行<code>this.xxx</code>方法调用也不会触发事务逻辑，因为使用的是本类对象而不是增强对象；<code>@Transactional</code>注解被打在了非<code>Public</code>方法上，因为<code>Cglib</code>不会对非<code>Public</code>方法进行增强操作；异常被你用<code>try/catch</code>捕捉了导致没有触发回滚，因为<code>TransactionInterceptor</code>是在最外层进行的<code>catch</code>中进行的回滚逻辑判断。</p>
+<p>​    总之，Spring是个怪兽，我不期望我有一天会把它理解的透彻，只希望在哪天碰到了什么问题，我会知道问题出在哪里，我该怎么解决。</p>
+<p>​    Ps: 最近挺忙的，但是总算还是把这篇内容写完了，很长，我也知道能真真儿的读完实属不易，这篇内容写完我就要准备回家过年的事情了，也不知道有多少人会留在工作地过年…无论如何，新年快乐，还有啊…祝你在新的一年里，有人能预计共赴喜悦与伤悲。我是阿消，新年快乐。</p>
+
+
+  
+  <div class="post-guide">
+    <div class="item left">
+        
+    </div>
+    <div class="item right">
+        
+          <a href="/2020/12/31/Spring-aop/">Spring AOP 之 我的孩子为什么不一样了</a>
+        
+    </div>
+  </div>
+
+  
+
+  <div id="comment"></div>
+
+  
+  
+</article>
+        <footer>
+          <div class="copyright">
+            ©2021
+            <a href="http://yoursite.com">ShawJie</a> Powered by <a href="https://hexo.io">Hexo</a> |
+            <a href="https://github.com/shixiaohu2206/hexo-theme-huhu">hexo-theme-huhu</a> 
+            
+			| <a class="icp" href="http://www.beian.miit.gov.cn/" target="_blank">浙ICP备20000303号-1</a>
+			
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+  
+</html>
+<script type="text/javascript">
+                  window.HUHU_CONFIG = JSON.parse("{\"service_worker\":{\"open\":false}}")
+                </script> <script type="text/javascript">window.addEventListener('load', function() {
+    
+    window.loadJs = function(d, m, a) {
+      var c = document.getElementsByTagName('head')[0] || document.head || document.documentElement
+      var b = document.createElement('script')
+      b.defer = true
+      b.setAttribute('type', 'text/javascript')
+      b.setAttribute('charset', 'UTF-8')
+      b.setAttribute('async', 'true')
+      b.setAttribute('src', d)
+      m && b.setAttribute('data-main', '/scripts/app-built')
+      if (typeof a === 'function') {
+        if (window.attachEvent) {
+          b.onreadystatechange = function() {
+            var e = b.readyState
+            if (e === 'loaded' || e === 'complete') {
+              b.onreadystatechange = null
+              a()
+            }
+          }
+        } else {
+          b.onload = a
+        }
+      }
+      c.appendChild(b)
+    }
+    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
+  })</script> <script type="text/javascript">
+                  ;(function() {
+                    var bp = document.createElement('script')
+                    var curProtocol = window.location.protocol.split(':')[0]
+                    if (curProtocol === 'https') {
+                      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js'
+                    } else {
+                      bp.src = 'http://push.zhanzhang.baidu.com/push.js'
+                    }
+                    var s = document.getElementsByTagName('script')[0]
+                    s.parentNode.insertBefore(bp, s)
+                  })()
+                </script> 
