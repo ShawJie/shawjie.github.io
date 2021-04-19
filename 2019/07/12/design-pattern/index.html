@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="/style/style.css">
   </head>
   <body>
+    <canvas id="pagemap"></canvas>
     
     <div id="post-toc" class="animated hiddenToc hide">
       <span class="title">Toc</span>
@@ -47,7 +48,7 @@
       <div class="search-result">
         <div class="meta">
           <span><b id="result-count">0</b> results found</span>
-          <img src="https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg">
+          <img src="/images/Dear_Kana.jpg">
         </div>
         <ul id="result-box"></ul>
       </div>
@@ -68,11 +69,15 @@
           About
         </a>
         
+        <a href="/tags" class>
+          Tags
+        </a>
+        
       </div>
     </div>
     <div id="header">
       <div class="intro">
-        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <a href="/" class="logo" style="background-image: url('/images/Dear_Kana.jpg')"></a>
         <div class="author">ShawJie</div>
       </div>
       <div class="nav">
@@ -81,13 +86,13 @@
     </div>
     <div id="side" class="animated bounceInLeft">
       <div class="shrink">
-        <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+        <a href="/" class="logo" style="background-image: url('/images/Dear_Kana.jpg')"></a>
         <span class="iconfont icon-menu toggle-icon"></span>
       </div>
       <div class="magnify">
         <div class="about">
           <div class="author">ShawJie</div>
-          <a href="/" class="logo" style="background-image: url('https://i.loli.net/2019/12/03/VgMu39qCNBli1wL.jpg')"></a>
+          <a href="/" class="logo" style="background-image: url('/images/Dear_Kana.jpg')"></a>
         </div>
 
         <div class="nav">
@@ -102,6 +107,10 @@
           
           <a href="/about" class>
             About
+          </a>
+          
+          <a href="/tags" class>
+            Tags
           </a>
           
         </div>
@@ -1834,7 +1843,7 @@ class StderrLogger extends Logger
       }
       c.appendChild(b)
     }
-    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
+    window.loadJs && window.loadJs('https://cdn.bootcss.com/require.js/2.3.6/require.min.js', true, function() {require.config({"paths":{"util":"util","share":"share","search":"search","pagemap":"pagemap.min","registerSW":"registerSW","valine":"cdn/Valine.min","av":["https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min"],"pjax":["https://cdn.bootcss.com/jquery.pjax/2.0.1/jquery.pjax.min"],"jquery":["https://cdn.bootcss.com/jquery/3.4.1/jquery.min"],"confirm":["https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min"],"fancybox":["https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min"],"chart":["https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.bundle.min"]},"map":{"*":{"css":"https://cdn.bootcss.com/require-css/0.1.10/css.min.js"}},"shim":{"fancybox":{"deps":["css!https://cdn.bootcss.com/fancybox/3.5.7/jquery.fancybox.min.css"]},"confirm":{"deps":["css!https://cdn.bootcss.com/jquery-confirm/3.3.4/jquery-confirm.min.css"]},"chart":{"deps":["css!https://cdn.bootcss.com/Chart.js/2.8.0-rc.1/Chart.min.css"]}},"waitSeconds":3})})
   })</script> <script type="text/javascript">
                   ;(function() {
                     var bp = document.createElement('script')

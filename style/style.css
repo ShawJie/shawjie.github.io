@@ -811,6 +811,9 @@ a {
   #side {
     display: none !important;
   }
+  #pagemap {
+    display: none !important;
+  }
   #header {
     display: -webkit-box !important;
     display: -moz-box !important;
@@ -1959,6 +1962,15 @@ a {
 #header .icon-sousuo,
 #side .icon-sousuo {
   font-size: 1.4rem !important;
+}
+#pagemap {
+  display: inline-block;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: 100%;
+  z-index: 999;
 }
 .hide {
   display: none !important;
