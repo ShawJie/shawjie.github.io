@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="ShawJie">
+    
+    <title>
+        
+            Spring AOP 之 我的孩子为什么不一样了 |
+        
+        Shaw&#39;s Log | 茶歇小栈
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+        <link rel="shortcut icon" href="/images/base_icon.ico">
+    
+    
+<link rel="stylesheet" href="/font/css/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/regular.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/solid.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/brands.min.css">
+
+    
+        
+            
+        
+    
+    <script class="keep-theme-configurations">
+    const KEEP = window.KEEP || {}
+    KEEP.hexo_config = {"hostname":"shawjie.cn","root":"/","language":"en"}
+    KEEP.theme_config = {"base_info":{"primary_color":"#26de81","avatar":"/images/dear_kana.jpg","logo":"/images/dear_kana.jpg","favicon":"/images/base_icon.ico"},"menu":{"Archives":"/archives","Tags":"/tags","About":"/about"},"first_screen":{"enable":true,"background_img":"/images/bg.svg","background_img_dark":"/images/bg.svg","description":"愿中国青年都摆脱冷气，只是向上走，不必听自暴自弃者流的话。||能做事的做事，能发声的发声","hitokoto":false},"social_contact":{"enable":false,"links":{"github":null,"weixin":null,"qq":null,"weibo":null,"zhihu":null,"twitter":null,"facebook":null,"email":null}},"scroll":{"progress_bar":false,"percent":true,"hide_header":true},"home":{"category":true,"tag":true,"announcement":null},"post":{"author_badge":{"enable":false,"level_badge":true,"custom_badge":["One","Two","Three"]},"word_count":{"wordcount":true,"min2read":true},"datetime_format":"YYYY-MM-DD HH:mm:ss","copyright_info":false,"share":false,"reward":{"enable":false,"img_link":null,"text":null}},"code_block":{"tools":{"enable":true,"style":"mac"},"highlight_theme":"obsidian"},"toc":{"enable":true,"number":false,"expand_all":true,"init_open":true,"layout":"right"},"website_count":{"busuanzi_count":{"enable":false,"site_uv":true,"site_pv":true,"page_pv":true}},"local_search":{"enable":true,"preload":true},"comment":{"enable":false,"use":"valine","valine":{"appid":null,"appkey":null,"server_urls":null,"placeholder":null},"gitalk":{"github_id":null,"github_admins":null,"repository":null,"client_id":null,"client_secret":null,"proxy":null},"twikoo":{"env_id":null,"region":null,"version":"1.6.21"},"waline":{"server_url":null,"reaction":false,"version":2},"giscus":{"repo":null,"repo_id":null,"category":"Announcements","category_id":null,"reactions_enabled":false},"artalk":{"server":null},"disqus":{"shortname":null}},"rss":{"enable":false},"lazyload":{"enable":true},"cdn":{"enable":false,"provider":"jsdelivr"},"pjax":{"enable":true},"footer":{"since":2019,"word_count":false,"icp":{"enable":true,"record_code":"浙ICP备20000303号-1","url":"https://beian.miit.gov.cn"},"site_deploy":{"enable":false,"provider":"github","url":null},"shields_style":{"enable":false,"custom":[{"link_url":null,"img_url":null}]}},"inject":{"enable":true,"css":[null],"js":["/js/custom_home.js"]},"root":"","version":"4.0.2"}
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"}
+    KEEP.language_code_block = {"copy":"Copy code","copied":"Copied","fold":"Fold code block","folded":"Folded"}
+    KEEP.language_copy_copyright = {"copy":"Copy copyright info","copied":"Copied","title":"Original article title","author":"Original article author","link":"Original article link"}
+  </script>
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <i class="pjax-progress-icon fas fa-circle-notch fa-spin"></i>
+    
+</div>
+
+
+<main class="page-container border-box">
+
+    <!-- home first screen  -->
+    
+
+    <!-- page content -->
+    <div class="page-main-content border-box">
+        <div class="page-main-content-top">
+            
+<header class="header-wrapper">
+
+    <div class="border-box header-content">
+        <div class="left border-box">
+            
+                <a class="logo-image border-box" href="/">
+                    <img src="/images/dear_kana.jpg">
+                </a>
+            
+            <a class="site-name border-box" href="/">
+               Shaw&#39;s Log | 茶歇小栈
+            </a>
+        </div>
+
+        <div class="right border-box">
+            <div class="pc">
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a class=""
+                           href="/"
+                        >HOME</a>
+                    </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >ARCHIVES</a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >TAGS</a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/about"
+                            >ABOUT</a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas search fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            <li class="drawer-menu-item flex-center">
+                <a class=""
+                   href="/"
+                >HOME</a>
+            </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives"
+                    >ARCHIVES</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags"
+                    >TAGS</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/about"
+                    >ABOUT</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle border-box">
+
+            <div class="main-content border-box">
+                
+
+                    
+<div class="fade-in-down-animation">
+    <div class="post-page-container border-box">
+        <div class="article-content-container border-box">
+            
+                <div class="article-content-top border-box"
+                     style="height: 13.8rem"
+                >
+                    <div class="cover-article-title">
+                        Spring AOP 之 我的孩子为什么不一样了
+                    </div>
+                    <img class="post-cover" src="/images/spring-aop/G6hMCkONLaxc42K.jpg"
+                         onerror="this.style.display='none'"
+                    >
+                </div>
+            
+
+            <div class="article-content-bottom border-box has-cover">
+                
+
+                
+                    <div class="article-header border-box">
+                        
+                            <div class="avatar-box border-box">
+                                <img src="/images/dear_kana.jpg">
+                            </div>
+                        
+                        <div class="info-box">
+                            <div class="author">
+                                <span class="name">ShawJie</span>
+                                
+                            </div>
+                            <div class="meta-info border-box">
+                                
+
+<div class="article-meta-info-container border-box post">
+    <div class="article-meta-info border-box">
+        
+
+
+        
+            <span class="meta-info-item article-create-date">
+                <i class="icon fa-solid fa-calendar-check"></i>&nbsp;
+                <span class="pc">2020-12-31 14:55:44</span>
+                <span class="mobile">2020-12-31 14:55</span>
+            </span>
+
+            <span class="meta-info-item article-update-date">
+                <i class="icon fa-solid fa-file-pen"></i>&nbsp;
+                <span class="pc" data-updated="Thu Nov 30 2023 10:02:18 GMT+0800">2023-11-30 10:02:18</span>
+            </span>
+        
+
+        
+
+        
+            <span class="article-tag meta-info-item border-box">
+                <i class="icon fas fa-tags"></i>&nbsp;
+                <ul class="article-tag-ul">
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/Spring-Framework/">Spring Framework</a></li>
+                        
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/Spring-Boot/">Spring Boot</a></li>
+                        
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/Spring-Aop/">Spring Aop</a></li>
+                        
+                    
+                </ul>
+            </span>
+        
+
+        
+        
+        
+        
+    </div>
+
+    
+</div>
+
+                            </div>
+                        </div>
+                    </div>
+                
+
+                <div class="article-content keep-markdown-body">
+                    
+
+                    <h1 id="Spring-AOP-之-我的孩子为什么不一样了"><a href="#Spring-AOP-之-我的孩子为什么不一样了" class="headerlink" title="Spring AOP 之 我的孩子为什么不一样了"></a>Spring AOP 之 我的孩子为什么不一样了</h1><blockquote>
+<p>关于Spring的核心要素不可不论的就是<code>IoC</code>和<code>AOP</code>。而至于<code>AOP</code>又向后衍生支撑了不少Spring的不少附属功能，包括<code>Transcation</code>、<code>Lazy Loading</code>、<code>Caching</code>等等…Spring 问世许些年，也有不少大神大佬对流程有过详细解释，但是今儿，我也想用我的视角，给您细说说Spring AOP是怎样运转的。</p>
+</blockquote>
+<h2 id="前菜"><a href="#前菜" class="headerlink" title="前菜"></a>前菜</h2><p>​	在谈论<code>AOP</code>的具体是实现之前我们还是得先稍微介绍一下<code>Cglib</code>。<code>Cglib</code>是一个代码生成库，底层基于<code>ASM</code>进行实现，允许在程序编译阶段后进行类的创建，这也就是Spring实现AOP类代理的关键所在。</p>
+<p>​	我们先简单看一下使用<code>Cglib</code>对类进行代理的简单实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CglibEnhancerDemo</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 创建Enhancer进行增强类创建准备工作</span></span><br><span class="line">        <span class="type">Enhancer</span> <span class="variable">enhancer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Enhancer</span>();</span><br><span class="line">        <span class="comment">// 为增强类指定ClassLoader</span></span><br><span class="line">        enhancer.setClassLoader(Thread.currentThread().getContextClassLoader());</span><br><span class="line">        <span class="comment">// 设置需要代理的目标类(Cglib代理类是通过继承需要增强的目标类实现的)</span></span><br><span class="line">        enhancer.setSuperclass(ProxyTargetClass.class);</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * 设置方法调用时的回调，这里只是简单的进行了一些配置</span></span><br><span class="line"><span class="comment">         * 具体使用场景可以根据方法签名进行额外逻辑处理</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        enhancer.setCallback((MethodInterceptor)(o, method, objects, methodProxy) -&gt; &#123;</span><br><span class="line">            <span class="comment">// do something before method invoke</span></span><br><span class="line">            System.out.println(<span class="string">&quot;Before method invoke&quot;</span>);</span><br><span class="line">            <span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> methodProxy.invokeSuper(o, objects);</span><br><span class="line">            System.out.printf(<span class="string">&quot;Complete invoke method, result is : %s\n&quot;</span>, result);</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;);</span><br><span class="line">	    <span class="comment">// 进行增强类的创建</span></span><br><span class="line">        <span class="type">ProxyTargetClass</span> <span class="variable">targetClass</span> <span class="operator">=</span> (ProxyTargetClass)enhancer.create();</span><br><span class="line">        System.out.println(targetClass.saySomeThing());</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * Before method invoke</span></span><br><span class="line"><span class="comment">         * Complete invoke method, result is : Hello, ShawJie</span></span><br><span class="line"><span class="comment">         * Hello, ShawJie</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ProxyTargetClass</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&quot;ShawJie&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">saySomeThing</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Hello, &quot;</span> + name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Spring-的-AOP实现"><a href="#Spring-的-AOP实现" class="headerlink" title="Spring 的 AOP实现"></a>Spring 的 AOP实现</h2><blockquote>
+<p>快速过了一下<code>Cglib</code>对于类的增强过程，我们现在再来看看Spring是如何应用<code>Cglib</code>对类进行增强的。为了保证整体内容统一，这边所有的逻辑分析皆基于Spring-Boot (v2.2.9.RELEASE) - somke-test-aop项目。Git地址: <a class="link"   target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot.git" >https://github.com/spring-projects/spring-boot.git<i class="fas fa-external-link-alt"></i></a>。</p>
+</blockquote>
+<p>​		Spring通过<code>@Aspect</code>注解进行切面的声明，配合<code>@Before</code>、<code>@After</code>、<code>@Around</code>、<code>@Pointcut</code>等注解完成对类进行增强的整体逻辑。知其然亦知其所以然，其实不论是关于<code>@Aspect</code>注解的扫描流程还是旁的，都脱离不开要把<code>Spring</code>的Bean扫描装配流程走一遍，但该流程不是本文重点，因此不会在本篇中有过多分析（或许以后有时间会再一起来看一看），感兴趣的同学可也也可以自行先去了解一下。扫描注册核心方法: <code>ClassPathBeanDefinitionScanner#doScan</code>，实例化核心方法：<code>ConfigurableListableBeanFactory#preInstantiateSingletons</code></p>
+<h3 id="Advisor的扫描时机"><a href="#Advisor的扫描时机" class="headerlink" title="Advisor的扫描时机"></a>Advisor的扫描时机</h3><ul>
+<li><p>在未曾了解<code>Spring Aop</code>之前，只知道类会被<code>Cglib/JDK Proxy</code>进行代理，设想过切面的几种可能的执行方式：</p>
+<ol>
+<li>类在被代理后<code>Cglib</code>对方法附加通用实现，通用实现内动态获取对方法增强的逻辑并执行，这样实现的好处是可以在应用运行时动态的控制应用到方法的切面，对前面做增减操作。但缺点也很明显，每次方法执行之前都要解析切面的匹配规则并找出附和当前方法的切面列表，很大程度的降低了方法的执行效率。</li>
+<li>类再被代理后，进行切面的匹配获取，并将获取到的切面列表通过<code>Cglib</code>动态构建成方法对应的<code>Callback</code>列表，这样实现的好处就是弥补了动态获取切面列表降低方法执行效率的不足，但同时也不方便在运行时对方法的切面进行动态管理。</li>
+</ol>
+</li>
+</ul>
+<p>​	在构想了上面两中切面的执行方式之后，不论是哪种方式，都需要扫描应用内所有的切面，并构建切面列表。<code>Spring-Aop</code>也是这么做的，<code>Spring</code>通过<code>AutoProxyCreator</code>后处理器，在第一个单例Bean实例化之前对应用内的切面进行扫描构建。</p>
+<h4 id="哪来的AutoProxyCreator"><a href="#哪来的AutoProxyCreator" class="headerlink" title="哪来的AutoProxyCreator"></a>哪来的AutoProxyCreator</h4><p>​	在具体了解<code>AutoProxyCreator</code>后处理器是如何扫描构建<code>Advisor</code>列表之前，我们先看看这个<code>AutoProxyCreator</code>后处理器是怎么来的。大家大抵都知道可以通过配置<code>@EnableAspectJAutoProxy</code>注解以开启Aop功能，但是为什么<code>SpringBoot</code>不需要加这个注解也能实现Aop的功能呢？这就涉及到之前文章所提到过得Spring自动装配了，有兴趣的可以点击<a class="link"   target="_blank" rel="noopener" href="https://shawjie.me/2020/03/12/Spring_Boot_AutoConfig_1" >这里<i class="fas fa-external-link-alt"></i></a>去瞅瞅自动装配的逻辑和流程，这边就不再过多赘述，直接抓着核心说了。</p>
+<p>​	<code>Spring-Auto-Configure</code>包的<code>spring.factories</code>文件内配置了需要自动装配检查的配置类，其中有<code>org.springframework.boot.autoconfigure.aop.AopAutoConfiguration</code>，在<code>AopAutoConfiguration</code>类中我们可以看到自动装配的核心之一<code>@Conditional</code>注解。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration(proxyBeanMethods = false)</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;auto&quot;, havingValue = &quot;true&quot;, matchIfMissing = true)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AopAutoConfiguration</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	该注解表明在默认情况下会加载执行该配置类的配置内容，只有在配置了<code>spring.aop.auto = false</code>时，Spring才不会装配<code>Aop</code>相关的功能。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration(proxyBeanMethods = false)</span></span><br><span class="line"><span class="meta">@EnableAspectJAutoProxy(proxyTargetClass = true)</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(prefix = &quot;spring.aop&quot;, name = &quot;proxy-target-class&quot;, havingValue = &quot;true&quot;,</span></span><br><span class="line"><span class="meta">                       matchIfMissing = true)</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">CglibAutoProxyConfiguration</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	在<code>AopAutoConfiguration</code>类的配置下有一个<code>CglibAutoProxyConfiguration</code>，同理，注解表明默认情况下（不进行任何配置）会去加载当前类的配置。在这个类上面我们看到了我们熟悉的<code>@EnableAspectJAutoProxy</code>注解，这也就是我们在<code>Spring-Boot</code>应用上不需要显示标明该注解的原因。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import(AspectJAutoProxyRegistrar.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableAspectJAutoProxy &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AspectJAutoProxyRegistrar</span> <span class="keyword">implements</span> <span class="title class_">ImportBeanDefinitionRegistrar</span> &#123;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">registerBeanDefinitions</span><span class="params">(</span></span><br><span class="line"><span class="params">			AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> &#123;</span><br><span class="line"></span><br><span class="line">		AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(registry);</span><br><span class="line"></span><br><span class="line">		<span class="type">AnnotationAttributes</span> <span class="variable">enableAspectJAutoProxy</span> <span class="operator">=</span></span><br><span class="line">				AnnotationConfigUtils.attributesFor(importingClassMetadata, EnableAspectJAutoProxy.class);</span><br><span class="line">		<span class="keyword">if</span> (enableAspectJAutoProxy != <span class="literal">null</span>) &#123;</span><br><span class="line">			<span class="keyword">if</span> (enableAspectJAutoProxy.getBoolean(<span class="string">&quot;proxyTargetClass&quot;</span>)) &#123;</span><br><span class="line">				AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> (enableAspectJAutoProxy.getBoolean(<span class="string">&quot;exposeProxy&quot;</span>)) &#123;</span><br><span class="line">				AopConfigUtils.forceAutoProxyCreatorToExposeProxy(registry);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	在<code>@EnableAspectAutoProxy</code>注解内引入了<code>AspectJAutoProxyRegistrar</code>注册器，在注册器的注册逻辑内我们可以看到通过调用<code>registerAspectJAnnotationAutoProxyCreatorIfNecessary</code>向<code>BeanFactory</code>内注册了<code>AopProxyCreator</code>后处理器。</p>
+<h4 id="真真儿的扫描逻辑"><a href="#真真儿的扫描逻辑" class="headerlink" title="真真儿的扫描逻辑"></a>真真儿的扫描逻辑</h4><p>​	在Spring的Bean实例化阶段，在实例化之前Spring会调用应用内所有<code>BeanPostProcessor</code>的<code>postProcessBeforeInstantiation</code>方法以在Bean被实例化之前进行一些处理。让我们看看<code>AopProxyCreator</code>的实例化前的后置处理都做了什么。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">postProcessBeforeInstantiation</span><span class="params">(Class&lt;?&gt; beanClass, String beanName)</span> &#123;</span><br><span class="line">  <span class="comment">// 构建bean的缓存名称</span></span><br><span class="line">  <span class="type">Object</span> <span class="variable">cacheKey</span> <span class="operator">=</span> getCacheKey(beanClass, beanName);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 判断是否是自订TargetSource所负责的Bean</span></span><br><span class="line">  <span class="keyword">if</span> (!StringUtils.hasLength(beanName) || !<span class="built_in">this</span>.targetSourcedBeans.contains(beanName)) &#123;</span><br><span class="line">    <span class="comment">// 判断当前Bean是否已经被处理过</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.advisedBeans.containsKey(cacheKey)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 判断是否是Aop基类(Advice/Pointcut/Advisor类或其子类)</span></span><br><span class="line">    <span class="comment">// 若shouldSkip方法返回值为true, 则不应该被当前postProessor进行处理</span></span><br><span class="line">    <span class="keyword">if</span> (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) &#123;</span><br><span class="line">      <span class="built_in">this</span>.advisedBeans.put(cacheKey, Boolean.FALSE);</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 自订TargetSource是SpringAop的一个高级特性</span></span><br><span class="line"><span class="comment">   * Aop代理的不是你的beanTraget而是targetSource</span></span><br><span class="line"><span class="comment">   * 由于此特性不是本文重点 所以本文不会对相关内容进行过多解释</span></span><br><span class="line"><span class="comment">   * 之后有机会可以再说说</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="type">TargetSource</span> <span class="variable">targetSource</span> <span class="operator">=</span> getCustomTargetSource(beanClass, beanName);</span><br><span class="line">  <span class="keyword">if</span> (targetSource != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.hasLength(beanName)) &#123;</span><br><span class="line">      <span class="built_in">this</span>.targetSourcedBeans.add(beanName);</span><br><span class="line">    &#125;</span><br><span class="line">    Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);</span><br><span class="line">    <span class="type">Object</span> <span class="variable">proxy</span> <span class="operator">=</span> createProxy(beanClass, beanName, specificInterceptors, targetSource);</span><br><span class="line">    <span class="built_in">this</span>.proxyTypes.put(cacheKey, proxy.getClass());</span><br><span class="line">    <span class="keyword">return</span> proxy;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	<code>AopProxyCreator</code>的bean实例化前<strong>后置处理</strong>只看表面逻辑好像重点只是主要处理了<code>CustomeTargetSource</code>的逻辑，但是在<code>AopProxyCreator</code>的实现类<code>AnnotationAwareAspectJAutoProxyCreator</code>中，<code>shouldSkip</code>方法被重写并增加了了对<code>beanFactory</code>内被标记了<code>@Ascpet</code>进行扫描构建的逻辑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AspectJAwareAdvisorAutoProxyCreator#shouldSkip</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">shouldSkip</span><span class="params">(Class&lt;?&gt; beanClass, String beanName)</span> &#123;</span><br><span class="line">  List&lt;Advisor&gt; candidateAdvisors = findCandidateAdvisors();</span><br><span class="line">  <span class="keyword">for</span> (Advisor advisor : candidateAdvisors) &#123;</span><br><span class="line">    <span class="keyword">if</span> (advisor <span class="keyword">instanceof</span> AspectJPointcutAdvisor &amp;&amp;</span><br><span class="line">        ((AspectJPointcutAdvisor) advisor).getAspectName().equals(beanName)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">super</span>.shouldSkip(beanClass, beanName);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AnnotationAwareAspectJAutoProxyCreator#findCandidateAdvisors</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> List&lt;Advisor&gt; <span class="title function_">findCandidateAdvisors</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="comment">// 在beanFactory中寻找Advisor的实现类列表</span></span><br><span class="line">  List&lt;Advisor&gt; advisors = <span class="built_in">super</span>.findCandidateAdvisors();</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">this</span>.aspectJAdvisorsBuilder != <span class="literal">null</span>) &#123;</span><br><span class="line">   	<span class="comment">// 在beanFactory中寻找被标记了@Aspect注解的aspect bean</span></span><br><span class="line">    advisors.addAll(<span class="built_in">this</span>.aspectJAdvisorsBuilder.buildAspectJAdvisors());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> advisors;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	我们主要关注的是<code>buildAspectJAdvisors</code>方法，由于代码较多就不在贴在这里了，我们在这里简单的理一下它的扫描流程，对具体逻辑感兴趣的同学可以自己打开IDE去瞅一瞅。</p>
+<ol>
+<li><code>Double-Check-Lock</code>检查缓存的<code>aspectBeanNames</code>是否为空，若为空则进行初始化流程</li>
+<li>从<code>BeanFactory</code>内捞出所有bean</li>
+<li>判断bean是否打上了<code>@Aspect</code>注解</li>
+<li>向<code>aspectBeanNames</code>添加<code>beanName</code>缓存，若切面类是单例，则直接作为缓存放入<code>advisorsCache</code>，反之则作为<code>advisorFactory</code>放入<code>aspectFactoryCache</code>作为工厂缓存</li>
+</ol>
+<h3 id="增强类的构建"><a href="#增强类的构建" class="headerlink" title="增强类的构建"></a>增强类的构建</h3><blockquote>
+<p>上一段中Advisor的扫描逻辑已经完成，我们系统内所以的切面类已经被Spring缓存起来了。在本节内容我们就要直接跳到Spring Bean的实例化环节，看看Spring AOP在Bean的实例化过程中，是如何对Bean做增强的。</p>
+</blockquote>
+<p>​	在<code>AbstractAutowireCapableBeanFactory#initializeBean</code>会进行Bean最后的实例化操作，在实例化时会调用应用内后处理器的<code>postProcessAfterInitialization</code>方法对Bean进行实例化后处理逻辑。而AOP的<code>BeanPostProcessor(AbstractAutoProxyCreator)</code>对该方法也进行了相关实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">postProcessAfterInitialization</span><span class="params">(<span class="meta">@Nullable</span> Object bean, String beanName)</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (bean != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">cacheKey</span> <span class="operator">=</span> getCacheKey(bean.getClass(), beanName);</span><br><span class="line">    <span class="comment">// 检查循环依赖逻辑</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.earlyProxyReferences.remove(cacheKey) != bean) &#123;</span><br><span class="line">      <span class="comment">// 对bean进行检查 符合条件的bean会被进行增强操作</span></span><br><span class="line">      <span class="keyword">return</span> wrapIfNecessary(bean, beanName, cacheKey);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> bean;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Object <span class="title function_">wrapIfNecessary</span><span class="params">(Object bean, String beanName, Object cacheKey)</span> &#123;</span><br><span class="line">    <span class="comment">// 检查Bean是否由自订TargetSource负责</span></span><br><span class="line">    <span class="keyword">if</span> (StringUtils.hasLength(beanName) &amp;&amp; <span class="built_in">this</span>.targetSourcedBeans.contains(beanName)) &#123;</span><br><span class="line">        <span class="keyword">return</span> bean;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 检查Bean是否已经检查过 且检查结果为不需要进行增强</span></span><br><span class="line">    <span class="keyword">if</span> (Boolean.FALSE.equals(<span class="built_in">this</span>.advisedBeans.get(cacheKey))) &#123;</span><br><span class="line">        <span class="keyword">return</span> bean;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 判断是否是Aop基类(Advice/Pointcut/Advisor类或其子类)</span></span><br><span class="line">    <span class="comment">// 若shouldSkip方法返回值为true, 则不应该被当前postProessor进行处理</span></span><br><span class="line">    <span class="keyword">if</span> (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) &#123;</span><br><span class="line">        <span class="built_in">this</span>.advisedBeans.put(cacheKey, Boolean.FALSE);</span><br><span class="line">        <span class="keyword">return</span> bean;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 查找当前Bean相关的advice 若有相关的advice 则用相关advice对bean进行增强操作</span></span><br><span class="line">    Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, <span class="literal">null</span>);</span><br><span class="line">    <span class="keyword">if</span> (specificInterceptors != DO_NOT_PROXY) &#123;</span><br><span class="line">        <span class="built_in">this</span>.advisedBeans.put(cacheKey, Boolean.TRUE);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">proxy</span> <span class="operator">=</span> createProxy(</span><br><span class="line">            bean.getClass(), beanName, specificInterceptors, <span class="keyword">new</span> <span class="title class_">SingletonTargetSource</span>(bean));</span><br><span class="line">        <span class="built_in">this</span>.proxyTypes.put(cacheKey, proxy.getClass());</span><br><span class="line">        <span class="keyword">return</span> proxy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">this</span>.advisedBeans.put(cacheKey, Boolean.FALSE);</span><br><span class="line">    <span class="keyword">return</span> bean;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>这段对bean进行检查并增强的逻辑里有俩重点</p>
+<ol>
+<li><p>Spring是如何通过bean的元信息在我们之前扫描缓存下来的Advice列表里找到与之相关的Advice</p>
+</li>
+<li><p>Spring是如何对类进行增强的</p>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="谁是你的Advice"><a href="#谁是你的Advice" class="headerlink" title="谁是你的Advice"></a>谁是你的Advice</h4><p>​	Spring在从缓存里捞出所有的Advice后，会将Advice列表和Bean元信息交由<code>AopUtils#findAdvisorsThatCanApply</code>进行查找筛选并返回可匹配的Advice子集，其内部匹配逻辑由<code>org.aspectj.weaver.patterns.Pointcut#match</code>负责，而具体逻辑则会交由<code>PointCut</code>的子类进行实现，譬如处理<code>@annotation(...)</code>的<code>AnnotationPointcut</code>，还有处理<code>execution(...)</code>的<code>KindedPointcut</code>等等，具体逻辑由于过于冗长于此就不进行详细解释了，感兴趣的同学可以自行前往阅读。<em>Ps:关于Pointcut表达式解析的逻辑可以参阅<code>PointcutParser#resolvePointcutExpression</code></em></p>
+<h4 id="准备好了所以要装进去"><a href="#准备好了所以要装进去" class="headerlink" title="准备好了所以要装进去"></a>准备好了所以要装进去</h4><blockquote>
+<p>在获取到匹配的Advice子集之后，最后的工作就是要把子集构建成Interceptor配合CGLIB完成对象增强的操作了。让我们直接跳转到CGLIB对于增强类的构建过程：<code>CglibAopProxy#getProxy</code></p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 撇去了一些非必要的代码 只留下了我们需要关心的部分</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">getProxy</span><span class="params">(<span class="meta">@Nullable</span> ClassLoader classLoader)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Class&lt;?&gt; rootClass = <span class="built_in">this</span>.advised.getTargetClass();</span><br><span class="line">        Class&lt;?&gt; proxySuperClass = rootClass;</span><br><span class="line">        <span class="comment">// 检查需要被增强的目标类是否已经被增强过 若增强过则应该获取其父类作为CGLIB的父类</span></span><br><span class="line">        <span class="keyword">if</span> (rootClass.getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR)) &#123;</span><br><span class="line">            proxySuperClass = rootClass.getSuperclass();</span><br><span class="line">            Class&lt;?&gt;[] additionalInterfaces = rootClass.getInterfaces();</span><br><span class="line">            <span class="keyword">for</span> (Class&lt;?&gt; additionalInterface : additionalInterfaces) &#123;</span><br><span class="line">                <span class="built_in">this</span>.advised.addInterface(additionalInterface);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 看到这儿是不是觉得有点熟悉 CGLIB的增强类创建逻辑它来了</span></span><br><span class="line">        <span class="type">Enhancer</span> <span class="variable">enhancer</span> <span class="operator">=</span> createEnhancer();</span><br><span class="line">        <span class="keyword">if</span> (classLoader != <span class="literal">null</span>) &#123;</span><br><span class="line">            enhancer.setClassLoader(classLoader);</span><br><span class="line">            <span class="keyword">if</span> (classLoader <span class="keyword">instanceof</span> SmartClassLoader &amp;&amp;</span><br><span class="line">                ((SmartClassLoader) classLoader).isClassReloadable(proxySuperClass)) &#123;</span><br><span class="line">                enhancer.setUseCache(<span class="literal">false</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 基于CGLIB以子类作为增强类的模式 设置增强目标类为父类</span></span><br><span class="line">        enhancer.setSuperclass(proxySuperClass);</span><br><span class="line">        enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(<span class="built_in">this</span>.advised));</span><br><span class="line">        enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);</span><br><span class="line">        enhancer.setStrategy(<span class="keyword">new</span> <span class="title class_">ClassLoaderAwareGeneratorStrategy</span>(classLoader));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将匹配的Advice构建成Cligb的Callback集合</span></span><br><span class="line">        Callback[] callbacks = getCallbacks(rootClass);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 构建增强类</span></span><br><span class="line">        <span class="keyword">return</span> createProxyClassAndInstance(enhancer, callbacks);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	在完成增强类的构建之后，<code>BeanPostProcessor</code>会把<code>beanFactory</code>里的bean替换为增强类的实现。至于Callback，AOP的实现有很多种，我们可以看一下<code>SpringAop</code>的一个通用回调。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">intercept</span><span class="params">(Object proxy, Method method, Object[] args, MethodProxy methodProxy)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">oldProxy</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">setProxyContext</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">target</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="type">TargetSource</span> <span class="variable">targetSource</span> <span class="operator">=</span> <span class="built_in">this</span>.advised.getTargetSource();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.advised.exposeProxy) &#123;</span><br><span class="line">            oldProxy = AopContext.setCurrentProxy(proxy);</span><br><span class="line">            setProxyContext = <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        target = targetSource.getTarget();</span><br><span class="line">        Class&lt;?&gt; targetClass = (target != <span class="literal">null</span> ? target.getClass() : <span class="literal">null</span>);</span><br><span class="line">        <span class="comment">// 获取Advice列表并构建为调用链</span></span><br><span class="line">        List&lt;Object&gt; chain = <span class="built_in">this</span>.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);</span><br><span class="line">        Object retVal;</span><br><span class="line">        <span class="keyword">if</span> (chain.isEmpty() &amp;&amp; Modifier.isPublic(method.getModifiers())) &#123;</span><br><span class="line">            Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);</span><br><span class="line">            retVal = methodProxy.invoke(target, argsToUse);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 进行方法及其切面调用链的调用</span></span><br><span class="line">            retVal = <span class="keyword">new</span> <span class="title class_">CglibMethodInvocation</span>(proxy, target, method, args, targetClass, chain, methodProxy).proceed();</span><br><span class="line">        &#125;</span><br><span class="line">        retVal = processReturnType(proxy, target, method, retVal);</span><br><span class="line">        <span class="keyword">return</span> retVal;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (target != <span class="literal">null</span> &amp;&amp; !targetSource.isStatic()) &#123;</span><br><span class="line">            targetSource.releaseTarget(target);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (setProxyContext) &#123;</span><br><span class="line">            <span class="comment">// Restore old proxy.</span></span><br><span class="line">            AopContext.setCurrentProxy(oldProxy);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	至此，看完增强类的实例化逻辑和Callback的调用逻辑相信大家已经对<code>Spring AOP</code>的逻辑有了个比较线性的概念，甚至说我们可以仿照着Spring的逻辑通过<code>BeanPostPorcessor</code>和<code>CGLIB</code>自己也做一些简单的增强实现。AOP的开发方式使得我们可以以一个横向的视角去观察、审视应用的所有业务，也给我们在业务的通用化实现上有了更大的可执行空间。</p>
+<h2 id="尾巴"><a href="#尾巴" class="headerlink" title="尾巴"></a>尾巴</h2><p>​	这篇内容写了很久…或许是内容的复杂度确实是有一些，亦或是因为怠惰又或许是什么旁的原因，总之写了俩月多终于还是赶在2021年来临之前写完了，挺丢人的。认认真真把AOP相关的源码从头到尾重新读了一遍，也发现了一些之前没有注意到的细节，之后还想配合着AOP把Spring的事务逻辑整理一下，就…2021年再说吧。因为是倚着源码读的，肯定也有些细节的地方没有注意，要是有说错写错的地方，也欢迎大家指正，蟹蟹(●ˇ∀ˇ●)。</p>
+
+                </div>
+
+                
+
+                <div class="post-bottom-tags-and-share border-box">
+                    <div>
+                        
+                            <ul class="post-tags-box border-box">
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/Spring-Framework/">Spring Framework</a>
+                                    </li>
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/Spring-Boot/">Spring Boot</a>
+                                    </li>
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/Spring-Aop/">Spring Aop</a>
+                                    </li>
+                                
+                            </ul>
+                        
+                    </div>
+                    <div>
+                        
+                    </div>
+                </div>
+
+                
+
+                
+                    <div class="article-nav">
+                        
+                            <div class="article-prev">
+                                <a class="prev"
+                                   rel="prev"
+                                   href="/2021/02/06/spring-transaction/"
+                                   title="Spring Transaction 之 不离不弃生死相依"
+                                >
+                                    <span class="left arrow-icon flex-center">
+                                      <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                            <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">Spring Transaction 之 不离不弃生死相依</span>
+                                        <span class="post-nav-item">Prev posts</span>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                        
+                            <div class="article-next">
+                                <a class="next"
+                                   rel="next"
+                                   href="/2020/06/20/nat-ngrok/"
+                                   title="关于搭建自己的NAT穿透服务这件事"
+                                >
+                                    <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">关于搭建自己的NAT穿透服务这件事</span>
+                                        <span class="post-nav-item">Next posts</span>
+                                    </span>
+                                            <span class="right arrow-icon flex-center">
+                                      <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                    </div>
+                
+
+                
+                    
+
+
+
+
+
+
+                
+            </div>
+        </div>
+
+        
+            <div class="pc-post-toc right-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-AOP-%E4%B9%8B-%E6%88%91%E7%9A%84%E5%AD%A9%E5%AD%90%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E4%B8%80%E6%A0%B7%E4%BA%86"><span class="nav-text">Spring AOP 之 我的孩子为什么不一样了</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%8F%9C"><span class="nav-text">前菜</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-%E7%9A%84-AOP%E5%AE%9E%E7%8E%B0"><span class="nav-text">Spring 的 AOP实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Advisor%E7%9A%84%E6%89%AB%E6%8F%8F%E6%97%B6%E6%9C%BA"><span class="nav-text">Advisor的扫描时机</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%AA%E6%9D%A5%E7%9A%84AutoProxyCreator"><span class="nav-text">哪来的AutoProxyCreator</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9C%9F%E7%9C%9F%E5%84%BF%E7%9A%84%E6%89%AB%E6%8F%8F%E9%80%BB%E8%BE%91"><span class="nav-text">真真儿的扫描逻辑</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%9E%E5%BC%BA%E7%B1%BB%E7%9A%84%E6%9E%84%E5%BB%BA"><span class="nav-text">增强类的构建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%81%E6%98%AF%E4%BD%A0%E7%9A%84Advice"><span class="nav-text">谁是你的Advice</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%A5%BD%E4%BA%86%E6%89%80%E4%BB%A5%E8%A6%81%E8%A3%85%E8%BF%9B%E5%8E%BB"><span class="nav-text">准备好了所以要装进去</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%BE%E5%B7%B4"><span class="nav-text">尾巴</span></a></li></ol></li></ol>
+    </div>
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom border-box">
+            
+<footer class="footer border-box">
+    <div class="border-box website-info-box default">
+        
+            <div class="copyright-info info-item default">
+                &copy;&nbsp;<span>2019</span>&nbsp;-&nbsp;2023
+                
+                    &nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;&nbsp;<a href="/">ShawJie</a>
+                
+            </div>
+
+            <div class="theme-info info-item default">
+                Powered by&nbsp;<a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;&&nbsp;Theme&nbsp;<a class="keep-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep</a>
+            </div>
+
+            
+                <div class="icp-info info-item default">
+                    <a class=""
+                       target="_blank"
+                       href="https://beian.miit.gov.cn"
+                    >
+                        浙ICP备20000303号-1
+                    </a>
+                </div>
+            
+
+            
+        
+
+        <div class="count-item info-item default">
+            
+
+            
+
+            
+        </div>
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    <!-- post tools -->
+    
+        <div class="post-tools right-toc">
+            <div class="post-tools-container border-box">
+    <ul class="tools-list border-box">
+        <!-- PC TOC show toggle -->
+        
+            <li class="tools-item flex-center toggle-show-toc">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        <!-- PC go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <!-- side tools -->
+    <div class="side-tools">
+        <div class="side-tools-container border-box ">
+    <ul class="side-tools-list side-tools-show-handle border-box">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-toggle-theme-mode flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list border-box">
+        
+            <li class="tools-item toggle-show-toc-tablet flex-center">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        
+
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+
+        <li class="tools-item tool-scroll-to-top flex-center show-arrow">
+            <i class="arrow fas fa-arrow-up"></i>
+            <span class="percent"></span>
+        </li>
+    </ul>
+</div>
+
+    </div>
+
+    <!-- image mask -->
+    <div class="zoom-in-image-mask">
+    <img class="zoom-in-image">
+</div>
+
+
+    <!-- local search -->
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="close-popup-btn">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+    <!-- tablet toc -->
+    
+        <div class="tablet-post-toc-mask">
+            <div class="tablet-post-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-AOP-%E4%B9%8B-%E6%88%91%E7%9A%84%E5%AD%A9%E5%AD%90%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E4%B8%80%E6%A0%B7%E4%BA%86"><span class="nav-text">Spring AOP 之 我的孩子为什么不一样了</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%8F%9C"><span class="nav-text">前菜</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-%E7%9A%84-AOP%E5%AE%9E%E7%8E%B0"><span class="nav-text">Spring 的 AOP实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Advisor%E7%9A%84%E6%89%AB%E6%8F%8F%E6%97%B6%E6%9C%BA"><span class="nav-text">Advisor的扫描时机</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%AA%E6%9D%A5%E7%9A%84AutoProxyCreator"><span class="nav-text">哪来的AutoProxyCreator</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9C%9F%E7%9C%9F%E5%84%BF%E7%9A%84%E6%89%AB%E6%8F%8F%E9%80%BB%E8%BE%91"><span class="nav-text">真真儿的扫描逻辑</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%9E%E5%BC%BA%E7%B1%BB%E7%9A%84%E6%9E%84%E5%BB%BA"><span class="nav-text">增强类的构建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%81%E6%98%AF%E4%BD%A0%E7%9A%84Advice"><span class="nav-text">谁是你的Advice</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%A5%BD%E4%BA%86%E6%89%80%E4%BB%A5%E8%A6%81%E8%A3%85%E8%BF%9B%E5%8E%BB"><span class="nav-text">准备好了所以要装进去</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%BE%E5%B7%B4"><span class="nav-text">尾巴</span></a></li></ol></li></ol>
+    </div>
+</div>
+
+            </div>
+        </div>
+    
+</main>
+
+
+
+<!-- common -->
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/toggle-theme.js"></script>
+
+<script src="/js/code-block.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+
+<!-- local-search -->
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+<!-- lazyload -->
+
+    
+<script src="/js/lazyload.js"></script>
+
+
+
+<div class="pjax">
+    
+        <!-- post-helper -->
+        
+<script src="/js/post/post-helper.js"></script>
+
+
+        <!-- toc -->
+        
+            
+<script src="/js/post/toc.js"></script>
+
+        
+
+        <!-- copyright-info -->
+        
+
+        <!-- share -->
+        
+    
+
+    <!-- category-page -->
+    
+
+    <!-- links-page -->
+    
+
+    <!-- photos-page -->
+    
+</div>
+
+<!-- mermaid -->
+
+    
+<script src="//cdn.jsdelivr.net/npm/mermaid@10.5.0/dist/mermaid.min.js"></script>
+
+    <script data-pjax>
+      if (window.mermaid) {
+        mermaid.init()
+      }
+    </script>
+
+
+
+
+
+
+<!-- pjax -->
+
+    
+<script src="/js/libs/pjax.min.js"></script>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart()
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd()
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'))
+            KEEP.initExecute()
+        });
+    });
+</script>
+
+
+
+
+    
+        
+            
+<script class="custom-inject-js" src="/js/custom_home.js" data-pjax></script>
+
+        
+    
+
+</body>
+</html>

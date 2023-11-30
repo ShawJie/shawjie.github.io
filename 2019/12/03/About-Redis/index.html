@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="ShawJie">
+    
+    <title>
+        
+            有关Redis，需要知道的几件事 |
+        
+        Shaw&#39;s Log | 茶歇小栈
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+        <link rel="shortcut icon" href="/images/base_icon.ico">
+    
+    
+<link rel="stylesheet" href="/font/css/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/regular.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/solid.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/brands.min.css">
+
+    
+        
+            
+        
+    
+    <script class="keep-theme-configurations">
+    const KEEP = window.KEEP || {}
+    KEEP.hexo_config = {"hostname":"shawjie.cn","root":"/","language":"en"}
+    KEEP.theme_config = {"base_info":{"primary_color":"#26de81","avatar":"/images/dear_kana.jpg","logo":"/images/dear_kana.jpg","favicon":"/images/base_icon.ico"},"menu":{"Archives":"/archives","Tags":"/tags","About":"/about"},"first_screen":{"enable":true,"background_img":"/images/bg.svg","background_img_dark":"/images/bg.svg","description":"愿中国青年都摆脱冷气，只是向上走，不必听自暴自弃者流的话。||能做事的做事，能发声的发声","hitokoto":false},"social_contact":{"enable":false,"links":{"github":null,"weixin":null,"qq":null,"weibo":null,"zhihu":null,"twitter":null,"facebook":null,"email":null}},"scroll":{"progress_bar":false,"percent":true,"hide_header":true},"home":{"category":true,"tag":true,"announcement":null},"post":{"author_badge":{"enable":false,"level_badge":true,"custom_badge":["One","Two","Three"]},"word_count":{"wordcount":true,"min2read":true},"datetime_format":"YYYY-MM-DD HH:mm:ss","copyright_info":false,"share":false,"reward":{"enable":false,"img_link":null,"text":null}},"code_block":{"tools":{"enable":true,"style":"mac"},"highlight_theme":"obsidian"},"toc":{"enable":true,"number":false,"expand_all":true,"init_open":true,"layout":"right"},"website_count":{"busuanzi_count":{"enable":false,"site_uv":true,"site_pv":true,"page_pv":true}},"local_search":{"enable":true,"preload":true},"comment":{"enable":false,"use":"valine","valine":{"appid":null,"appkey":null,"server_urls":null,"placeholder":null},"gitalk":{"github_id":null,"github_admins":null,"repository":null,"client_id":null,"client_secret":null,"proxy":null},"twikoo":{"env_id":null,"region":null,"version":"1.6.21"},"waline":{"server_url":null,"reaction":false,"version":2},"giscus":{"repo":null,"repo_id":null,"category":"Announcements","category_id":null,"reactions_enabled":false},"artalk":{"server":null},"disqus":{"shortname":null}},"rss":{"enable":false},"lazyload":{"enable":true},"cdn":{"enable":false,"provider":"jsdelivr"},"pjax":{"enable":true},"footer":{"since":2019,"word_count":false,"icp":{"enable":true,"record_code":"浙ICP备20000303号-1","url":"https://beian.miit.gov.cn"},"site_deploy":{"enable":false,"provider":"github","url":null},"shields_style":{"enable":false,"custom":[{"link_url":null,"img_url":null}]}},"inject":{"enable":true,"css":[null],"js":["/js/custom_home.js"]},"root":"","version":"4.0.2"}
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"}
+    KEEP.language_code_block = {"copy":"Copy code","copied":"Copied","fold":"Fold code block","folded":"Folded"}
+    KEEP.language_copy_copyright = {"copy":"Copy copyright info","copied":"Copied","title":"Original article title","author":"Original article author","link":"Original article link"}
+  </script>
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <i class="pjax-progress-icon fas fa-circle-notch fa-spin"></i>
+    
+</div>
+
+
+<main class="page-container border-box">
+
+    <!-- home first screen  -->
+    
+
+    <!-- page content -->
+    <div class="page-main-content border-box">
+        <div class="page-main-content-top">
+            
+<header class="header-wrapper">
+
+    <div class="border-box header-content">
+        <div class="left border-box">
+            
+                <a class="logo-image border-box" href="/">
+                    <img src="/images/dear_kana.jpg">
+                </a>
+            
+            <a class="site-name border-box" href="/">
+               Shaw&#39;s Log | 茶歇小栈
+            </a>
+        </div>
+
+        <div class="right border-box">
+            <div class="pc">
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a class=""
+                           href="/"
+                        >HOME</a>
+                    </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >ARCHIVES</a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >TAGS</a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/about"
+                            >ABOUT</a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas search fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            <li class="drawer-menu-item flex-center">
+                <a class=""
+                   href="/"
+                >HOME</a>
+            </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives"
+                    >ARCHIVES</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags"
+                    >TAGS</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/about"
+                    >ABOUT</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle border-box">
+
+            <div class="main-content border-box">
+                
+
+                    
+<div class="fade-in-down-animation">
+    <div class="post-page-container border-box">
+        <div class="article-content-container border-box">
+            
+                <div class="article-content-top border-box"
+                     style="height: 13.8rem"
+                >
+                    <div class="cover-article-title">
+                        有关Redis，需要知道的几件事
+                    </div>
+                    <img class="post-cover" src="/images/about-redis/3CgcWhI6QoFt4Rn.png"
+                         onerror="this.style.display='none'"
+                    >
+                </div>
+            
+
+            <div class="article-content-bottom border-box has-cover">
+                
+
+                
+                    <div class="article-header border-box">
+                        
+                            <div class="avatar-box border-box">
+                                <img src="/images/dear_kana.jpg">
+                            </div>
+                        
+                        <div class="info-box">
+                            <div class="author">
+                                <span class="name">ShawJie</span>
+                                
+                            </div>
+                            <div class="meta-info border-box">
+                                
+
+<div class="article-meta-info-container border-box post">
+    <div class="article-meta-info border-box">
+        
+
+
+        
+            <span class="meta-info-item article-create-date">
+                <i class="icon fa-solid fa-calendar-check"></i>&nbsp;
+                <span class="pc">2019-12-03 01:46:04</span>
+                <span class="mobile">2019-12-03 01:46</span>
+            </span>
+
+            <span class="meta-info-item article-update-date">
+                <i class="icon fa-solid fa-file-pen"></i>&nbsp;
+                <span class="pc" data-updated="Thu Nov 30 2023 10:02:18 GMT+0800">2023-11-30 10:02:18</span>
+            </span>
+        
+
+        
+
+        
+            <span class="article-tag meta-info-item border-box">
+                <i class="icon fas fa-tags"></i>&nbsp;
+                <ul class="article-tag-ul">
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a></li>
+                        
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/Redis/">Redis</a></li>
+                        
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a></li>
+                        
+                    
+                </ul>
+            </span>
+        
+
+        
+        
+        
+        
+    </div>
+
+    
+</div>
+
+                            </div>
+                        </div>
+                    </div>
+                
+
+                <div class="article-content keep-markdown-body">
+                    
+
+                    <h1 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h1><blockquote>
+<p><code>Redis</code>是目前互联网项目开发过程中，使用范围最广的存储中间件之一，关于<code>Redis</code>的技术使用点包含了缓存、分布式锁、限流等。算是一个标准的后端必须要去学习了解的一项技术。</p>
+</blockquote>
+<h2 id="选型"><a href="#选型" class="headerlink" title="选型"></a>选型</h2><p>​	最初关于缓存中间件的选型会存在<code>Redis</code>和<code>Memcached</code>两款，关于两款中间件的特点我会在下面用表格罗列。关于这两款中间件其实并没有一个孰优孰劣的概念，要明确是适合业务的技术才是好技术，撇开业务单谈技术都是耍流氓。</p>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">Redis</th>
+<th align="center">Memcached</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">数据结构</td>
+<td align="center">String、Hash、List、Set、SortedSet</td>
+<td align="center">String（单纯的Key&#x2F;Value结构）</td>
+</tr>
+<tr>
+<td align="center">持久化</td>
+<td align="center">RDB（全量存储）、AOF（日志存储）</td>
+<td align="center">- 不支持 -</td>
+</tr>
+<tr>
+<td align="center">主从同步</td>
+<td align="center">Master&#x2F;Slave</td>
+<td align="center">- 不支持 -</td>
+</tr>
+<tr>
+<td align="center">集群</td>
+<td align="center"><code>Redis cluster</code></td>
+<td align="center">- 不支持 -</td>
+</tr>
+<tr>
+<td align="center">效率</td>
+<td align="center">由于<code>Redis</code>使用的是单线程，以及复杂的元数据结构，在存储效率上低于<code>Memcached</code></td>
+<td align="center">-</td>
+</tr>
+</tbody></table>
+<p>​	基于以上几点分析，若是业务内只是需求基础的String类型Get&#x2F;Set，那么<code>Memcached</code>完全可以胜任这项工作，但若是业务有更复杂的需求，需要做主从同步，甚至是集群以保持一个高可用，需要能够在服务器Down了之后能够对数据进行恢复，那么<code>Redis</code>无疑是更佳的选择。</p>
+<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><blockquote>
+<p>缓存是<code>Redis</code>的主要功能之一，在有大流量访问数据时，缓存能为数据库分担很大一部分压力。说到这就不得不提及使用缓存所要尽量避免的三大问题 穿透、击穿、雪崩。</p>
+</blockquote>
+<h3 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h3><p>​	缓存穿透在概念上很好理解，即请求者发送了非法的参数请求到应用，应用会先去缓存查询一遍数据是否被缓存，但由于参数非法，这条数据永远也不会被缓存在<code>Redis</code>中，于是应用会去查询数据库，但数据库里依旧不会存在非法数据，所以返回空。当这种非法请求全部打到数据库上的时候，数据库的情况也可想而知了。</p>
+<img  
+                       lazyload
+                       alt="image"
+                       data-src="/images/about-redis/iYP9RDjk5KVto7S.png"
+                        style="zoom:60%;" 
+                 >
+
+<p>​	这是一套相对标准的请求流程图，为什么说相对标准，因为该流程图内还没考虑到缓存数据同步的问题，这方面要说的内容也有很多，下回有机会再说。<br>​	<br>​	面对这张图，假设数据库存在一张表T，主键ID自增，目前表内有100条数据，服务端提供查询接口，查询参数为ID，目前一百条数据都存在于缓存。现有一个用户，不断地向接口请求<code>ID = -1</code>的数据，结果当然是缓存不命中，直接查询数据库，数据库没有对应数据，但也扛不住请求压力，自然就挂了。<br>​	<br>​	当然现在有小可爱肯定就会说：“那我在接口处做一个判断，判断ID小于0就直接返回不就行了嘛。”<br>​	<br>​	既然是非法参数请求，自然是能从接口处拦截住并返回的，但是如果只判断了ID &lt; 0，那如果那个用户请求的ID参数大于100了呢？所以对于服务来说，只要是未在数据区间内的请求，都可以说是缓存穿透。至于缓存穿透的解决办法，可以考虑在接口处使用布隆过滤器进行参数校验。至于布隆过滤器的原理和实现，如果有机会的话之后再说吧。</p>
+<h3 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h3><p>​	缓存击穿是指在有大量并发请求同一个<code>Key</code>时，<code>Key</code>的失效时间到了，此时大量的并发会全部引向数据库，之后数据库瞬间就挂掉了。<br>​<br>​	既然知道原因了那么解决办法也就很明朗了，一是给该数据加上锁，涌入的第一个请求会去数据库里取到数据，之后存进缓存，而之后的请求再去缓存里取就没问题了。</p>
+<p>伪码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Object getData(String key)&#123;</span><br><span class="line">    Object result = getDataFromCache(key);</span><br><span class="line">    if(result == null)&#123;</span><br><span class="line">        lock.lock();</span><br><span class="line">        if((result = getDataFromCache(key)) == null)&#123;</span><br><span class="line">            result = getDataFromDB(key);</span><br><span class="line">            setDataToCache(key, result);</span><br><span class="line">        &#125;</span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	至于第二种办法，就是不给该数据设置过期时间，只更新替换不删除就可以了。</p>
+<h3 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h3><p>​	缓存雪崩其实和缓存击穿类似，但区别在于缓存击穿的击穿点是一条数据，而缓存雪崩是指有大量数据同时过期，导致请求不命中缓存，全部压到了数据库上，数据库就顶不住了。<br>​<br>​	处理方法和缓存击穿也类似，第一种方法就是设置该数据永不过期，只更新，不替换。而第二种方法就是给数据设置的过期时间加上一个随机值以保证大量数据不会在同一时间过期。</p>
+<p>思路：<code>SET key Value 过期时间 + Math.Random() * 10000 </code></p>
+<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><blockquote>
+<p>由于现在分布式系统、SOA、微服务将原有的一体式系统剥离了开来，在提高了系统可用性的同时也带来可一致性的问题。在分布式系统中，要实现对同一资源的同步访问，就需要用到分布式锁，分布式锁的实现方式有很多，这边就主要说说关于<code>Redis</code>的实现。</p>
+</blockquote>
+<p>​	分布式锁的实现基于<code>Redis</code>的<code>SETNX</code>命令。</p>
+<blockquote>
+<p><code>Redis</code>官网对<code>SETNX</code>的描述如下：Set <code>key</code> to hold string <code>value</code> if <code>key</code> does not exist. In that case, it is equal to <a class="link"   target="_blank" rel="noopener" href="https://redis.io/commands/set" >SET<i class="fas fa-external-link-alt"></i></a>. When <code>key</code> already holds a value, no operation is performed. <a class="link"   target="_blank" rel="noopener" href="https://redis.io/commands/setnx" >SETNX<i class="fas fa-external-link-alt"></i></a> is short for “<strong>SET</strong> if <strong>N</strong>ot e<strong>X</strong>ists”.</p>
+</blockquote>
+<p>​	即当Key不存在时，将Key的值设置为Value，如果Key已存在，则什么都不会改变。当设值成功时，<code>Redis</code>会返回1，反之则返回0。</p>
+<p>​	根据以上特性，如何作为分布式锁的思路已经很清楚了，各个服务在要对资源进行同步访问之前，先操作<code>Redis</code>，若是存值成功，则获取锁，在操作完成之后删除键以释放锁。反之，可进行自旋或其它操作。</p>
+<p>伪码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">if(setNX(key, 1) == 1)&#123;</span><br><span class="line">	// 获取锁成功</span><br><span class="line">&#125; else &#123;</span><br><span class="line">	// 获取锁失败</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	通过以上代码，就可以对资源在分布式系统中进行加锁操作。但是在实际开发过程中，我们还需要考虑更多的情况。我们考虑这么一种情况：某个服务在对资源进行加锁之后挂了，锁并没有得到释放，那么就算服务重启了，进行对资源的重新加锁，发现Key已存在，获取锁失败。</p>
+<p>​	面对这种情况，我们就需要考虑对该Key设置超时，在超时之后Key自动失效，即锁会被释放，可以被其它服务重新获取锁权限。由于<code>SETNX</code>和<code>EXPIRE</code>是分开操作的，无法保证一个命令的原子性，好在<code>SET</code>命令在<code>Redis</code>2.6.12版本后添加了<code>NX</code>和<code>XX</code>参数，使得我们可以通过<code>SET</code>命令来完成该原子操作。</p>
+<p>伪码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">if(set(key, anyValue, 10, NX) == 1)&#123;</span><br><span class="line">	// 获取到锁，并设置超时时间为10秒</span><br><span class="line">&#125; else &#123;</span><br><span class="line">	// 获取锁失败</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	以上代码能解决获取锁的服务挂了之后锁被永久占用的情况，但是聪明的孩子应该已经看出来问题了。若是获取锁的服务在十秒内完成不了对应的操作怎么办？那锁会直接被释放，然后被其它服务锁获取，此时就会有两个服务同时操作资源，锁被打破。至于解决办法呢，延长锁的过期时间？要是延长了也完成不了对应操作呢。Shaw这边有一种比较取巧的做法。</p>
+<p>伪码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">if(set(key, anyValue, 10 NX) == 1)&#123;</span><br><span class="line">	Thread thread = new Thread(() -&gt; &#123;</span><br><span class="line">		// 延长锁过期时间</span><br><span class="line">		expire(key, 10);  </span><br><span class="line">	&#125;);</span><br><span class="line">	// 设置线程为守护线程</span><br><span class="line">	thread.setDaemon(true); </span><br><span class="line">	// 每过9秒，执行一次延长锁时间的操作</span><br><span class="line">	ScheduledExecutorService.schedule(thread, 9, TimeUtil.SECONDS); </span><br><span class="line">	</span><br><span class="line">	// ... 具体业务逻辑</span><br><span class="line">	</span><br><span class="line">	ScheduledExecutorService.shutdown(); // 关闭守护线程</span><br><span class="line">	del(key);  // 释放锁</span><br><span class="line">&#125; else &#123;</span><br><span class="line">	// 获取锁失败</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​	根据上边的代码，我们再以之前那些问题带入看看能不能解决。</p>
+<ul>
+<li>锁被获取后线程挂了，锁被永久占有无法得到释放<ul>
+<li>通过加锁时设置的过期时间解决锁无法释放的问题</li>
+</ul>
+</li>
+<li>加锁步骤<code>SETNX</code>、<code>EXPIRE</code>非原子性操作，不能解决服务器挂了锁无法释放的问题<ul>
+<li>通过<code>SET key value [EX seconds] [PX milliseconds] [NX|XX]</code>命令完成原子性加锁和设置锁超时</li>
+</ul>
+</li>
+<li>加锁后无法确定服务具体执行时间导致锁提前释放问题<ul>
+<li>在服务获取锁之后启动一个定时执行的守护线程，在锁快到期时延长锁的过期时间，保证锁的持有。在该情况下，即使获获取了锁的服务挂了，由于没有了守护线程对锁的过期时间延长，锁在到了过期时间后仍会被释放，然后重新被其它服务争抢。</li>
+</ul>
+</li>
+</ul>
+<p>​	到此为止，<code>Redis</code>的分布式锁设置过程，才算是近乎完整。但具体的实践操作，还需要根据实际业务开发的情况而定。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>​	<code>Redis</code>相关，我觉得值得一写的点目前就是这些了，要是日后还有其它想补充的就再靠之后的文字去补了，关于<code>Redis</code>，其实我觉得目前行业内应用它有点像万精油，就是很多东西都能做但是很多东西都不是很完善，所以在项目开发进行技术选型的时候，还是希望进行综合考虑去定夺一项技术或者一项中间件的选用。</p>
+
+                </div>
+
+                
+
+                <div class="post-bottom-tags-and-share border-box">
+                    <div>
+                        
+                            <ul class="post-tags-box border-box">
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+                                    </li>
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/Redis/">Redis</a>
+                                    </li>
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a>
+                                    </li>
+                                
+                            </ul>
+                        
+                    </div>
+                    <div>
+                        
+                    </div>
+                </div>
+
+                
+
+                
+                    <div class="article-nav">
+                        
+                            <div class="article-prev">
+                                <a class="prev"
+                                   rel="prev"
+                                   href="/2020/01/22/mysql-stalve-master-build/"
+                                   title="Mysql 主从部署"
+                                >
+                                    <span class="left arrow-icon flex-center">
+                                      <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                            <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">Mysql 主从部署</span>
+                                        <span class="post-nav-item">Prev posts</span>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                        
+                            <div class="article-next">
+                                <a class="next"
+                                   rel="next"
+                                   href="/2019/10/31/streams-functional-interface/"
+                                   title="Streams标准函数式接口"
+                                >
+                                    <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">Streams标准函数式接口</span>
+                                        <span class="post-nav-item">Next posts</span>
+                                    </span>
+                                            <span class="right arrow-icon flex-center">
+                                      <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                    </div>
+                
+
+                
+                    
+
+
+
+
+
+
+                
+            </div>
+        </div>
+
+        
+            <div class="pc-post-toc right-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis"><span class="nav-text">Redis</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E5%9E%8B"><span class="nav-text">选型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98"><span class="nav-text">缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F"><span class="nav-text">缓存穿透</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF"><span class="nav-text">缓存击穿</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9"><span class="nav-text">缓存雪崩</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-text">分布式锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-text">小结</span></a></li></ol></li></ol>
+    </div>
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom border-box">
+            
+<footer class="footer border-box">
+    <div class="border-box website-info-box default">
+        
+            <div class="copyright-info info-item default">
+                &copy;&nbsp;<span>2019</span>&nbsp;-&nbsp;2023
+                
+                    &nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;&nbsp;<a href="/">ShawJie</a>
+                
+            </div>
+
+            <div class="theme-info info-item default">
+                Powered by&nbsp;<a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;&&nbsp;Theme&nbsp;<a class="keep-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep</a>
+            </div>
+
+            
+                <div class="icp-info info-item default">
+                    <a class=""
+                       target="_blank"
+                       href="https://beian.miit.gov.cn"
+                    >
+                        浙ICP备20000303号-1
+                    </a>
+                </div>
+            
+
+            
+        
+
+        <div class="count-item info-item default">
+            
+
+            
+
+            
+        </div>
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    <!-- post tools -->
+    
+        <div class="post-tools right-toc">
+            <div class="post-tools-container border-box">
+    <ul class="tools-list border-box">
+        <!-- PC TOC show toggle -->
+        
+            <li class="tools-item flex-center toggle-show-toc">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        <!-- PC go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <!-- side tools -->
+    <div class="side-tools">
+        <div class="side-tools-container border-box ">
+    <ul class="side-tools-list side-tools-show-handle border-box">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-toggle-theme-mode flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list border-box">
+        
+            <li class="tools-item toggle-show-toc-tablet flex-center">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        
+
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+
+        <li class="tools-item tool-scroll-to-top flex-center show-arrow">
+            <i class="arrow fas fa-arrow-up"></i>
+            <span class="percent"></span>
+        </li>
+    </ul>
+</div>
+
+    </div>
+
+    <!-- image mask -->
+    <div class="zoom-in-image-mask">
+    <img class="zoom-in-image">
+</div>
+
+
+    <!-- local search -->
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="close-popup-btn">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+    <!-- tablet toc -->
+    
+        <div class="tablet-post-toc-mask">
+            <div class="tablet-post-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis"><span class="nav-text">Redis</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E5%9E%8B"><span class="nav-text">选型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98"><span class="nav-text">缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F"><span class="nav-text">缓存穿透</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF"><span class="nav-text">缓存击穿</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9"><span class="nav-text">缓存雪崩</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-text">分布式锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-text">小结</span></a></li></ol></li></ol>
+    </div>
+</div>
+
+            </div>
+        </div>
+    
+</main>
+
+
+
+<!-- common -->
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/toggle-theme.js"></script>
+
+<script src="/js/code-block.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+
+<!-- local-search -->
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+<!-- lazyload -->
+
+    
+<script src="/js/lazyload.js"></script>
+
+
+
+<div class="pjax">
+    
+        <!-- post-helper -->
+        
+<script src="/js/post/post-helper.js"></script>
+
+
+        <!-- toc -->
+        
+            
+<script src="/js/post/toc.js"></script>
+
+        
+
+        <!-- copyright-info -->
+        
+
+        <!-- share -->
+        
+    
+
+    <!-- category-page -->
+    
+
+    <!-- links-page -->
+    
+
+    <!-- photos-page -->
+    
+</div>
+
+<!-- mermaid -->
+
+    
+<script src="//cdn.jsdelivr.net/npm/mermaid@10.5.0/dist/mermaid.min.js"></script>
+
+    <script data-pjax>
+      if (window.mermaid) {
+        mermaid.init()
+      }
+    </script>
+
+
+
+
+
+
+<!-- pjax -->
+
+    
+<script src="/js/libs/pjax.min.js"></script>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart()
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd()
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'))
+            KEEP.initExecute()
+        });
+    });
+</script>
+
+
+
+
+    
+        
+            
+<script class="custom-inject-js" src="/js/custom_home.js" data-pjax></script>
+
+        
+    
+
+</body>
+</html>

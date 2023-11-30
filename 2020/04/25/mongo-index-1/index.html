@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="ShawJie">
+    
+    <title>
+        
+            MongoDB的索引策略分析 /1 |
+        
+        Shaw&#39;s Log | 茶歇小栈
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+        <link rel="shortcut icon" href="/images/base_icon.ico">
+    
+    
+<link rel="stylesheet" href="/font/css/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/regular.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/solid.min.css">
+
+    
+<link rel="stylesheet" href="/font/css/brands.min.css">
+
+    
+        
+            
+        
+    
+    <script class="keep-theme-configurations">
+    const KEEP = window.KEEP || {}
+    KEEP.hexo_config = {"hostname":"shawjie.cn","root":"/","language":"en"}
+    KEEP.theme_config = {"base_info":{"primary_color":"#26de81","avatar":"/images/dear_kana.jpg","logo":"/images/dear_kana.jpg","favicon":"/images/base_icon.ico"},"menu":{"Archives":"/archives","Tags":"/tags","About":"/about"},"first_screen":{"enable":true,"background_img":"/images/bg.svg","background_img_dark":"/images/bg.svg","description":"愿中国青年都摆脱冷气，只是向上走，不必听自暴自弃者流的话。||能做事的做事，能发声的发声","hitokoto":false},"social_contact":{"enable":false,"links":{"github":null,"weixin":null,"qq":null,"weibo":null,"zhihu":null,"twitter":null,"facebook":null,"email":null}},"scroll":{"progress_bar":false,"percent":true,"hide_header":true},"home":{"category":true,"tag":true,"announcement":null},"post":{"author_badge":{"enable":false,"level_badge":true,"custom_badge":["One","Two","Three"]},"word_count":{"wordcount":true,"min2read":true},"datetime_format":"YYYY-MM-DD HH:mm:ss","copyright_info":false,"share":false,"reward":{"enable":false,"img_link":null,"text":null}},"code_block":{"tools":{"enable":true,"style":"mac"},"highlight_theme":"obsidian"},"toc":{"enable":true,"number":false,"expand_all":true,"init_open":true,"layout":"right"},"website_count":{"busuanzi_count":{"enable":false,"site_uv":true,"site_pv":true,"page_pv":true}},"local_search":{"enable":true,"preload":true},"comment":{"enable":false,"use":"valine","valine":{"appid":null,"appkey":null,"server_urls":null,"placeholder":null},"gitalk":{"github_id":null,"github_admins":null,"repository":null,"client_id":null,"client_secret":null,"proxy":null},"twikoo":{"env_id":null,"region":null,"version":"1.6.21"},"waline":{"server_url":null,"reaction":false,"version":2},"giscus":{"repo":null,"repo_id":null,"category":"Announcements","category_id":null,"reactions_enabled":false},"artalk":{"server":null},"disqus":{"shortname":null}},"rss":{"enable":false},"lazyload":{"enable":true},"cdn":{"enable":false,"provider":"jsdelivr"},"pjax":{"enable":true},"footer":{"since":2019,"word_count":false,"icp":{"enable":true,"record_code":"浙ICP备20000303号-1","url":"https://beian.miit.gov.cn"},"site_deploy":{"enable":false,"provider":"github","url":null},"shields_style":{"enable":false,"custom":[{"link_url":null,"img_url":null}]}},"inject":{"enable":true,"css":[null],"js":["/js/custom_home.js"]},"root":"","version":"4.0.2"}
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"}
+    KEEP.language_code_block = {"copy":"Copy code","copied":"Copied","fold":"Fold code block","folded":"Folded"}
+    KEEP.language_copy_copyright = {"copy":"Copy copyright info","copied":"Copied","title":"Original article title","author":"Original article author","link":"Original article link"}
+  </script>
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+        <span class="pjax-progress-bar"></span>
+        <i class="pjax-progress-icon fas fa-circle-notch fa-spin"></i>
+    
+</div>
+
+
+<main class="page-container border-box">
+
+    <!-- home first screen  -->
+    
+
+    <!-- page content -->
+    <div class="page-main-content border-box">
+        <div class="page-main-content-top">
+            
+<header class="header-wrapper">
+
+    <div class="border-box header-content">
+        <div class="left border-box">
+            
+                <a class="logo-image border-box" href="/">
+                    <img src="/images/dear_kana.jpg">
+                </a>
+            
+            <a class="site-name border-box" href="/">
+               Shaw&#39;s Log | 茶歇小栈
+            </a>
+        </div>
+
+        <div class="right border-box">
+            <div class="pc">
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <a class=""
+                           href="/"
+                        >HOME</a>
+                    </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >ARCHIVES</a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >TAGS</a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/about"
+                            >ABOUT</a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas search fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            <li class="drawer-menu-item flex-center">
+                <a class=""
+                   href="/"
+                >HOME</a>
+            </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives"
+                    >ARCHIVES</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags"
+                    >TAGS</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/about"
+                    >ABOUT</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle border-box">
+
+            <div class="main-content border-box">
+                
+
+                    
+<div class="fade-in-down-animation">
+    <div class="post-page-container border-box">
+        <div class="article-content-container border-box">
+            
+                <div class="article-content-top border-box"
+                     style="height: 13.8rem"
+                >
+                    <div class="cover-article-title">
+                        MongoDB的索引策略分析 /1
+                    </div>
+                    <img class="post-cover" src="/images/mongo-index-1/sRYPadVOqIuBhoy.png"
+                         onerror="this.style.display='none'"
+                    >
+                </div>
+            
+
+            <div class="article-content-bottom border-box has-cover">
+                
+
+                
+                    <div class="article-header border-box">
+                        
+                            <div class="avatar-box border-box">
+                                <img src="/images/dear_kana.jpg">
+                            </div>
+                        
+                        <div class="info-box">
+                            <div class="author">
+                                <span class="name">ShawJie</span>
+                                
+                            </div>
+                            <div class="meta-info border-box">
+                                
+
+<div class="article-meta-info-container border-box post">
+    <div class="article-meta-info border-box">
+        
+
+
+        
+            <span class="meta-info-item article-create-date">
+                <i class="icon fa-solid fa-calendar-check"></i>&nbsp;
+                <span class="pc">2020-04-25 23:22:38</span>
+                <span class="mobile">2020-04-25 23:22</span>
+            </span>
+
+            <span class="meta-info-item article-update-date">
+                <i class="icon fa-solid fa-file-pen"></i>&nbsp;
+                <span class="pc" data-updated="Thu Nov 30 2023 10:02:18 GMT+0800">2023-11-30 10:02:18</span>
+            </span>
+        
+
+        
+
+        
+            <span class="article-tag meta-info-item border-box">
+                <i class="icon fas fa-tags"></i>&nbsp;
+                <ul class="article-tag-ul">
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/Database/">Database</a></li>
+                        
+                    
+                            <li class="tag-item"><span class="tag-separator"><i class="icon fas fa-hashtag"></i></span><a href="/tags/MongoDB/">MongoDB</a></li>
+                        
+                    
+                </ul>
+            </span>
+        
+
+        
+        
+        
+        
+    </div>
+
+    
+</div>
+
+                            </div>
+                        </div>
+                    </div>
+                
+
+                <div class="article-content keep-markdown-body">
+                    
+
+                    <h1 id="MongoDB的索引策略分析-1"><a href="#MongoDB的索引策略分析-1" class="headerlink" title="MongoDB的索引策略分析 &#x2F;1"></a>MongoDB的索引策略分析 &#x2F;1</h1><blockquote>
+<p>近期换了工作，新公司在数据持久化的方面的技术栈用到了MongoDB，遂有了这篇内容，旨在学习Mongo的同时，对Mongo的一些设计进行刨析分解。本篇主要侧重于MongoDB的索引存储策略与传统关系型数据库Mysql的对比与差异原因。</p>
+</blockquote>
+<h2 id="索引存储结构"><a href="#索引存储结构" class="headerlink" title="索引存储结构"></a>索引存储结构</h2><p>​	谈及索引，对于目标检索的过程次数以及<code>I/O</code>次数是存储结构权衡优劣的关键。在<code>Mysql(Innodb)</code>中，我们的聚簇索引、二级索引默认都是由B+树进行索引的存储管理。而在MongoDB中，则采用了B树进行索引的构建。对于二者的孰优孰劣暂不论定，我们先得弄明白这两种数据结构的优势和劣势分别在哪。接下来内容可能会比较偏基础，关于<code>Mysql</code>的部分我会配合着一些基础结构进行分析（因为目前更熟悉一点的还是<code>Mysql</code>）。</p>
+<p>​	B-Tree、B+tree可以说是为磁盘或其它存储工具而生，不同于基础的二叉搜索树，B-树，B+树都有着矮胖的特征，而我们都知道磁盘在读取数据时是以块为基础单位，矮胖的特征意味着一个盘块内可以存放更多的内容，在查找数据的过程中得以减少盘块的读取次数。</p>
+<h3 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a>B+树</h3><p>​	B+树是<code>Mysql(InnoDB)</code>的默认索引结构，包括聚簇索引和二级索引。而其存储的方式也很简单明了，<code>Mysql</code>定义了很多种类型的页面以存放各种数据譬如说Undo日志页（FIL_PAGE_UNDO_LOG）、系统页（FIL_PAGE_TYPE_SYS）、段信息页（FIL_PAGE_INODE），还有我们最基本的存放数据的页叫索引页或者数据页（FIL_PAGE_INDEX），而索引页中的数据，在数据头的数据结构有一个字段叫<code>record_type</code>用于标注数据类型，0代表非叶子节点记录，1代表普通记录。听到这里是不是比较熟悉，让我们来看看一个<code>Mysql</code>存放一张表的数据结构是怎样的。</p>
+<p><img  
+                       lazyload
+                       alt="image"
+                       data-src="/images/mongo-index-1/76usxzyBCdeW2wr.png"
+                       
+                 ></p>
+<p>​	基本的东西我已经在图上标出来了，虽然已经略去了很多信息，但是大体结构大家可以意会一下。可以从图上看到数据之间通过指针关联，在叶子节点页面间也通过指针关联，主键有序排列，这就是我们<code>Mysql</code>数据存储数据所构建的一个聚簇索引，二级索引把主键替换为索引列，数据替换为数据主键就好了。从大体结构上看就是一个标准的B+树，即非叶子节点只存放主键范围，而叶子节点存放主键和数据，叶子节点间通过指针相互连接。通过以上结构我们也可以看出一些问题。</p>
+<ul>
+<li>非叶子节点由于不存储具体数据，所以可以存放更多的主键范围指向，即我们每次IO可以搜索更多数据。</li>
+<li>所有的数据全部存放在叶子节点，非叶子节点只负责索引的工作，所以每次查询的时间复杂度都固定在了<code>O(logn)</code></li>
+<li>在叶子节点部分还通过指针将叶子节点串联起来，而叶子节点间的数据也是有序的，所以提高了区间范围的搜索访问性、</li>
+</ul>
+<h3 id="B树"><a href="#B树" class="headerlink" title="B树"></a>B树</h3><p>​	B+树其实是基于B树的矮胖基础形态下，添加了【非叶子节点不存储具体数据内容，只存放索引】、【叶子节点存放全部数据并使用指针连接】两种特性。换句话说，B树的所有节点都存放数据，节点的左子树小于当前节点值，右子树大于当前节点值。</p>
+<p>​	<code>MongoDB</code>是一种面向文档的数据库管理系统，与传统关系型数据库譬如<code>Mysql</code>不同的是<code>Mysql</code>的数据是扁平化的，构建结构化的数据往往需要通过连表查询在业务中进行组合。而<code>MongoDB</code>是面向文档的数据库，数据在存储阶段就是结构化的，聚合的。</p>
+<p>​	我们可以看一下Mongo的数据存储结构是怎样的（按照理解画的）。</p>
+<p><img  
+                       lazyload
+                       alt="image"
+                       data-src="/images/mongo-index-1/G3O1FZBI7WfUCYk.png"
+                       
+                 ></p>
+<p>​	Mongo在索引上也区分为主键索引和非主键索引，这方面与<code>Mysql</code>的聚簇索引和二级索引类似，主键索引储存主键以及数据内容，非主键索引储存索引列数据以及主键。从数据存储结构图来进行分析，我们大致能得出以下几个结论：</p>
+<ul>
+<li>搜索从根节点开始，由于B树所有节点都会负责数据存储的工作。所以搜索的时间复杂度和数据在结构中的位置强相关，最好的状态是数据在根节点中就搜索到了，可以直接返回，时间复杂度是O(1)。即从平均搜索速度来看<code>MongoDB</code>查询速度会比<code>Mysql</code>更快</li>
+<li>单纯从存储结构上看，数据的存储分布在各个节点，因此如果需要对数据进行遍历，则需要对整个树进行数据的读取。但是从整体的角度层面来看，<code>MongoDB</code>的数据是结构化存储，所有的数据都可以以聚合的方式进行存储，对于数据的遍历需求并没有关系型数据库那么高。在数据的存储底层，<code>Mongo</code>使用的也是BSON(Binary Json)进行存储，在类型支持和网络传输效率上相较于Json也有了很大的提升。</li>
+</ul>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>​	本篇我们从传统的关系型数据库和非关系型数据库的视角做了对比，了解了<code>Mongo</code>在数据存储方面使用的结构，以及与关系型数据库在存储方面的差异。数据结构同技术一样没有优劣之分，适合的才是最好的。<code>Mongo</code>作为非关系型数据库，在效率的综合考量上采用了b-tree和bson进行搭配使用，也在搜索速度上达到了一个不差的水平。</p>
+<p>​	以上就是我的一个对于<code>Mongo</code>的初步概览，后续对于Mongo的具体索引模式，以及一个索引优化的思路也会有些总结，对内容中有疑问、错误的部分也欢迎大家指正，交流。</p>
+<h3 id="尾巴"><a href="#尾巴" class="headerlink" title="尾巴"></a>尾巴</h3><p>​	最近换了工作，新公司从各方面来看都很好，我也需要花上一些时间精力去融入公司，融入项目。可能与年终总结中定下定期更新博客内容有些冲突，时间没有那么确定。但是至少一月两篇的原创内容还是会尽量去保证的。2020年对于我来说也是个新开始，总之，加油。</p>
+
+                </div>
+
+                
+
+                <div class="post-bottom-tags-and-share border-box">
+                    <div>
+                        
+                            <ul class="post-tags-box border-box">
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/Database/">Database</a>
+                                    </li>
+                                
+                                    <li class="tag-item border-box">
+                                        <i class="icon fas fa-hashtag"></i>&nbsp;<a href="/tags/MongoDB/">MongoDB</a>
+                                    </li>
+                                
+                            </ul>
+                        
+                    </div>
+                    <div>
+                        
+                    </div>
+                </div>
+
+                
+
+                
+                    <div class="article-nav">
+                        
+                            <div class="article-prev">
+                                <a class="prev"
+                                   rel="prev"
+                                   href="/2020/05/30/spring-boot-starter/"
+                                   title="Spring Boot Starter 非权威指南"
+                                >
+                                    <span class="left arrow-icon flex-center">
+                                      <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                            <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">Spring Boot Starter 非权威指南</span>
+                                        <span class="post-nav-item">Prev posts</span>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                        
+                            <div class="article-next">
+                                <a class="next"
+                                   rel="next"
+                                   href="/2020/03/25/spring-boot-autoconfig-3/"
+                                   title="Spring Boot 自动装配原理 / 3"
+                                >
+                                    <span class="title flex-center">
+                                        <span class="post-nav-title-item text-ellipsis">Spring Boot 自动装配原理 / 3</span>
+                                        <span class="post-nav-item">Next posts</span>
+                                    </span>
+                                            <span class="right arrow-icon flex-center">
+                                      <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </a>
+                            </div>
+                        
+                    </div>
+                
+
+                
+                    
+
+
+
+
+
+
+                
+            </div>
+        </div>
+
+        
+            <div class="pc-post-toc right-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MongoDB%E7%9A%84%E7%B4%A2%E5%BC%95%E7%AD%96%E7%95%A5%E5%88%86%E6%9E%90-1"><span class="nav-text">MongoDB的索引策略分析 &#x2F;1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="nav-text">索引存储结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#B-%E6%A0%91"><span class="nav-text">B+树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B%E6%A0%91"><span class="nav-text">B树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-text">小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%BE%E5%B7%B4"><span class="nav-text">尾巴</span></a></li></ol></li></ol></li></ol>
+    </div>
+</div>
+
+            </div>
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom border-box">
+            
+<footer class="footer border-box">
+    <div class="border-box website-info-box default">
+        
+            <div class="copyright-info info-item default">
+                &copy;&nbsp;<span>2019</span>&nbsp;-&nbsp;2023
+                
+                    &nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;&nbsp;<a href="/">ShawJie</a>
+                
+            </div>
+
+            <div class="theme-info info-item default">
+                Powered by&nbsp;<a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;&&nbsp;Theme&nbsp;<a class="keep-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep</a>
+            </div>
+
+            
+                <div class="icp-info info-item default">
+                    <a class=""
+                       target="_blank"
+                       href="https://beian.miit.gov.cn"
+                    >
+                        浙ICP备20000303号-1
+                    </a>
+                </div>
+            
+
+            
+        
+
+        <div class="count-item info-item default">
+            
+
+            
+
+            
+        </div>
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    <!-- post tools -->
+    
+        <div class="post-tools right-toc">
+            <div class="post-tools-container border-box">
+    <ul class="tools-list border-box">
+        <!-- PC TOC show toggle -->
+        
+            <li class="tools-item flex-center toggle-show-toc">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        <!-- PC go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <!-- side tools -->
+    <div class="side-tools">
+        <div class="side-tools-container border-box ">
+    <ul class="side-tools-list side-tools-show-handle border-box">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-toggle-theme-mode flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list border-box">
+        
+            <li class="tools-item toggle-show-toc-tablet flex-center">
+                <i class="fas fa-list"></i>
+            </li>
+        
+
+        
+
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+
+        <li class="tools-item tool-scroll-to-top flex-center show-arrow">
+            <i class="arrow fas fa-arrow-up"></i>
+            <span class="percent"></span>
+        </li>
+    </ul>
+</div>
+
+    </div>
+
+    <!-- image mask -->
+    <div class="zoom-in-image-mask">
+    <img class="zoom-in-image">
+</div>
+
+
+    <!-- local search -->
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="close-popup-btn">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+    <!-- tablet toc -->
+    
+        <div class="tablet-post-toc-mask">
+            <div class="tablet-post-toc">
+                <div class="post-toc-wrap border-box">
+    <div class="post-toc border-box">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MongoDB%E7%9A%84%E7%B4%A2%E5%BC%95%E7%AD%96%E7%95%A5%E5%88%86%E6%9E%90-1"><span class="nav-text">MongoDB的索引策略分析 &#x2F;1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="nav-text">索引存储结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#B-%E6%A0%91"><span class="nav-text">B+树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B%E6%A0%91"><span class="nav-text">B树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-text">小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%BE%E5%B7%B4"><span class="nav-text">尾巴</span></a></li></ol></li></ol></li></ol>
+    </div>
+</div>
+
+            </div>
+        </div>
+    
+</main>
+
+
+
+<!-- common -->
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/toggle-theme.js"></script>
+
+<script src="/js/code-block.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+
+<!-- local-search -->
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+<!-- lazyload -->
+
+    
+<script src="/js/lazyload.js"></script>
+
+
+
+<div class="pjax">
+    
+        <!-- post-helper -->
+        
+<script src="/js/post/post-helper.js"></script>
+
+
+        <!-- toc -->
+        
+            
+<script src="/js/post/toc.js"></script>
+
+        
+
+        <!-- copyright-info -->
+        
+
+        <!-- share -->
+        
+    
+
+    <!-- category-page -->
+    
+
+    <!-- links-page -->
+    
+
+    <!-- photos-page -->
+    
+</div>
+
+<!-- mermaid -->
+
+    
+<script src="//cdn.jsdelivr.net/npm/mermaid@10.5.0/dist/mermaid.min.js"></script>
+
+    <script data-pjax>
+      if (window.mermaid) {
+        mermaid.init()
+      }
+    </script>
+
+
+
+
+
+
+<!-- pjax -->
+
+    
+<script src="/js/libs/pjax.min.js"></script>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        window.pjax = new Pjax({
+            selectors: [
+                'head title',
+                '.page-container',
+                '.pjax'
+            ],
+            history: true,
+            debug: false,
+            cacheBust: false,
+            timeout: 0,
+            analytics: false,
+            currentUrlFullReload: false,
+            scrollRestoration: false,
+        });
+
+        document.addEventListener('pjax:send', () => {
+            KEEP.utils.pjaxProgressBarStart()
+        });
+
+        document.addEventListener('pjax:complete', () => {
+            KEEP.utils.pjaxProgressBarEnd()
+            window.pjax.executeScripts(document.querySelectorAll('script[data-pjax], .pjax script'))
+            KEEP.initExecute()
+        });
+    });
+</script>
+
+
+
+
+    
+        
+            
+<script class="custom-inject-js" src="/js/custom_home.js" data-pjax></script>
+
+        
+    
+
+</body>
+</html>
