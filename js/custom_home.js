@@ -1,1 +1,0 @@
-document.querySelectorAll(".home-article-item > .home-article-item-top").forEach(e=>{e.setAttribute("style","height: 20rem")});
